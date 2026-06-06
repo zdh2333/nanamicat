@@ -26,7 +26,7 @@ import {
   X,
 } from 'lucide-react';
 import './styles.css';
-import { difficulties, imagePuzzleCatalog } from './puzzles';
+import { difficulties, imagePuzzleCatalog, realImagePuzzleIndexes } from './puzzles';
 import dailyTextData from '../daily/data/text-puzzles.json';
 
 const baseTextPuzzles = [
@@ -186,6 +186,16 @@ function randomPuzzleIndex(difficulty, avoidIndex = -1) {
   let nextIndex = Math.floor(Math.random() * count);
   while (nextIndex === avoidIndex) nextIndex = Math.floor(Math.random() * count);
   return nextIndex;
+}
+
+function nextImagePuzzleIndex(difficulty, currentIndex = -1) {
+  const realIndexes = realImagePuzzleIndexes[difficulty] || [];
+  if (realIndexes.length === 1) return realIndexes[0];
+  if (realIndexes.length > 1) {
+    const currentPosition = realIndexes.indexOf(currentIndex);
+    return realIndexes[(currentPosition + 1 + realIndexes.length) % realIndexes.length];
+  }
+  return randomPuzzleIndex(difficulty, currentIndex);
 }
 
 function randomTextPuzzleIndex(avoidIndex = -1, count = baseTextPuzzles.length) {
@@ -656,7 +666,7 @@ function App() {
   }
 
   function nextPuzzle() {
-    const nextIndex = mode === 'image' ? randomPuzzleIndex(difficulty, puzzleIndex) : (puzzleIndex + 1) % textPuzzles.length;
+    const nextIndex = mode === 'image' ? nextImagePuzzleIndex(difficulty, puzzleIndex) : (puzzleIndex + 1) % textPuzzles.length;
     setPuzzleIndex(nextIndex);
     setItems([...imagePuzzleCatalog[difficulty][nextIndex % imagePuzzleCatalog[difficulty].length].items].sort(() => Math.random() - 0.5));
     setSelected([]);
@@ -672,7 +682,7 @@ function App() {
   }
 
   function switchMode(nextMode) {
-    const nextImageIndex = 0;
+    const nextImageIndex = nextImagePuzzleIndex(difficulty);
     setMode(nextMode);
     setSelected([]);
     setSolved([]);
@@ -692,7 +702,7 @@ function App() {
 
   function switchDifficulty(nextDifficulty) {
     if (nextDifficulty === difficulty) return;
-    const nextIndex = ['yellow', 'green'].includes(nextDifficulty) ? 0 : randomPuzzleIndex(nextDifficulty);
+    const nextIndex = nextImagePuzzleIndex(nextDifficulty);
     setDifficulty(nextDifficulty);
     setPuzzleIndex(nextIndex);
     setItems([...imagePuzzleCatalog[nextDifficulty][nextIndex].items].sort(() => Math.random() - 0.5));

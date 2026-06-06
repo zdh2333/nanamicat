@@ -131,8 +131,11 @@ function makeGroup(raw, color, difficulty, puzzleIndex, groupIndex) {
   const items = Array.from({ length: 4 }, (_, variant) => {
     const lock = hashString(`${difficulty}-${puzzleIndex}-${groupIndex}-${variant}`) % 100000;
     const part = parts[variant] || parts[0];
-    const localImageSet = !isExplicitUrls && puzzleIndex === 0
-      ? { yellow: 'easy-1', green: 'green-1' }[difficulty]
+    const localImageSet = !isExplicitUrls
+      ? {
+          yellow: { 0: 'easy-1', 1: 'easy-2' },
+          green: { 0: 'green-1' },
+        }[difficulty]?.[puzzleIndex]
       : null;
     const localImage = localImageSet
       ? `/puzzles/${localImageSet}/${String(groupIndex * 4 + variant + 1).padStart(2, '0')}.jpg`
@@ -189,3 +192,10 @@ export const imagePuzzleCatalog = Object.fromEntries(
     }),
   ]),
 );
+
+export const realImagePuzzleIndexes = {
+  yellow: [0, 1],
+  green: [0],
+  blue: [],
+  purple: [],
+};
