@@ -1,0 +1,22 @@
+name = "nanamicat-api"
+main = "worker/nanamicat-api.js"
+compatibility_date = "2026-06-04"
+workers_dev = true
+
+routes = [
+  { pattern = "example.com/api/*", zone_name = "example.com" },
+  { pattern = "example.com/admin*", zone_name = "example.com" }
+]
+
+kv_namespaces = [
+  { binding = "NANAMICAT_SUBMISSIONS", id = "replace-with-your-kv-namespace-id" }
+]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "nanamicat-production"
+database_id = "replace-with-your-d1-database-id"
+
+[vars]
+MAIL_FROM = "noreply@example.com"
+REPLY_TO = "support@example.com"
