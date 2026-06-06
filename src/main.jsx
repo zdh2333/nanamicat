@@ -536,8 +536,9 @@ function App() {
 
   useEffect(() => {
     document.title = c.pageTitle;
+    document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
     document.querySelector('meta[name="description"]')?.setAttribute('content', c.metaDescription);
-  }, [c.pageTitle, c.metaDescription]);
+  }, [c.pageTitle, c.metaDescription, language]);
 
   useEffect(() => {
     function closeOverlays(event) {

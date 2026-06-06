@@ -32,7 +32,7 @@ No actionable P0, P1, or P2 mismatches remain.
 - Colors and visual tokens: Navy crayon outlines, warm paper background, yellow/green/blue/purple category colors, and red mistake hearts match the reference system.
 - Image quality and asset fidelity: The implementation intentionally preserves the original nanamicat.com photographic puzzle sheet instead of replacing it with the reference mock's generated images.
 - Copy and content: Existing product labels and functions are preserved. `下一题` is implemented as a real skip action.
-- Puzzle progression: Four difficulty levels expose 15 image puzzles each. Early puzzles use explicit concrete object categories; later levels progress toward relational and abstract visual clues.
+- Puzzle progression: Four difficulty levels expose 15 image-puzzle definitions each. Only the first two yellow puzzles currently have complete real-photo assets; the remaining definitions use generated SVG illustration placeholders until photo assets are added.
 
 ## Patches Made
 
@@ -42,7 +42,7 @@ No actionable P0, P1, or P2 mismatches remain.
 - Added mobile mistakes, persistent help entry, colored controls, category legend, and fixed bottom navigation.
 - Implemented `下一题` to reset selection, solved groups, mistakes, history, and puzzle order.
 - Verified the how-to-play dialog, group submission, and next-puzzle flow.
-- Added a 60-set image puzzle catalog and verified difficulty switching, per-difficulty next-puzzle rotation, and easy-puzzle submission.
+- Added a 60-definition image puzzle catalog. Real-photo rotation is derived from actual non-placeholder image URLs, and `npm run test:puzzles` validates group structure, referenced files, and orphaned image sets.
 
 ## Follow-up Polish
 

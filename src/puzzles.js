@@ -1,4 +1,4 @@
-import dailyPuzzleData from '../daily/data/image-puzzles.json';
+import dailyPuzzleData from '../daily/data/image-puzzles.json' with { type: 'json' };
 
 const difficultySpecs = {
   yellow: {
@@ -134,7 +134,6 @@ function makeGroup(raw, color, difficulty, puzzleIndex, groupIndex) {
     const localImageSet = !isExplicitUrls
       ? {
           yellow: { 0: 'easy-1', 1: 'easy-2' },
-          green: { 0: 'green-1' },
         }[difficulty]?.[puzzleIndex]
       : null;
     const localImage = localImageSet
@@ -193,9 +192,15 @@ export const imagePuzzleCatalog = Object.fromEntries(
   ]),
 );
 
-export const realImagePuzzleIndexes = {
-  yellow: [0, 1],
-  green: [0],
-  blue: [],
-  purple: [],
-};
+export const realImagePuzzleIndexes = Object.fromEntries(
+  Object.entries(imagePuzzleCatalog).map(([difficulty, puzzles]) => [
+    difficulty,
+    puzzles
+      .map((puzzle, index) => (
+        puzzle.items.every((item) => item.imageUrl && !item.imageUrl.startsWith('data:'))
+          ? index
+          : null
+      ))
+      .filter((index) => index !== null),
+  ]),
+);

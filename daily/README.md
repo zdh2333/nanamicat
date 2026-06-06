@@ -7,7 +7,7 @@
 
 ## 1. 一句话任务
 
-每天定时运行 `scripts/daily-puzzles.mjs`，调用 OpenAI 生成 10 道新文字题 + 10 道新图题（gpt-image-2 出图），自动校验唯一解、写入项目仓库、git commit，让 `nanamicat.com` 的题库每天自动扩充。
+`daily/generate.mjs` 可以调用 OpenAI 生成新文字题和真实图片题，自动校验唯一解并写入项目仓库。当前仓库尚未配置 `OPENAI_API_KEY` 或定时工作流，因此它不会自动运行，`daily/data/` 目前也是空题库。
 
 ---
 
@@ -150,7 +150,7 @@ Windows Task Scheduler：每天 00:00:00
               no decorative border
   ```
 - **尺寸**：1024×1024，输出 JPG，目标 < 200KB
-- **美学一致**：图像本身保持摄影感；"蜡笔"风由 UI 边框（`paper-texture.png` + dashed border）负责，**不污染图像本身**（与现有 60 道题风格一致）
+- **美学一致**：图像本身保持摄影感；"蜡笔"风由 UI 边框（`paper-texture.png` + dashed border）负责，**不污染图像本身**。当前只有 2 道完整真实照片题，其余图片题定义仍使用 SVG 插画占位。
 - **16 张/题 × 10 题 = 160 张/天**，`gpt-image-2 medium` 约 $0.04/张 → **~$6.4/天，~$190/月**
 
 ---

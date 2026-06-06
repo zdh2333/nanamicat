@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env server.js",
     "build": "vite build",
-    "start": "node --env-file-if-exists=.env server.js"
+    "start": "node --env-file-if-exists=.env server.js",
+    "test:puzzles": "node scripts/validate-puzzles.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.4.1",
