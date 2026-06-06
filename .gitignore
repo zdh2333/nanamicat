@@ -17,3 +17,10 @@ credentials.json
 secrets.json
 wrangler.toml
 public/wechat-pay.jpg
+npm-debug.log*
+.DS_Store
+
+# Xcode
+*.xcuserstate
+xcuserdata/
+DerivedData/

@@ -1,1491 +1,1118 @@
-﻿import React, { useEffect, useMemo, useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { useEffect, useMemo, useState } from "react";
+import { createRoot } from "react-dom/client";
 import {
-  CircleHelp,
   Check,
-  Coffee,
+  Dices,
   Globe2,
-  Heart,
-  Image,
-  Lightbulb,
-  LockKeyhole,
-  LogOut,
-  Mail,
-  Medal,
-  Menu,
+  HelpCircle,
+  Maximize2,
   Palette,
   PenLine,
-  RefreshCcw,
-  Send,
+  RotateCcw,
   Share2,
-  Shuffle,
   Sparkles,
-  Type,
-  Undo2,
-  Trash2,
-  X,
-} from 'lucide-react';
-import './styles.css';
-import { difficulties, imagePuzzleCatalog, realImagePuzzleIndexes } from './puzzles';
-import dailyTextData from '../daily/data/text-puzzles.json';
+  Trophy,
+  X
+} from "lucide-react";
+import "./styles.css";
 
-const baseTextPuzzles = [
-  [
-    { zh: ['球类运动', '足球', '篮球', '网球', '棒球'], en: ['Ball sports', 'Football', 'Basketball', 'Tennis', 'Baseball'] },
-    { zh: ['自然景物', '高山', '海洋', '森林', '花朵'], en: ['Nature', 'Mountain', 'Ocean', 'Forest', 'Flower'] },
-    { zh: ['城市地标', '高塔', '城墙', '竞技场', '雕像'], en: ['City landmarks', 'Tower', 'Wall', 'Arena', 'Statue'] },
-    { zh: ['乐器', '吉他', '钢琴', '小提琴', '鼓'], en: ['Instruments', 'Guitar', 'Piano', 'Violin', 'Drum'] },
-  ],
-  [
-    { zh: ['宠物', '狗', '猫', '兔子', '仓鼠'], en: ['Pets', 'Dog', 'Cat', 'Rabbit', 'Hamster'] },
-    { zh: ['水果', '苹果', '香蕉', '蓝莓', '橙子'], en: ['Fruit', 'Apple', 'Banana', 'Blueberry', 'Orange'] },
-    { zh: ['交通工具', '飞机', '自行车', '火车', '船'], en: ['Transport', 'Plane', 'Bike', 'Train', 'Boat'] },
-    { zh: ['容器', '盒子', '罐子', '碗', '行李箱'], en: ['Containers', 'Box', 'Jar', 'Bowl', 'Suitcase'] },
-  ],
-  [
-    { zh: ['蔬菜', '胡萝卜', '西兰花', '番茄', '茄子'], en: ['Vegetables', 'Carrot', 'Broccoli', 'Tomato', 'Eggplant'] },
-    { zh: ['花卉', '玫瑰', '郁金香', '雏菊', '荷花'], en: ['Flowers', 'Rose', 'Tulip', 'Daisy', 'Lotus'] },
-    { zh: ['鸟类', '鹦鹉', '猫头鹰', '鸭子', '火烈鸟'], en: ['Birds', 'Parrot', 'Owl', 'Duck', 'Flamingo'] },
-    { zh: ['鞋子', '运动鞋', '靴子', '凉鞋', '高跟鞋'], en: ['Shoes', 'Sneaker', 'Boot', 'Sandal', 'Heel'] },
-  ],
-  [
-    { zh: ['海洋动物', '海豚', '海龟', '章鱼', '海马'], en: ['Sea animals', 'Dolphin', 'Turtle', 'Octopus', 'Seahorse'] },
-    { zh: ['厨房工具', '平底锅', '刀', '锅铲', '打蛋器'], en: ['Kitchen tools', 'Pan', 'Knife', 'Spatula', 'Whisk'] },
-    { zh: ['家具', '椅子', '沙发', '桌子', '书架'], en: ['Furniture', 'Chair', 'Sofa', 'Table', 'Shelf'] },
-    { zh: ['帽子', '棒球帽', '草帽', '毛线帽', '礼帽'], en: ['Hats', 'Cap', 'Straw hat', 'Beanie', 'Top hat'] },
-  ],
-  [
-    { zh: ['早餐', '鸡蛋', '吐司', '麦片', '煎饼'], en: ['Breakfast', 'Egg', 'Toast', 'Cereal', 'Pancake'] },
-    { zh: ['树木', '松树', '棕榈树', '樱花树', '柳树'], en: ['Trees', 'Pine', 'Palm', 'Cherry tree', 'Willow'] },
-    { zh: ['文具', '铅笔', '橡皮', '尺子', '笔记本'], en: ['Stationery', 'Pencil', 'Eraser', 'Ruler', 'Notebook'] },
-    { zh: ['灯具', '台灯', '吊灯', '灯笼', '路灯'], en: ['Lights', 'Lamp', 'Chandelier', 'Lantern', 'Streetlight'] },
-  ],
-  [
-    { zh: ['甜点', '冰淇淋', '纸杯蛋糕', '甜甜圈', '马卡龙'], en: ['Desserts', 'Ice cream', 'Cupcake', 'Donut', 'Macaron'] },
-    { zh: ['昆虫', '蝴蝶', '瓢虫', '蜻蜓', '蜜蜂'], en: ['Insects', 'Butterfly', 'Ladybug', 'Dragonfly', 'Bee'] },
-    { zh: ['建筑', '城堡', '摩天楼', '寺庙', '小屋'], en: ['Buildings', 'Castle', 'Skyscraper', 'Temple', 'Cottage'] },
-    { zh: ['包袋', '背包', '手提包', '公文包', '旅行袋'], en: ['Bags', 'Backpack', 'Handbag', 'Briefcase', 'Duffel'] },
-  ],
-  [
-    { zh: ['饮品', '咖啡', '茶', '果汁', '牛奶'], en: ['Drinks', 'Coffee', 'Tea', 'Juice', 'Milk'] },
-    { zh: ['运动器材', '球拍', '手套', '滑板', '高尔夫杆'], en: ['Sports gear', 'Racket', 'Glove', 'Skateboard', 'Golf club'] },
-    { zh: ['鱼类', '金鱼', '鲑鱼', '小丑鱼', '金枪鱼'], en: ['Fish', 'Goldfish', 'Salmon', 'Clownfish', 'Tuna'] },
-    { zh: ['计时物', '闹钟', '手表', '挂钟', '沙漏'], en: ['Timekeepers', 'Alarm', 'Watch', 'Clock', 'Hourglass'] },
-  ],
-  [
-    { zh: ['服装', 'T 恤', '夹克', '连衣裙', '牛仔裤'], en: ['Clothes', 'T-shirt', 'Jacket', 'Dress', 'Jeans'] },
-    { zh: ['餐具', '叉子', '勺子', '盘子', '杯子'], en: ['Tableware', 'Fork', 'Spoon', 'Plate', 'Cup'] },
-    { zh: ['野生动物', '鹿', '山羊', '熊', '狐狸'], en: ['Wild animals', 'Deer', 'Goat', 'Bear', 'Fox'] },
-    { zh: ['玩具', '玩偶熊', '玩具车', '积木', '悠悠球'], en: ['Toys', 'Teddy', 'Toy car', 'Blocks', 'Yo-yo'] },
-  ],
-  [
-    { zh: ['农场动物', '奶牛', '绵羊', '马', '鸡'], en: ['Farm animals', 'Cow', 'Sheep', 'Horse', 'Chicken'] },
-    { zh: ['叶子', '枫叶', '蕨叶', '龟背竹叶', '橡树叶'], en: ['Leaves', 'Maple', 'Fern', 'Monstera', 'Oak'] },
-    { zh: ['电子设备', '笔记本电脑', '手机', '相机', '耳机'], en: ['Electronics', 'Laptop', 'Phone', 'Camera', 'Headphones'] },
-    { zh: ['面包', '法棍', '可颂', '贝果', '椒盐卷饼'], en: ['Bread', 'Baguette', 'Croissant', 'Bagel', 'Pretzel'] },
-  ],
-  [
-    { zh: ['海滩物品', '沙滩球', '冲浪板', '贝壳', '遮阳伞'], en: ['Beach items', 'Beach ball', 'Surfboard', 'Shell', 'Umbrella'] },
-    { zh: ['工具', '锤子', '螺丝刀', '钳子', '扳手'], en: ['Tools', 'Hammer', 'Screwdriver', 'Pliers', 'Wrench'] },
-    { zh: ['车辆', '汽车', '公交车', '摩托车', '卡车'], en: ['Vehicles', 'Car', 'Bus', 'Motorcycle', 'Truck'] },
-    { zh: ['蛋糕', '生日蛋糕', '芝士蛋糕', '巧克力蛋糕', '水果塔'], en: ['Cakes', 'Birthday cake', 'Cheesecake', 'Chocolate cake', 'Fruit tart'] },
-  ],
-  [
-    { zh: ['香料', '肉桂', '胡椒', '八角', '辣椒'], en: ['Spices', 'Cinnamon', 'Pepper', 'Star anise', 'Chili'] },
-    { zh: ['游乐设施', '秋千', '滑梯', '跷跷板', '旋转木马'], en: ['Playground', 'Swing', 'Slide', 'Seesaw', 'Carousel'] },
-    { zh: ['首饰', '戒指', '项链', '手链', '耳环'], en: ['Jewelry', 'Ring', 'Necklace', 'Bracelet', 'Earrings'] },
-    { zh: ['云朵', '积云', '乌云', '晚霞云', '雾'], en: ['Clouds', 'Cumulus', 'Storm cloud', 'Sunset cloud', 'Fog'] },
-  ],
-  [
-    { zh: ['桌面物件', '订书机', '回形针', '计算器', '剪刀'], en: ['Desk items', 'Stapler', 'Paperclip', 'Calculator', 'Scissors'] },
-    { zh: ['冬季物件', '雪人', '围巾', '手套', '雪橇'], en: ['Winter items', 'Snowman', 'Scarf', 'Gloves', 'Sled'] },
-    { zh: ['爬行动物', '蛇', '蜥蜴', '乌龟', '鳄鱼'], en: ['Reptiles', 'Snake', 'Lizard', 'Turtle', 'Crocodile'] },
-    { zh: ['坚果', '核桃', '杏仁', '腰果', '开心果'], en: ['Nuts', 'Walnut', 'Almond', 'Cashew', 'Pistachio'] },
-  ],
-  [
-    { zh: ['清洁用品', '扫帚', '拖把', '海绵', '喷瓶'], en: ['Cleaning', 'Broom', 'Mop', 'Sponge', 'Spray bottle'] },
-    { zh: ['园艺工具', '铲子', '洒水壶', '耙子', '修枝剪'], en: ['Garden tools', 'Shovel', 'Watering can', 'Rake', 'Pruner'] },
-    { zh: ['贝壳', '海螺', '扇贝壳', '螺旋贝壳', '蛤蜊壳'], en: ['Shells', 'Conch', 'Scallop', 'Spiral shell', 'Clam'] },
-    { zh: ['乳制品', '奶酪', '酸奶', '黄油', '奶油'], en: ['Dairy', 'Cheese', 'Yogurt', 'Butter', 'Cream'] },
-  ],
-  [
-    { zh: ['摄影器材', '镜头', '三脚架', '闪光灯', '胶卷'], en: ['Camera gear', 'Lens', 'Tripod', 'Flash', 'Film'] },
-    { zh: ['露营', '帐篷', '睡袋', '篝火', '指南针'], en: ['Camping', 'Tent', 'Sleeping bag', 'Campfire', 'Compass'] },
-    { zh: ['热带水果', '菠萝', '芒果', '木瓜', '椰子'], en: ['Tropical fruit', 'Pineapple', 'Mango', 'Papaya', 'Coconut'] },
-    { zh: ['桥梁', '石桥', '吊桥', '木桥', '拱桥'], en: ['Bridges', 'Stone bridge', 'Suspension bridge', 'Wood bridge', 'Arch bridge'] },
-  ],
-  [
-    { zh: ['宠物用品', '狗碗', '猫玩具', '项圈', '宠物床'], en: ['Pet supplies', 'Dog bowl', 'Cat toy', 'Collar', 'Pet bed'] },
-    { zh: ['烘焙工具', '擀面杖', '量杯', '搅拌碗', '烤盘'], en: ['Baking tools', 'Rolling pin', 'Measuring cup', 'Mixing bowl', 'Baking tray'] },
-    { zh: ['花园植物', '薰衣草', '仙人掌', '盆景', '绣球花'], en: ['Garden plants', 'Lavender', 'Cactus', 'Bonsai', 'Hydrangea'] },
-    { zh: ['公共交通', '地铁', '有轨电车', '城市公交', '渡轮'], en: ['Public transport', 'Subway', 'Tram', 'City bus', 'Ferry'] },
-  ],
-];
+const maxMistakes = 4;
+const textPuzzleCount = 100;
 
-const generatedTextPuzzles = ['yellow', 'green', 'blue', 'purple'].flatMap((difficulty) => {
-  const puzzles = Array.isArray(dailyTextData[difficulty]) ? dailyTextData[difficulty] : [];
-  return puzzles.filter((puzzle) => (
-    Array.isArray(puzzle)
-    && puzzle.length === 4
-    && puzzle.every((group) => Array.isArray(group) && group.length === 5)
-  )).map((puzzle) => puzzle.map((group) => ({ zh: group })));
-});
+const difficultyMeta = {
+  1: { zh: "直观分类", en: "Direct sets", className: "level-yellow" },
+  2: { zh: "常识联想", en: "Familiar links", className: "level-green" },
+  3: { zh: "跨域关系", en: "Cross-domain", className: "level-blue" },
+  4: { zh: "细节线索", en: "Detail clues", className: "level-purple" }
+};
 
-function buildTextPuzzles(language, communityPuzzles = []) {
-  const sourcePuzzles = language === 'zh' ? [...baseTextPuzzles, ...generatedTextPuzzles] : baseTextPuzzles;
-  const builtInPuzzles = sourcePuzzles.map((groups, puzzleIndex) => {
-    const mappedGroups = groups.map((group, groupIndex) => {
-      const [name, ...words] = group[language] || group.zh;
-      return {
-        name,
-        color: ['yellow', 'green', 'blue', 'purple'][groupIndex],
-        description: language === 'zh' ? '简易分类' : 'Easy category',
-        items: words,
-      };
-    });
-    return {
-      id: `built-in-${puzzleIndex}`,
-      groups: mappedGroups,
-      items: mappedGroups.flatMap((group, groupIndex) =>
-        group.items.map((word, wordIndex) => ({
-          id: `text-${puzzleIndex}-${groupIndex}-${wordIndex}`,
-          label: word,
-          groupName: group.name,
-        })),
-      ),
-    };
-  });
-  const communityBuilt = (language === 'zh' ? communityPuzzles : []).map((puzzle, puzzleIndex) => {
-    const mappedGroups = (puzzle.groups || []).map((group, groupIndex) => ({
-      ...group,
-      key: group.key || `${puzzle.id || `community-${puzzleIndex}`}-${groupIndex}`,
-      name: String(group.name || '').trim(),
-      color: group.color || ['yellow', 'green', 'blue', 'purple'][groupIndex],
-      description: language === 'zh' ? '游客贡献' : 'Community puzzle',
-      items: Array.isArray(group.items) ? group.items.map((item) => String(item).trim()).filter(Boolean) : [],
-    })).filter((group) => group.name && group.items.length === 4);
-    if (mappedGroups.length !== 4) return null;
-    return {
-      ...puzzle,
-      groups: mappedGroups,
-      items: mappedGroups.flatMap((group, groupIndex) =>
-        group.items.map((word, wordIndex) => ({
-          id: `${puzzle.id || `community-${puzzleIndex}`}-${groupIndex}-${wordIndex}`,
-          label: word,
-          groupName: group.key || group.name,
-        })),
-      ),
-    };
-  }).filter(Boolean);
-  return [...builtInPuzzles, ...communityBuilt];
+function difficultyLabel(level, locale) {
+  return difficultyMeta[level]?.[locale] ?? difficultyMeta[1][locale];
 }
 
-function randomPuzzleIndex(difficulty, avoidIndex = -1) {
-  const count = imagePuzzleCatalog[difficulty].length;
-  if (count <= 1) return 0;
-  let nextIndex = Math.floor(Math.random() * count);
-  while (nextIndex === avoidIndex) nextIndex = Math.floor(Math.random() * count);
-  return nextIndex;
-}
+function NanamiCatMascot({ size = "header", showCelebration = false, className = "" }) {
+  const dimensions = {
+    mini: 28,
+    header: 28,
+    gameHeader: 52,
+    empty: 72,
+    celebration: 120
+  };
+  const dim = dimensions[size] || 28;
+  const cardSize = size === "gameHeader" ? 64 : null;
 
-function nextImagePuzzleIndex(difficulty, currentIndex = -1) {
-  const realIndexes = realImagePuzzleIndexes[difficulty] || [];
-  if (realIndexes.length === 1) return realIndexes[0];
-  if (realIndexes.length > 1) {
-    const currentPosition = realIndexes.indexOf(currentIndex);
-    return realIndexes[(currentPosition + 1 + realIndexes.length) % realIndexes.length];
+  let src = "/nanamicat_mascot_standard.png";
+  if (size === "empty") {
+    src = "/nanamicat_mascot_empty.png";
+  } else if (size === "celebration" || showCelebration) {
+    src = "/nanamicat_mascot_celebration.png";
   }
-  return randomPuzzleIndex(difficulty, currentIndex);
-}
 
-function randomTextPuzzleIndex(avoidIndex = -1, count = baseTextPuzzles.length) {
-  if (count <= 1) return 0;
-  let nextIndex = Math.floor(Math.random() * count);
-  while (nextIndex === avoidIndex) nextIndex = Math.floor(Math.random() * count);
-  return nextIndex;
-}
+  if (cardSize) {
+    return (
+      <div className="mascot-card">
+        <img src={src} alt="NanamiCat Mascot" className={`mascot-card-img ${className}`.trim()} />
+      </div>
+    );
+  }
 
-function normalizeCommunityPuzzles(value) {
-  if (!Array.isArray(value)) return [];
-  return value
-    .map((puzzle, puzzleIndex) => {
-      const groups = Array.isArray(puzzle.groups) ? puzzle.groups : [];
-      if (groups.length !== 4) return null;
-      const normalizedGroups = groups.map((group, groupIndex) => ({
-        key: `${puzzle.id || `community-${puzzleIndex}`}-${groupIndex}`,
-        name: String(group.name || '').trim(),
-        color: group.color || ['yellow', 'green', 'blue', 'purple'][groupIndex],
-        description: String(group.description || '游客贡献').trim(),
-        items: Array.isArray(group.items) ? group.items.map((item) => String(item).trim()).filter(Boolean) : [],
-      }));
-      if (normalizedGroups.some((group) => !group.name || group.items.length !== 4)) return null;
-      return {
-        id: String(puzzle.id || `community-${puzzleIndex}`),
-        source: 'community',
-        groups: normalizedGroups,
-      };
-    })
-    .filter(Boolean);
-}
-
-function Logo() {
   return (
-    <div className="logo-mark" aria-hidden="true">
-      <i /><i /><i /><i />
-    </div>
+    <img
+      src={src}
+      alt="NanamiCat Mascot"
+      width={dim}
+      height={dim}
+      className={className}
+      style={{ display: "block", objectFit: "contain", width: `${dim}px`, height: `${dim}px` }}
+    />
   );
 }
 
-function fallbackImageDataUrl() {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360">
-      <rect width="480" height="360" rx="28" fill="#fff8df"/>
-      <path d="M34 66 C118 23 157 78 228 45 C306 9 365 50 443 35" fill="none" stroke="#f2c64f" stroke-width="18" stroke-linecap="round" opacity=".85"/>
-      <path d="M42 291 C117 244 180 316 249 269 C318 222 372 287 438 249" fill="none" stroke="#62c7bb" stroke-width="20" stroke-linecap="round" opacity=".8"/>
-      <path d="M96 126 L186 210 L298 104 L388 220" fill="none" stroke="#12355c" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="186" cy="210" r="24" fill="#e56a5d"/>
-      <circle cx="298" cy="104" r="24" fill="#9fdb93"/>
-      <circle cx="240" cy="292" r="10" fill="#f2c64f" opacity=".9"/>
-      <circle cx="270" cy="292" r="10" fill="#62c7bb" opacity=".9"/>
-      <circle cx="210" cy="292" r="10" fill="#e56a5d" opacity=".9"/>
-    </svg>`;
-  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
+const themes = [
+  { id: "default", zh: "默认", en: "Default" },
+  { id: "mist", zh: "雾灰", en: "Mist" },
+  { id: "sage", zh: "鼠尾草", en: "Sage" },
+  { id: "clay", zh: "陶土", en: "Clay" }
+];
 
 const copy = {
   zh: {
-    daily: '每日分类谜题',
-    switchLanguage: 'English',
-    pageTitle: '四格寻踪 FourFind | NanamiCat',
-    metaDescription: '四格寻踪，每日中文分类谜题。',
-    brand: '四格寻踪',
-    navGame: '每日挑战',
-    leaderboard: '排行榜',
-    contribute: '贡献谜题',
-    submitShort: '投稿',
-    play: '玩法',
-    howTo: '玩法说明',
-    textMode: '文字模式',
-    imageMode: '图片模式',
-    difficultyLabel: '图片难度',
-    difficultyNames: { yellow: '明黄', green: '青绿', blue: '靛蓝', purple: '紫玄' },
-    difficultyChanged: (name) => `已切换到${name}难度。`,
-    mistakes: '剩余失误',
-    status: '找出四组，每组四个。',
-    legendTitle: '分类主题图例',
-    mobileLegendTitle: '分类图例',
-    foundGroups: '已找到的组',
-    foundCount: (count) => `已找到：${count} / 4 组`,
-    groupNumber: (index) => `组 ${index}`,
-    groupProgressSmall: (count) => `已找到 ${count}/4 个`,
-    undiscovered: (index) => `待发现 ${index}`,
-    notFound: '尚未找到',
-    found: '已找到',
-    hintPrefix: '提示',
-    hintInCard: (name) => `提示：${name}`,
-    tools: '工具',
-    actions: '操作',
-    hintButton: '提示',
-    shuffle: '洗牌',
-    undo: '撤销',
-    cancel: '取消',
-    submit: '提交',
-    submitGroup: '提交组合',
-    next: '下一题',
-    share: '分享结果',
-    textMessage: '文字题：寻找四个词之间最具体的共同点。',
-    imageMessage: '图片题：先看画面里最直接的物体、场景、动作和表面线索，每组四张。',
-    imageHint: (name) => `提示已写入一个待发现卡片：${name}`,
-    noHints: '已经没有可揭示的分类了。',
-    changedDifficultyText: '已切换难度。文字模式会从简易题库随机开始。',
-    nextText: '已换到下一题。寻找四个词之间最具体的共同点。',
-    skipped: '已跳过当前题，换到下一题。',
-    correct: (name, description) => `${name}：${description}。继续寻找下一组。`,
-    wrong: '还差一点，这四个不属于同一组。',
-    copied: '结果已复制，可以分享给朋友。',
-    copyFailed: '无法访问剪贴板，请稍后重试。',
-    shareHeading: '四格寻踪通关结果',
-    imageGroup: (index) => `图片组 ${index}`,
-    imageDescription: '图片分类',
-    supportLabel: '赞助本题',
-    supportTitle: '喜欢这个小游戏，可以请我喝杯咖啡。',
-    supportCopy: '微信扫码赞助，支持继续做中文题库、历史题和主题包。',
-    enlargeQr: '点击放大微信支付二维码',
-    qrTitle: '微信支付二维码',
-    imageAlt: '图片线索',
-    imageTileLabel: (index) => `图片线索 ${index}`,
-    helpTitle: '找出四组，每组四个。',
-    helpSteps: [
-      '点击四个你认为属于同一类别的词或图片。',
-      '提交正确组合后，该组会从棋盘中移除。',
-      '四次失误前找出全部四组即可通关。',
-    ],
-    start: '开始挑战',
-    quickLeaderboard: '查看排行榜',
-    quickLeaderboardSub: '看看你的排名',
-    quickContribute: '投稿谜题',
-    quickContributeSub: '分享你的创意谜题',
-    homeLabel: '四格寻踪首页',
-    menuLabel: '打开菜单',
-    modeSwitchLabel: '题目模式',
-    primaryNavLabel: '主导航',
-    puzzleBoardLabel: '谜题棋盘',
-    bottomNavLabel: '移动端导航',
-    nickname: '昵称',
-    nicknamePlaceholder: '输入昵称',
-    saveNickname: '保存昵称',
-    nicknameSaved: (name) => `已保存昵称：${name}`,
-    nicknameRequired: '请输入昵称',
-    nicknameTooLong: '昵称不能超过 32 个字符。',
-    locale: 'zh-CN',
-    recordLabel: '每日记录',
-    leaderboardCopy: '留下昵称后，文字题通关 1 分，图片题通关 3 分。',
-    leaderboardEmpty: '还没有游客留下成绩。先保存昵称并完成一题，就会出现在这里。',
-    scoreSaved: (points) => `已记录成绩：+${points} 分`,
-    scoreNeedsName: '保存昵称后，通关成绩会自动进入排行榜。',
-    gameOverTitle: '失误次数用完了',
-    gameOverCopy: '留下昵称后，后续通关成绩会自动进入排行榜。保存后可以直接换一题继续玩。',
-    keepPlaying: '换一题继续',
-    tableHeads: ['#', '昵称', '文字通关', '图片通关', '总分', '最近时间'],
-    contributeLabel: '一起扩充题库',
-    contributeTitle: '提交谜题',
-    contributeCopy: '先写 1 组也可以提交；每组 4 个词，最多一次提交 10 组。投稿会先进入 pending 状态，方便审核后编入题库。',
-    leaveContact: '愿意留下联系邮箱，接收一封自动感谢邮件',
-    contactEmail: '联系邮箱',
-    groupProgress: (count) => `已填写 ${count} / 10 组`,
-    addGroup: '+ 增加一组',
-    groupName: (index) => `组名 ${index}`,
-    removeGroup: '删除',
-    groupNamePlaceholder: (index) => `第 ${index} 组名称`,
-    groupWordsPlaceholder: '4 个词，用逗号分隔',
-    submitting: '提交中...',
-    submitToAdmin: '提交到后台',
-    maxGroups: '一次最多提交 10 组。',
-    minGroups: '至少保留 1 组。',
-    invalidGroupCount: '一次可以提交 1 到 10 组。',
-    invalidGroupName: '每组都需要填写组名。',
-    invalidWords: '每组必须填写 4 个词，并用逗号分隔。',
-    duplicateGroupNames: '每个组名必须不同。',
-    duplicateWords: '同一次投稿中的所有词都必须不同。',
-    contributionTextTooLong: '组名和词语不能超过 40 个字符。',
-    submitFailed: '提交失败，请稍后再试。',
-    contributionSuccess: '谜题已提交到后台，感谢贡献。',
+    appName: "四格寻踪",
+    kicker: "每日分类谜题",
+    language: "English",
+    help: "玩法说明",
+    theme: "主题",
+    mistakes: "失误",
+    shuffle: "打乱",
+    clear: "取消",
+    hint: "提示",
+    submit: "提交",
+    next: "换一题",
+    nextAfterComplete: "下一题",
+    share: "分享结果",
+    leaderboard: "排行榜",
+    contribute: "贡献谜题",
+    admin: "后台",
+    playerName: "昵称",
+    saveName: "保存昵称",
+    scoreText: "文字通关",
+    totalScore: "总分",
+    recent: "最近时间",
+    submitPuzzle: "提交谜题",
+    puzzleTitle: "谜题标题",
+    contactEmail: "联系邮箱（可选）",
+    groupName: "组名",
+    words: "4 个词，用逗号分隔",
+    savePuzzle: "提交到后台",
+    addGroup: "添加一组",
+    removeGroup: "删除本组",
+    adminPuzzles: "投稿",
+    adminScores: "成绩事件",
+    sponsorLabel: "赞助本题",
+    sponsorTitle: "喜欢这个小游戏，可以请我喝杯咖啡。",
+    sponsorBody: "微信扫码赞助，支持继续做中文题库、历史题和主题包。",
+    zoomPay: "点击放大",
+    payCaption: "微信支付",
+    intro: "找出四组隐藏关联，每组四个项目。",
+    chooseFour: "请先选择 4 个项目再提交。",
+    clearedSelection: "已取消当前选择。",
+    wrong: "这四个项目不在同一组，再试一次。",
+    out: "失误次数已用完，继续尝试完成本题。",
+    complete: "四组全部找到了。",
+    savedScore: "成绩已写入排行榜。",
+    needsName: "设置昵称后会把通关写入排行榜。",
+    abstract: "本题最抽象的一组",
+    contributionLead: "最少填写 1 组，每组 4 个词，投稿会先进入 pending 状态，方便开发者审核后编入题库。",
+    leaderboardLead: "留下昵称后，通关可累计积分。",
+    adminLead: "后台由 Cloudflare Access 保护，只给开发者查看。",
+    emptyLeaderboard: "还没有成绩，先通关一题。",
+    emptySubmissions: "还没有投稿。",
+    statusPending: "待审核",
+    statusReviewed: "已查看",
+    statusIncluded: "已编入",
+    statusRejected: "已拒绝",
+    submissionSavedPending: "投稿已保存为待审核。",
+    thankYouEmailSent: "投稿成功，感谢邮件已发送。",
+    thankYouEmailNotSent: "投稿成功，但感谢邮件暂未发送（稍后可重试）。"
   },
   en: {
-    daily: 'Daily category puzzle',
-    switchLanguage: 'Chinese',
-    pageTitle: 'FourFind | NanamiCat',
-    metaDescription: 'FourFind, a daily category puzzle game.',
-    brand: 'FourFind',
-    navGame: 'Daily',
-    leaderboard: 'Leaderboard',
-    contribute: 'Contribute',
-    submitShort: 'Submit',
-    play: 'Help',
-    howTo: 'How to play',
-    textMode: 'Text mode',
-    imageMode: 'Image mode',
-    difficultyLabel: 'Image difficulty',
-    difficultyNames: { yellow: 'Easy', green: 'Medium', blue: 'Hard', purple: 'Expert' },
-    difficultyChanged: (name) => `Switched to ${name} difficulty.`,
-    mistakes: 'Mistakes left',
-    status: 'Find four groups of four.',
-    legendTitle: 'Group Clue Board',
-    mobileLegendTitle: 'Clue Board',
-    foundGroups: 'Found groups',
-    foundCount: (count) => `Found: ${count} / 4`,
-    groupNumber: (index) => `Group ${index}`,
-    groupProgressSmall: (count) => `Found ${count}/4`,
-    undiscovered: (index) => `Hidden ${index}`,
-    notFound: 'Not found',
-    found: 'Found',
-    hintPrefix: 'Hint',
-    hintInCard: (name) => `Hint: ${name}`,
-    tools: 'Tools',
-    actions: 'Actions',
-    hintButton: 'Hint',
-    shuffle: 'Shuffle',
-    undo: 'Undo',
-    cancel: 'Clear',
-    submit: 'Submit',
-    submitGroup: 'Submit group',
-    next: 'Next puzzle',
-    share: 'Share result',
-    textMessage: 'Text puzzle: find the most specific connection between four words.',
-    imageMessage: 'Image puzzle: start with visible objects, scenes, actions, and surface clues. Each group has four images.',
-    imageHint: (name) => `Hint added to one hidden card: ${name}`,
-    noHints: 'No more hidden groups to hint.',
-    changedDifficultyText: 'Difficulty changed. Text mode starts from the easy puzzle bank.',
-    nextText: 'Next puzzle is ready. Find the most specific shared category.',
-    skipped: 'Skipped this puzzle and loaded the next one.',
-    correct: (name, description) => `${name}: ${description}. Keep looking for the next group.`,
-    wrong: 'Almost. These four do not belong to the same group.',
-    copied: 'Result copied. Share it with friends.',
-    copyFailed: 'Could not access the clipboard. Please try again.',
-    shareHeading: 'FourFind result',
-    imageGroup: (index) => `Image group ${index}`,
-    imageDescription: 'Image category',
-    supportLabel: 'Support this puzzle',
-    supportTitle: 'If you enjoy this little game, you can buy me a coffee.',
-    supportCopy: 'Scan with WeChat to support more Chinese puzzles, archives, and themed packs.',
-    enlargeQr: 'Click to enlarge WeChat Pay QR code',
-    qrTitle: 'WeChat Pay QR code',
-    imageAlt: 'Image clue',
-    imageTileLabel: (index) => `Image clue ${index}`,
-    helpTitle: 'Find four groups of four.',
-    helpSteps: [
-      'Tap four words or images that belong to the same category.',
-      'A correct group disappears from the board after submission.',
-      'Find all four groups before you run out of mistakes.',
-    ],
-    start: 'Start',
-    quickLeaderboard: 'View leaderboard',
-    quickLeaderboardSub: 'See your rank',
-    quickContribute: 'Submit puzzle',
-    quickContributeSub: 'Share your puzzle idea',
-    homeLabel: 'FourFind home',
-    menuLabel: 'Open menu',
-    modeSwitchLabel: 'Puzzle mode',
-    primaryNavLabel: 'Primary navigation',
-    puzzleBoardLabel: 'Puzzle board',
-    bottomNavLabel: 'Mobile navigation',
-    nickname: 'Nickname',
-    nicknamePlaceholder: 'Enter nickname',
-    saveNickname: 'Save nickname',
-    nicknameSaved: (name) => `Saved nickname: ${name}`,
-    nicknameRequired: 'Please enter a nickname',
-    nicknameTooLong: 'Nickname must be 32 characters or fewer.',
-    locale: 'en-US',
-    recordLabel: 'Daily records',
-    leaderboardCopy: 'Save a nickname to track clears: 1 point for text puzzles, 3 points for image puzzles.',
-    leaderboardEmpty: 'No visitor scores yet. Save a nickname and clear a puzzle to appear here.',
-    scoreSaved: (points) => `Score saved: +${points}`,
-    scoreNeedsName: 'Save a nickname to send completed puzzles to the leaderboard.',
-    gameOverTitle: 'No mistakes left',
-    gameOverCopy: 'Save a nickname so future clears are recorded on the leaderboard. Then continue with a fresh puzzle.',
-    keepPlaying: 'Next puzzle',
-    tableHeads: ['#', 'Nickname', 'Text clears', 'Image clears', 'Score', 'Latest time'],
-    contributeLabel: 'Grow the puzzle bank',
-    contributeTitle: 'Submit a puzzle',
-    contributeCopy: 'You can submit just 1 group. Each group needs 4 words, and one submission can include up to 10 groups. Submissions go to pending review first.',
-    leaveContact: 'Leave an email address to receive an automatic thank-you note',
-    contactEmail: 'Contact email',
-    groupProgress: (count) => `Filled ${count} / 10 groups`,
-    addGroup: '+ Add group',
-    groupName: (index) => `Group ${index}`,
-    removeGroup: 'Remove',
-    groupNamePlaceholder: (index) => `Group ${index} name`,
-    groupWordsPlaceholder: '4 words, separated by commas',
-    submitting: 'Submitting...',
-    submitToAdmin: 'Submit to admin',
-    maxGroups: 'You can submit up to 10 groups at once.',
-    minGroups: 'Keep at least 1 group.',
-    invalidGroupCount: 'Submit between 1 and 10 groups.',
-    invalidGroupName: 'Each group needs a name.',
-    invalidWords: 'Each group must contain 4 comma-separated words.',
-    duplicateGroupNames: 'Every group name must be unique.',
-    duplicateWords: 'Every word in a submission must be unique.',
-    contributionTextTooLong: 'Group names and words must be 40 characters or fewer.',
-    submitFailed: 'Submit failed. Please try again later.',
-    contributionSuccess: 'Puzzle submitted to the admin queue. Thank you.',
-  },
+    appName: "FourFind",
+    kicker: "Daily category puzzle",
+    language: "中文",
+    help: "Rules",
+    theme: "Theme",
+    mistakes: "Mistakes",
+    shuffle: "Shuffle",
+    clear: "Clear",
+    hint: "Hint",
+    submit: "Submit",
+    next: "Next puzzle",
+    nextAfterComplete: "Next puzzle",
+    share: "Share",
+    leaderboard: "Leaderboard",
+    contribute: "Contribute",
+    admin: "Admin",
+    playerName: "Nickname",
+    saveName: "Save name",
+    scoreText: "Text clears",
+    totalScore: "Score",
+    recent: "Recent",
+    submitPuzzle: "Submit puzzle",
+    puzzleTitle: "Puzzle title",
+    contactEmail: "Contact email (optional)",
+    groupName: "Group name",
+    words: "4 words, comma separated",
+    savePuzzle: "Send to admin",
+    addGroup: "Add group",
+    removeGroup: "Remove group",
+    adminPuzzles: "Submissions",
+    adminScores: "Score events",
+    sponsorLabel: "Support this puzzle",
+    sponsorTitle: "If you like this small game, you can buy me a coffee.",
+    sponsorBody: "Use WeChat Pay to support more Chinese puzzles, archives, and theme packs.",
+    zoomPay: "Zoom",
+    payCaption: "WeChat Pay",
+    intro: "Find four hidden groups, four items per group.",
+    chooseFour: "Choose 4 items before submitting.",
+    clearedSelection: "Selection cleared.",
+    wrong: "Those four items do not belong together.",
+    out: "Mistakes are gone. You can still finish the puzzle.",
+    complete: "All four groups found.",
+    savedScore: "Score saved to the leaderboard.",
+    needsName: "Set a nickname to write clears to the leaderboard.",
+    abstract: "Most abstract group",
+    contributionLead: "Submit at least one group with four words. Submissions are saved as pending for developer review.",
+    leaderboardLead: "Set a nickname to save your puzzle score.",
+    adminLead: "Admin is protected by Cloudflare Access and is only visible to developers.",
+    emptyLeaderboard: "No scores yet. Clear a puzzle first.",
+    emptySubmissions: "No submissions yet.",
+    statusPending: "Pending",
+    statusReviewed: "Reviewed",
+    statusIncluded: "Included",
+    statusRejected: "Rejected",
+    submissionSavedPending: "Submission saved as pending.",
+    thankYouEmailSent: "Submission saved and thank-you email sent.",
+    thankYouEmailNotSent: "Submission saved, but thank-you email was not sent yet."
+  }
 };
 
-function App() {
-  const [page, setPage] = useState('game');
-  const [language, setLanguage] = useState('zh');
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [gameOverOpen, setGameOverOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mode, setMode] = useState('text');
-  const [theme, setTheme] = useState('default');
-  const [difficulty, setDifficulty] = useState('yellow');
-  const [puzzleIndex, setPuzzleIndex] = useState(() => randomTextPuzzleIndex());
-  const initialPuzzle = imagePuzzleCatalog.yellow[puzzleIndex % imagePuzzleCatalog.yellow.length];
-  const [items, setItems] = useState(initialPuzzle.items);
-  const [textOrder, setTextOrder] = useState(null);
-  const [selected, setSelected] = useState([]);
-  const [history, setHistory] = useState([]);
-  const [solved, setSolved] = useState([]);
-  const [mistakes, setMistakes] = useState(4);
-  const [communityTextPuzzles, setCommunityTextPuzzles] = useState([]);
-  const [revealedHints, setRevealedHints] = useState(() => new Set());
-  const [hintsUsed, setHintsUsed] = useState(0);
-  const [message, setMessage] = useState(copy.zh.textMessage);
-  const [nickname, setNickname] = useState(() => localStorage.getItem('nanamicat.nickname') || '');
-  const [savedName, setSavedName] = useState(() => localStorage.getItem('nanamicat.nickname') || '');
-  const [submittedScores, setSubmittedScores] = useState(() => new Set());
-  const [toast, setToast] = useState('');
+const textGroupBank = [
+  { level: 1, name: "早餐主食", words: ["油条", "包子", "豆浆", "烧饼"] },
+  { level: 1, name: "火锅食材", words: ["鸭血", "毛肚", "黄喉", "肥牛"] },
+  { level: 1, name: "传统节日", words: ["春节", "清明", "端午", "中秋"] },
+  { level: 1, name: "中国城市", words: ["北京", "上海", "广州", "成都"] },
+  { level: 1, name: "出行方式", words: ["地铁", "公交", "骑行", "打车"] },
+  { level: 1, name: "厨房工具", words: ["菜刀", "砧板", "锅铲", "漏勺"] },
+  { level: 1, name: "校园空间", words: ["教室", "操场", "食堂", "图书馆"] },
+  { level: 1, name: "水果", words: ["苹果", "香蕉", "葡萄", "西瓜"] },
+  { level: 1, name: "颜色", words: ["赤", "橙", "青", "紫"] },
+  { level: 1, name: "衣物", words: ["衬衫", "外套", "围巾", "手套"] },
+  { level: 1, name: "运动项目", words: ["足球", "篮球", "羽毛球", "乒乓球"] },
+  { level: 1, name: "乐器", words: ["钢琴", "吉他", "笛子", "鼓"] },
+  { level: 2, name: "古代书写材料", words: ["竹简", "帛书", "宣纸", "碑刻"] },
+  { level: 2, name: "网络互动", words: ["点赞", "转发", "评论", "收藏"] },
+  { level: 2, name: "电影镜头", words: ["特写", "长镜", "推轨", "摇镜"] },
+  { level: 2, name: "项目流程", words: ["立项", "排期", "上线", "验收"] },
+  { level: 2, name: "系统状态", words: ["启动", "运行", "暂停", "恢复"] },
+  { level: 2, name: "安全动作", words: ["认证", "授权", "加密", "审计"] },
+  { level: 2, name: "叙事结构", words: ["开端", "铺垫", "转折", "收束"] },
+  { level: 2, name: "城市设施", words: ["路灯", "井盖", "站牌", "护栏"] },
+  { level: 3, name: "不可见成本", words: ["维护", "折旧", "延迟", "机会"] },
+  { level: 3, name: "反馈类型", words: ["正向", "负向", "即时", "滞后"] },
+  { level: 3, name: "边界动作", words: ["过滤", "隔离", "映射", "转译"] },
+  { level: 3, name: "秩序形成", words: ["排队", "编号", "分层", "归档"] },
+  { level: 3, name: "连接两端", words: ["桥", "接口", "翻译", "中介"] },
+  { level: 3, name: "容器与被容纳", words: ["壳", "匣", "港湾", "文件夹"] },
+  { level: 3, name: "镜像与对称", words: ["倒影", "双关", "复写", "平衡"] },
+  { level: 3, name: "身份凭证", words: ["徽章", "签名", "指纹", "密钥"] },
+  { level: 3, name: "压缩的信息", words: ["摘要", "图标", "缩略图", "索引"] },
+  { level: 3, name: "表面隐藏结构", words: ["皮肤", "界面", "包装", "标题"] },
+  { level: 4, name: "以限制制造自由", words: ["格律", "棋盘", "预算", "协议"] },
+  { level: 4, name: "把连续切成离散", words: ["帧", "刻度", "章节", "像素"] },
+  { level: 4, name: "先承诺后兑现", words: ["押金", "期权", "伏笔", "预约"] },
+  { level: 4, name: "自身也是地图", words: ["目录", "索引", "导航", "坐标系"] },
+  { level: 4, name: "用失败校准成功", words: ["试错", "回滚", "复盘", "对照组"] },
+  { level: 4, name: "把关系伪装成物", words: ["货币", "合同", "名片", "证书"] },
+  { level: 4, name: "被观看改变自身", words: ["表演", "排名", "直播", "测评"] },
+  { level: 4, name: "用重复制造差异", words: ["排练", "迭代", "复刻", "循环"] },
+  { level: 4, name: "局部代表整体", words: ["样本", "徽标", "切片", "提要"] },
+  { level: 4, name: "秩序依赖例外", words: ["豁免", "假日", "后门", "特例"] }
+];
 
-  const c = copy[language];
-  const textPuzzles = useMemo(() => buildTextPuzzles(language, communityTextPuzzles), [language, communityTextPuzzles]);
-  const activePuzzle = imagePuzzleCatalog[difficulty][puzzleIndex % imagePuzzleCatalog[difficulty].length];
-  const activeTextPuzzle = textPuzzles[puzzleIndex % textPuzzles.length] || textPuzzles[0];
-  const shuffledTextItems = useMemo(
-    () => [...activeTextPuzzle.items].sort(() => Math.random() - 0.5),
-    [activeTextPuzzle.id, language],
-  );
-  const groups = mode === 'image' ? activePuzzle.groups : activeTextPuzzle.groups;
-  const currentItems = mode === 'image' ? items : (textOrder || shuffledTextItems);
-  const allSolved = solved.length === 4;
-  const gameLocked = mistakes === 0 || allSolved;
+const puzzleThemes = [
+  "烟火中国", "街头日常", "纸上风物", "系统背面", "意义滑移", "抽象关系", "内在牵引", "隐喻机器", "城市缝隙", "屏幕生活",
+  "旧物新义", "时间暗线", "边界游戏", "秩序与例外", "声音地图", "人情规则", "手艺与算法", "观看方式", "流动结构", "记忆容器"
+];
 
-  const groupIdentity = (group) => group.key || group.name;
-  const solvedNames = useMemo(() => new Set(solved.map(groupIdentity)), [solved]);
-  const visibleItems = currentItems.filter((item) => !solvedNames.has(item.groupName));
+const redHerringNotes = [
+  "有些词共享场景，但真正分组看的是用途。",
+  "有一组会被近义动作干扰，别只看字面。",
+  "两组都像工具，关键差别在是否承担连接。",
+  "注意红鲱鱼：一个词看似同类，其实属于更抽象的关系。",
+  "这题故意让日常词和系统词互相靠近。",
+  "不要只按名词分类，试着看动作和结构。"
+];
 
-  useEffect(() => {
-    document.title = c.pageTitle;
-    document.documentElement.lang = language === 'zh' ? 'zh-CN' : 'en';
-    document.querySelector('meta[name="description"]')?.setAttribute('content', c.metaDescription);
-  }, [c.pageTitle, c.metaDescription, language]);
 
-  useEffect(() => {
-    function closeOverlays(event) {
-      if (event.key !== 'Escape') return;
-      setHelpOpen(false);
-      setGameOverOpen(false);
-      setMobileOpen(false);
-    }
-    window.addEventListener('keydown', closeOverlays);
-    return () => window.removeEventListener('keydown', closeOverlays);
-  }, []);
+const englishPuzzleTerms = {
+  "早餐主食": "Breakfast staples", "油条": "Fried dough", "包子": "Steamed bun", "豆浆": "Soy milk", "烧饼": "Baked flatbread",
+  "火锅食材": "Hot pot ingredients", "鸭血": "Duck blood", "毛肚": "Beef tripe", "黄喉": "Aorta", "肥牛": "Sliced beef",
+  "传统节日": "Traditional festivals", "春节": "Spring Festival", "清明": "Qingming", "端午": "Dragon Boat", "中秋": "Mid-Autumn",
+  "中国城市": "Chinese cities", "北京": "Beijing", "上海": "Shanghai", "广州": "Guangzhou", "成都": "Chengdu",
+  "出行方式": "Ways to travel", "地铁": "Metro", "公交": "Bus", "骑行": "Cycling", "打车": "Taxi",
+  "厨房工具": "Kitchen tools", "菜刀": "Cleaver", "砧板": "Cutting board", "锅铲": "Spatula", "漏勺": "Slotted spoon",
+  "校园空间": "Campus spaces", "教室": "Classroom", "操场": "Playground", "食堂": "Cafeteria", "图书馆": "Library",
+  "水果": "Fruit", "苹果": "Apple", "香蕉": "Banana", "葡萄": "Grape", "西瓜": "Watermelon",
+  "颜色": "Colors", "赤": "Red", "橙": "Orange", "青": "Cyan", "紫": "Purple",
+  "衣物": "Clothing", "衬衫": "Shirt", "外套": "Coat", "围巾": "Scarf", "手套": "Gloves",
+  "运动项目": "Sports", "足球": "Football", "篮球": "Basketball", "羽毛球": "Badminton", "乒乓球": "Table tennis",
+  "乐器": "Musical instruments", "钢琴": "Piano", "吉他": "Guitar", "笛子": "Flute", "鼓": "Drum",
+  "古代书写材料": "Ancient writing media", "竹简": "Bamboo slips", "帛书": "Silk manuscript", "宣纸": "Rice paper", "碑刻": "Stone inscription",
+  "网络互动": "Online interactions", "点赞": "Like", "转发": "Repost", "评论": "Comment", "收藏": "Bookmark",
+  "电影镜头": "Film shots", "特写": "Close-up", "长镜": "Long take", "推轨": "Dolly shot", "摇镜": "Pan shot",
+  "项目流程": "Project workflow", "立项": "Kickoff", "排期": "Scheduling", "上线": "Launch", "验收": "Acceptance",
+  "系统状态": "System states", "启动": "Starting", "运行": "Running", "暂停": "Paused", "恢复": "Resuming",
+  "安全动作": "Security actions", "认证": "Authentication", "授权": "Authorization", "加密": "Encryption", "审计": "Audit",
+  "叙事结构": "Narrative structure", "开端": "Opening", "铺垫": "Setup", "转折": "Turning point", "收束": "Resolution",
+  "城市设施": "City fixtures", "路灯": "Streetlight", "井盖": "Manhole cover", "站牌": "Bus stop sign", "护栏": "Guardrail",
+  "不可见成本": "Invisible costs", "维护": "Maintenance", "折旧": "Depreciation", "延迟": "Delay", "机会": "Opportunity",
+  "反馈类型": "Feedback types", "正向": "Positive", "负向": "Negative", "即时": "Immediate", "滞后": "Delayed",
+  "边界动作": "Boundary operations", "过滤": "Filtering", "隔离": "Isolation", "映射": "Mapping", "转译": "Translation",
+  "秩序形成": "Creating order", "排队": "Queueing", "编号": "Numbering", "分层": "Layering", "归档": "Archiving",
+  "连接两端": "Connecting two sides", "桥": "Bridge", "接口": "Interface", "翻译": "Interpreter", "中介": "Mediator",
+  "容器与被容纳": "Containers and contents", "壳": "Shell", "匣": "Case", "港湾": "Harbor", "文件夹": "Folder",
+  "镜像与对称": "Mirrors and symmetry", "倒影": "Reflection", "双关": "Double meaning", "复写": "Copy", "平衡": "Balance",
+  "身份凭证": "Identity credentials", "徽章": "Badge", "签名": "Signature", "指纹": "Fingerprint", "密钥": "Key",
+  "压缩的信息": "Compressed information", "摘要": "Summary", "图标": "Icon", "缩略图": "Thumbnail", "索引": "Index",
+  "表面隐藏结构": "Structure hidden by a surface", "皮肤": "Skin", "界面": "Interface", "包装": "Packaging", "标题": "Title",
+  "以限制制造自由": "Freedom through constraints", "格律": "Meter", "棋盘": "Board", "预算": "Budget", "协议": "Protocol",
+  "把连续切成离散": "Dividing a continuum", "帧": "Frame", "刻度": "Scale mark", "章节": "Chapter", "像素": "Pixel",
+  "先承诺后兑现": "Promise now, deliver later", "押金": "Deposit", "期权": "Option", "伏笔": "Foreshadowing", "预约": "Reservation",
+  "自身也是地图": "Things that are also maps", "目录": "Table of contents", "导航": "Navigation", "坐标系": "Coordinate system",
+  "用失败校准成功": "Using failure to calibrate success", "试错": "Trial and error", "回滚": "Rollback", "复盘": "Retrospective", "对照组": "Control group",
+  "把关系伪装成物": "Relationships disguised as objects", "货币": "Currency", "合同": "Contract", "名片": "Business card", "证书": "Certificate",
+  "被观看改变自身": "Changed by being watched", "表演": "Performance", "排名": "Ranking", "直播": "Livestream", "测评": "Review",
+  "用重复制造差异": "Difference through repetition", "排练": "Rehearsal", "迭代": "Iteration", "复刻": "Reproduction", "循环": "Loop",
+  "局部代表整体": "Parts representing wholes", "样本": "Sample", "徽标": "Logo", "切片": "Slice", "提要": "Abstract",
+  "秩序依赖例外": "Order depending on exceptions", "豁免": "Exemption", "假日": "Holiday", "后门": "Backdoor", "特例": "Special case",
+  "烟火中国": "Everyday China", "街头日常": "Street life", "纸上风物": "Paper and culture", "系统背面": "Behind the system",
+  "意义滑移": "Shifting meanings", "抽象关系": "Abstract relations", "内在牵引": "Hidden forces", "隐喻机器": "Metaphor machine",
+  "城市缝隙": "Urban gaps", "屏幕生活": "Screen life", "旧物新义": "New meanings for old things", "时间暗线": "Threads of time",
+  "边界游戏": "Boundary games", "秩序与例外": "Order and exceptions", "声音地图": "Map of sound", "人情规则": "Social rules",
+  "手艺与算法": "Craft and algorithms", "观看方式": "Ways of seeing", "流动结构": "Structures in motion", "记忆容器": "Containers of memory",
+  "收纳容器": "Storage containers", "方向移动": "Directional movement", "旧痕迹": "Old traces", "成双相似": "Matching pairs",
+  "门窗边界": "Door and window edges", "小物件": "Small objects", "圆形循环": "Circular loops", "破损修补": "Damage and repair",
+  "支撑结构": "Support structures", "外表材质": "Surface materials", "道路路径": "Road paths", "遮挡露出": "Hidden and revealed",
+  "地面基础": "Ground foundations", "高处标志": "High-up signs", "连接工具": "Connecting tools", "证件标牌": "Badges and signs",
+  "重复图案": "Repeated patterns", "安静空场": "Quiet empty scenes", "未来计划": "Future plans", "局部特写": "Detail close-ups",
+  "被人观看": "Being watched", "框内限制": "Confined by frames", "手工差异": "Handmade variation", "水流稳定": "Steady water flow",
+  "分格切片": "Grid slices", "镜面对称": "Mirror symmetry", "特殊例外": "Special exceptions", "等待兑现": "Waiting for delivery",
+  "地图索引": "Map indexes", "声音重复": "Repeated sounds", "外壳保护": "Protective shells", "阶梯层级": "Stepped levels",
+  "留白空处": "Blank spaces", "桥梁连接": "Bridge connections", "影子证据": "Shadow evidence", "单向方向": "One-way direction",
+  "纹理表面": "Textured surfaces", "入口门槛": "Entrance thresholds", "框架边线": "Frame edges", "流线引导": "Flow-line guidance",
+  "入口提示": "Entrance cues", "封存保管": "Sealed storage", "分层摆放": "Layered placement", "偏差标记": "Deviation marks",
+  "身份标记": "Identity marks", "语言转译": "Language translation", "延迟反应": "Delayed reactions", "碎片拼合": "Fragment assembly",
+  "几何秩序": "Geometric order", "自然痕迹": "Natural traces", "机械节奏": "Mechanical rhythm", "人工涂改": "Manual alterations",
+  "向内聚拢": "Gathering inward", "向外扩散": "Spreading outward", "横向连接": "Horizontal connections", "纵向堆叠": "Vertical stacks",
+  "锁和钥匙": "Locks and keys", "窗和视线": "Windows and sightlines", "环形循环": "Ring-shaped loops", "针头方向": "Needle directions",
+  "植物种子": "Plant seeds", "根部支撑": "Root support", "枝叶展开": "Branches unfolding", "果实收成": "Fruit harvest",
+  "前景遮挡": "Foreground occlusion", "背景暗示": "Background hints", "边缘线索": "Edge clues", "中心空缺": "Missing centers",
+  "水面倒影": "Water reflections", "沙地足迹": "Footprints in sand", "墙面裂缝": "Wall cracks", "纸面折痕": "Paper creases",
+  "握手连接": "Handshake connections", "接口对接": "Interface matching", "信号放大": "Signal amplification", "噪声过滤": "Noise filtering",
+  "开头标记": "Opening markers", "过程重复": "Process repetition", "结尾回收": "Ending callbacks", "额外彩蛋": "Bonus details"
+};
 
-  useEffect(() => {
-    setTextOrder(null);
-  }, [activeTextPuzzle.id]);
+function localizePuzzleTerm(value, locale) {
+  return locale === "en" ? englishPuzzleTerms[value] ?? value : value;
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/puzzles')
-      .then((response) => response.ok ? response.json() : { puzzles: [] })
-      .then((result) => {
-        if (!cancelled) setCommunityTextPuzzles(normalizeCommunityPuzzles(result.puzzles));
-      })
-      .catch(() => {
-        if (!cancelled) setCommunityTextPuzzles([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+function puzzleLabel(puzzle, locale) {
+  const number = Number(puzzle.id.split("-").at(-1));
+  if (locale === "en") return `Text puzzle ${number}`;
+  return puzzle.label;
+}
 
-  useEffect(() => {
-    if (!allSolved) return;
-    const name = savedName.trim();
-    if (!name) {
-      showToast(c.scoreNeedsName);
-      return;
-    }
-    const puzzleKey = mode === 'image'
-      ? `image-${difficulty}-${activePuzzle.id || puzzleIndex}`
-      : `text-${activeTextPuzzle.id || puzzleIndex}`;
-    const scoreKey = `${name.toLowerCase()}|${mode}|${puzzleKey}`;
-    if (submittedScores.has(scoreKey)) return;
-    setSubmittedScores((prev) => {
-      const next = new Set(prev);
-      next.add(scoreKey);
-      return next;
+function puzzleTheme(puzzle, locale) {
+  return localizePuzzleTerm(puzzle.theme, locale);
+}
+
+function itemLabel(item, locale) {
+  if (item.label) return localizePuzzleTerm(item.label, locale);
+  if (locale === "zh") return item.alt;
+  const match = item.alt.match(/^(.*) (\d+)$/);
+  if (!match) return localizePuzzleTerm(item.alt, locale);
+  return `${localizePuzzleTerm(match[1], locale)} ${match[2]}`;
+}
+
+function getStored(key, fallback) {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function setStored(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Local storage is optional for gameplay.
+  }
+}
+
+const playedPuzzleStorageKey = "nanamicat.playedPuzzleIds";
+
+function readPlayedPuzzleIds(pool) {
+  try {
+    const raw = getStored(playedPuzzleStorageKey, "[]");
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const valid = new Set(pool.map((item) => item.id));
+    return parsed.filter((id) => typeof id === "string" && valid.has(id));
+  } catch {
+    return [];
+  }
+}
+
+function writePlayedPuzzleIds(ids) {
+  setStored(playedPuzzleStorageKey, JSON.stringify(ids));
+}
+
+function pickNextPuzzleIndex(pool, playedIds, preferredStart = 0, predicate = () => true) {
+  const candidates = pool
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => predicate(item));
+  if (!candidates.length) return 0;
+
+  const played = new Set(playedIds);
+  const unplayed = candidates.filter(({ item }) => !played.has(item.id));
+  const source = unplayed.length ? unplayed : candidates;
+  const sortedIndexes = source.map(({ index }) => index).sort((a, b) => a - b);
+  const hit = sortedIndexes.find((index) => index >= preferredStart);
+  return hit ?? sortedIndexes[0];
+}
+
+function textItem(label, puzzleId) {
+  return { id: `${puzzleId}-${label}`, label };
+}
+
+function buildTextPuzzles() {
+  return Array.from({ length: textPuzzleCount }, (_, index) => {
+    const difficulty = Math.min(4, Math.floor(index / 25) + 1);
+    const candidates = textGroupBank.filter((group) => group.level <= difficulty);
+    const offsets = [0, 7, 19, 31].map((step) => (index * 5 + step + difficulty * 3) % candidates.length);
+    const groups = offsets.map((groupIndex, groupSlot) => {
+      const source = candidates[groupIndex];
+      return {
+        name: source.name,
+        level: Math.min(4, Math.max(source.level, groupSlot + 1)),
+        items: source.words.map((word) => textItem(word, `text-${index + 1}-${groupSlot}`))
+      };
     });
-    fetch('/api/scores', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nickname: name, mode, puzzleKey }),
-    })
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error('score submit failed')))
-      .then((result) => showToast(c.scoreSaved(result.score?.points || (mode === 'image' ? 3 : 1))))
-      .catch(() => {
-        setSubmittedScores((prev) => {
-          const next = new Set(prev);
-          next.delete(scoreKey);
-          return next;
-        });
-      });
-  }, [allSolved, savedName, mode, difficulty, activePuzzle.id, activeTextPuzzle.id, puzzleIndex, submittedScores, c]);
 
-  function groupDisplayName(group) {
-    if (mode === 'text' || language === 'zh') return group.name;
-    const index = groups.findIndex((candidate) => groupIdentity(candidate) === groupIdentity(group));
-    return c.imageGroup(index + 1);
+    return {
+      id: `text-${String(index + 1).padStart(3, "0")}`,
+      label: `文字题 ${index + 1}`,
+      theme: puzzleThemes[index % puzzleThemes.length],
+      type: "text",
+      difficulty,
+      redHerring: redHerringNotes[index % redHerringNotes.length],
+      groups
+    };
+  });
+}
+
+const textPuzzles = buildTextPuzzles();
+
+function shuffle(items) {
+  const copy = [...items];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swap = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swap]] = [copy[swap], copy[index]];
   }
+  return copy;
+}
 
-  function groupDisplayDescription(group) {
-    if (mode === 'text' || language === 'zh') return group.description;
-    return c.imageDescription;
+function getTodayIndex(max) {
+  const now = new Date();
+  return (now.getUTCFullYear() * 372 + now.getUTCMonth() * 31 + now.getUTCDate()) % max;
+}
+
+function mostAbstractGroup(groups) {
+  return [...groups].sort((a, b) => b.level - a.level)[0];
+}
+
+async function api(path, options = {}) {
+  let response;
+  try {
+    response = await fetch(path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers ?? {})
+      }
+    });
+  } catch {
+    throw new Error("网络连接失败，请检查网络后重试。");
   }
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const fallback = response.status >= 500
+      ? "服务器暂时不可用，请稍后再试。"
+      : "请求失败，请稍后重试。";
+    throw new Error(payload.error || fallback);
+  }
+  return payload;
+}
 
-  function selectItem(item) {
-    if (gameLocked) return;
-    if (selected.includes(item.id)) {
-      setSelected(selected.filter((value) => value !== item.id));
+function App() {
+  const pool = textPuzzles;
+  const [playedPuzzleIds, setPlayedPuzzleIds] = useState(() => readPlayedPuzzleIds(pool));
+  const [locale, setLocale] = useState(() => getStored("nanamicat.locale", "zh"));
+  const [theme, setTheme] = useState(() => getStored("nanamicat.theme", "default"));
+  const [view, setView] = useState(() => (location.pathname.startsWith("/admin") ? "admin" : "game"));
+  const [puzzleIndex, setPuzzleIndex] = useState(() => pickNextPuzzleIndex(pool, readPlayedPuzzleIds(pool), getTodayIndex(pool.length)));
+  const [selectedDifficulty, setSelectedDifficulty] = useState(1);
+  const [selected, setSelected] = useState([]);
+  const [solved, setSolved] = useState([]);
+  const [mistakes, setMistakes] = useState(0);
+  const [hintIndex, setHintIndex] = useState(0);
+  const [message, setMessage] = useState("");
+  const [payOpen, setPayOpen] = useState(false);
+  const [nickname, setNickname] = useState(() => getStored("nanamicat.nickname", ""));
+  const [playerId, setPlayerId] = useState(() => getStored("nanamicat.playerId", ""));
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [adminPuzzles, setAdminPuzzles] = useState([]);
+  const [adminScores, setAdminScores] = useState([]);
+  const [form, setForm] = useState(() => ({
+    title: "",
+    email: "",
+    groups: [{ name: "", words: "" }]
+  }));
+  const [apiNotice, setApiNotice] = useState("");
+
+  const t = copy[locale];
+  const currentIndex = puzzleIndex;
+  const puzzle = pool[currentIndex % pool.length];
+  const items = useMemo(() => shuffle(puzzle.groups.flatMap((group) => group.items)), [puzzle.id]);
+  const solvedIds = solved.flatMap((group) => group.items.map((item) => item.id));
+  const activeItems = items.filter((item) => !solvedIds.includes(item.id));
+  const remainingMistakes = Math.max(0, maxMistakes - mistakes);
+  const isComplete = solved.length === puzzle.groups.length;
+  const abstractGroup = isComplete ? mostAbstractGroup(puzzle.groups) : null;
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    setStored("nanamicat.theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    setStored("nanamicat.locale", locale);
+  }, [locale]);
+
+  useEffect(() => {
+    let normalized = playedPuzzleIds.filter((id) => pool.some((item) => item.id === id));
+    if (normalized.length >= pool.length) normalized = [];
+    if (normalized.length !== playedPuzzleIds.length) {
+      setPlayedPuzzleIds(normalized);
+      writePlayedPuzzleIds(normalized);
       return;
     }
-    if (selected.length < 4) setSelected([...selected, item.id]);
-  }
-
-  function shuffle() {
-    if (gameLocked) return;
-    const shuffled = [...currentItems].sort(() => Math.random() - 0.5);
-    setHistory([...history, currentItems]);
-    if (mode === 'image') {
-      setItems(shuffled);
-    } else {
-      setTextOrder(shuffled);
+    if (!normalized.includes(puzzle.id)) {
+      const next = [...normalized, puzzle.id];
+      setPlayedPuzzleIds(next);
+      writePlayedPuzzleIds(next);
     }
+  }, [playedPuzzleIds, puzzle.id, pool]);
+
+  useEffect(() => {
+    setMessage(t.intro);
+    resetPuzzleState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [puzzle.id, locale]);
+
+  useEffect(() => {
+    loadLeaderboard();
+    if (view === "admin") loadAdmin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
+
+  function resetPuzzleState() {
     setSelected([]);
+    setSolved([]);
+    setMistakes(0);
+    setHintIndex(0);
+    setApiNotice("");
   }
 
-  function undo() {
-    if (!history.length || gameLocked) return;
-    const previous = history[history.length - 1];
-    if (mode === 'image') {
-      setItems(previous);
-    } else {
-      setTextOrder(previous);
-    }
-    setHistory(history.slice(0, -1));
+  function setRoute(nextView) {
+    setView(nextView);
+    const path = nextView === "admin" ? "/admin/" : "/";
+    history.replaceState(null, "", path);
   }
 
-  function submitGroup() {
-    if (selected.length !== 4 || gameLocked) return;
-    const selectedItems = currentItems.filter((item) => selected.includes(item.id));
-    const selectedGroupNames = new Set(selectedItems.map((item) => item.groupName));
-    const match = selectedItems.length === 4 && selectedGroupNames.size === 1
-      ? groups.find((group) => groupIdentity(group) === selectedItems[0].groupName)
-      : null;
-    if (match && !solvedNames.has(groupIdentity(match))) {
-      setSolved([...solved, match]);
-      setMessage(c.correct(groupDisplayName(match), groupDisplayDescription(match)));
-      setSelected([]);
-    } else {
-      const nextMistakes = Math.max(0, mistakes - 1);
-      setMistakes(nextMistakes);
-      setMessage(c.wrong);
-      setSelected([]);
-      if (nextMistakes === 0) setGameOverOpen(true);
-    }
-  }
-
-  function nextPuzzle() {
-    const nextIndex = mode === 'image' ? nextImagePuzzleIndex(difficulty, puzzleIndex) : (puzzleIndex + 1) % textPuzzles.length;
+  function chooseDifficulty(level) {
+    setSelectedDifficulty(level);
+    const nextIndex = pickNextPuzzleIndex(
+      pool,
+      playedPuzzleIds,
+      puzzleIndex + 1,
+      (item) => item.difficulty === level
+    );
     setPuzzleIndex(nextIndex);
-    setItems([...imagePuzzleCatalog[difficulty][nextIndex % imagePuzzleCatalog[difficulty].length].items].sort(() => Math.random() - 0.5));
-    setSelected([]);
-    setSolved([]);
-    setMistakes(4);
-    setHistory([]);
-    setTextOrder(null);
-    setRevealedHints(new Set());
-    setHintsUsed(0);
-    setMessage(mode === 'image' ? c.imageMessage : c.nextText);
-    setGameOverOpen(false);
-    showToast(c.skipped);
+    resetPuzzleState();
+    setMessage(
+      locale === "zh"
+        ? `切换到「${difficultyLabel(level, locale)}」类题目。`
+        : `Switched to ${difficultyLabel(level, locale)} puzzles.`
+    );
   }
 
-  function switchMode(nextMode) {
-    const nextImageIndex = nextImagePuzzleIndex(difficulty);
-    setMode(nextMode);
-    setSelected([]);
-    setSolved([]);
-    setMistakes(4);
-    setHistory([]);
-    setTextOrder(null);
-    setRevealedHints(new Set());
-    setHintsUsed(0);
-    if (nextMode === 'image') {
-      setPuzzleIndex(nextImageIndex);
-      setItems([...imagePuzzleCatalog[difficulty][nextImageIndex].items].sort(() => Math.random() - 0.5));
+  function toggleItem(item) {
+    if (isComplete || solvedIds.includes(item.id)) return;
+    setSelected((current) => {
+      if (current.includes(item.id)) return current.filter((id) => id !== item.id);
+      if (current.length === 4) return current;
+      return [...current, item.id];
+    });
+  }
+
+  function nearMissMessage() {
+    const counts = puzzle.groups
+      .map((group) => ({
+        name: localizePuzzleTerm(group.name, locale),
+        count: group.items.filter((item) => selected.includes(item.id)).length
+      }))
+      .sort((a, b) => b.count - a.count);
+    if (counts[0]?.count === 3) {
+      return locale === "zh"
+        ? `红鲱鱼出现：你摸到了「${counts[0].name}」的边，但有一个项目在误导你。`
+        : `Red herring: you are close to "${counts[0].name}", but one item is pulling you away.`;
     }
-    setMessage(nextMode === 'image'
-      ? c.imageMessage
-      : c.textMessage);
+    return t.wrong;
   }
 
-  function switchDifficulty(nextDifficulty) {
-    if (nextDifficulty === difficulty) return;
-    const nextIndex = nextImagePuzzleIndex(nextDifficulty);
-    setDifficulty(nextDifficulty);
-    setPuzzleIndex(nextIndex);
-    setItems([...imagePuzzleCatalog[nextDifficulty][nextIndex].items].sort(() => Math.random() - 0.5));
-    setSelected([]);
-    setSolved([]);
-    setMistakes(4);
-    setHistory([]);
-    setTextOrder(null);
-    setRevealedHints(new Set());
-    setHintsUsed(0);
-    setGameOverOpen(false);
-    setMessage(c.difficultyChanged(c.difficultyNames[nextDifficulty]));
+  async function ensurePlayer() {
+    const cleanName = nickname.trim();
+    if (!cleanName) return null;
+    const payload = await api("/api/player", {
+      method: "POST",
+      body: JSON.stringify({ playerId: playerId || undefined, nickname: cleanName })
+    });
+    setPlayerId(payload.player.id);
+    setStored("nanamicat.playerId", payload.player.id);
+    setStored("nanamicat.nickname", cleanName);
+    return payload.player;
   }
 
-  function switchLanguage() {
-    const nextLanguage = language === 'zh' ? 'en' : 'zh';
-    setLanguage(nextLanguage);
-    setMobileOpen(false);
-    setSelected([]);
-    setSolved([]);
-    setHistory([]);
-    setTextOrder(null);
-    setRevealedHints(new Set());
-    setHintsUsed(0);
-    setMessage(mode === 'text' ? copy[nextLanguage].textMessage : copy[nextLanguage].imageMessage);
+  async function submitScore() {
+    try {
+      const player = await ensurePlayer();
+      if (!player) {
+        setApiNotice(t.needsName);
+        return;
+      }
+      await api("/api/score", {
+        method: "POST",
+        body: JSON.stringify({ playerId: player.id, nickname: player.nickname, mode: "text", puzzleId: puzzle.id })
+      });
+      setApiNotice(t.savedScore);
+      loadLeaderboard();
+    } catch (error) {
+      setApiNotice(error.message);
+    }
   }
-  function showToast(text) {
-    setToast(text);
-    window.setTimeout(() => setToast(''), 2200);
+
+  function submitGuess() {
+    if (selected.length !== 4) {
+      setMessage(t.chooseFour);
+      return;
+    }
+
+    const guessKey = [...selected].sort().join("|");
+    const matched = puzzle.groups.find((group) => group.items.map((item) => item.id).sort().join("|") === guessKey);
+
+    if (matched && !solved.some((item) => item.name === matched.name)) {
+      const nextSolved = [...solved, matched];
+      setSolved(nextSolved);
+      setSelected([]);
+      if (nextSolved.length === puzzle.groups.length) {
+        setMessage(t.complete);
+        submitScore();
+      } else {
+        setMessage(locale === "zh" ? `答对一组：${matched.name}` : `Correct group: ${localizePuzzleTerm(matched.name, locale)}`);
+      }
+      return;
+    }
+
+    const nextMistakes = mistakes + 1;
+    setMistakes(nextMistakes);
+    setMessage(nextMistakes >= maxMistakes ? t.out : nearMissMessage());
+  }
+
+  function shuffleActiveItems() {
+    resetPuzzleState();
+    setMessage(locale === "zh" ? "已重新打乱并重开本题。" : "Puzzle reset and shuffled.");
   }
 
   function useHint() {
-    if (gameLocked) return;
-    const candidates = groups.filter(
-      (group) => !solvedNames.has(groupIdentity(group)) && !revealedHints.has(groupIdentity(group)),
-    );
-    if (candidates.length === 0) {
-      showToast(c.noHints);
-      return;
+    const unsolvedGroups = puzzle.groups.filter((group) => !solved.some((item) => item.name === group.name));
+    if (!unsolvedGroups.length) return;
+    const hintGroup = unsolvedGroups[hintIndex % unsolvedGroups.length];
+    setHintIndex((current) => current + 1);
+    setMessage(locale === "zh" ? `提示：有一组与「${hintGroup.name}」有关。${puzzle.redHerring}` : `Hint: one group relates to "${localizePuzzleTerm(hintGroup.name, locale)}".`);
+  }
+
+  function nextPuzzle() {
+    const nextIndex = pickNextPuzzleIndex(pool, playedPuzzleIds, puzzleIndex + 1);
+    setPuzzleIndex(nextIndex);
+    resetPuzzleState();
+  }
+
+  async function saveNickname() {
+    try {
+      const player = await ensurePlayer();
+      if (player) {
+        setApiNotice(locale === "zh" ? "昵称已保存。" : "Nickname saved.");
+        loadLeaderboard();
+      }
+    } catch (error) {
+      setApiNotice(error.message);
     }
-    const pick = candidates[Math.floor(Math.random() * candidates.length)];
-    setRevealedHints((prev) => {
-      const next = new Set(prev);
-      next.add(groupIdentity(pick));
-      return next;
-    });
-    setHintsUsed((prev) => prev + 1);
-    setMessage(c.imageHint(groupDisplayName(pick)));
-    showToast(c.imageHint(groupDisplayName(pick)));
+  }
+
+  async function loadLeaderboard() {
+    try {
+      const payload = await api("/api/leaderboard");
+      setLeaderboard(payload.leaderboard ?? []);
+    } catch (error) {
+      setApiNotice(error.message);
+    }
+  }
+
+  async function submitPuzzleForm(event) {
+    event.preventDefault();
+    try {
+      const player = await ensurePlayer();
+      const parsedGroups = form.groups.map((group) => ({
+        name: group.name.trim(),
+        words: group.words.split(/[,\n，]/).map((word) => word.trim()).filter(Boolean)
+      }));
+      const filledGroups = parsedGroups.filter((group) => group.name || group.words.length > 0);
+      if (!filledGroups.length) {
+        throw new Error(locale === "zh" ? "最少填写 1 组，每组 4 个词。" : "Add at least one group with exactly four words.");
+      }
+      if (filledGroups.some((group) => !group.name || group.words.length !== 4)) {
+        throw new Error(locale === "zh" ? "每个已填写分组必须有组名且恰好 4 个词。" : "Each filled group needs a name and exactly four words.");
+      }
+      const payload = await api("/api/puzzles", {
+        method: "POST",
+        body: JSON.stringify({
+          playerId: player?.id,
+          nickname: nickname.trim() || "Guest",
+          title: form.title.trim(),
+          email: form.email.trim() || undefined,
+          groups: filledGroups
+        })
+      });
+      setForm({ title: "", email: "", groups: [{ name: "", words: "" }] });
+      if (payload?.email?.attempted && payload?.email?.sent) {
+        setApiNotice(t.thankYouEmailSent);
+      } else if (form.email.trim()) {
+        setApiNotice(t.thankYouEmailNotSent);
+      } else {
+        setApiNotice(t.submissionSavedPending);
+      }
+    } catch (error) {
+      setApiNotice(error.message);
+    }
+  }
+
+  async function loadAdmin() {
+    try {
+      const [puzzlesPayload, scoresPayload] = await Promise.all([
+        api("/api/admin/puzzles"),
+        api("/api/admin/scores")
+      ]);
+      setAdminPuzzles(puzzlesPayload.submissions ?? []);
+      setAdminScores(scoresPayload.scores ?? []);
+    } catch (error) {
+      setApiNotice(error.message);
+    }
+  }
+
+  async function updateSubmission(id, status) {
+    try {
+      await api(`/api/admin/puzzles/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status })
+      });
+      loadAdmin();
+    } catch (error) {
+      setApiNotice(error.message);
+    }
   }
 
   async function shareResult() {
-    if (!allSolved) return;
-    const result = [
-      c.shareHeading,
-      ...solved.map((group, index) => `${['🟨', '🟩', '🟦', '🟪'][index]} ${groupDisplayName(group)}`),
-      window.location.href,
-    ].join('\n');
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(result);
-      } else {
-        const textarea = document.createElement('textarea');
-        textarea.value = result;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        const copied = document.execCommand('copy');
-        textarea.remove();
-        if (!copied) throw new Error('copy failed');
-      }
-      showToast(c.copied);
-    } catch {
-      showToast(c.copyFailed);
+    const report = `${t.appName} ${puzzleLabel(puzzle, locale)}\n${solved.length}/4\n${t.mistakes}: ${mistakes}\n${t.abstract}: ${abstractGroup ? localizePuzzleTerm(abstractGroup.name, locale) : "-"}\nhttps://nanamicat.com`;
+    if (navigator.share) {
+      await navigator.share({ text: report }).catch(() => {});
+      return;
     }
-  }
-
-  function openHelp() {
-    setMobileOpen(false);
-    setHelpOpen(true);
+    await navigator.clipboard?.writeText(report);
+    setMessage(locale === "zh" ? "结果已复制。" : "Result copied.");
   }
 
   return (
-    <div className={`app theme-${theme}`}>
-      <header className="site-header">
-        <div className="brand-row shell">
-          <button className="brand" onClick={() => setPage('game')} aria-label={c.homeLabel}>
-            <Logo />
-            <span>
-              <small>{c.daily}</small>
-              <strong>{c.brand}</strong>
-            </span>
-          </button>
-          <nav id="primary-nav" className={`primary-nav shell ${mobileOpen ? 'open' : ''}`} aria-label={c.primaryNavLabel}>
-            <NavButton active={page === 'game'} icon={<Sparkles size={17} />} onClick={() => { setPage('game'); setMobileOpen(false); }}>{c.navGame}</NavButton>
-            <NavButton active={page === 'leaderboard'} icon={<Medal size={17} />} onClick={() => { setPage('leaderboard'); setMobileOpen(false); }}>{c.leaderboard}</NavButton>
-            <NavButton active={page === 'contribute'} icon={<PenLine size={17} />} onClick={() => { setPage('contribute'); setMobileOpen(false); }}>{c.contribute}</NavButton>
-            <button className="mobile-only" onClick={switchLanguage}><Globe2 size={17} />{c.switchLanguage}</button>
-            <button type="button" className="mobile-only" onClick={openHelp}><CircleHelp size={17} />{c.howTo}</button>
-          </nav>
-          <div className="header-actions">
-            <div className="header-mode-switch">
-              <button className={mode === 'text' ? 'active' : ''} onClick={() => switchMode('text')}><Type size={16} />{c.textMode}</button>
-              <button className={mode === 'image' ? 'active' : ''} onClick={() => switchMode('image')}><Image size={16} />{c.imageMode}</button>
+    <main className="page">
+      <header className="app-header">
+        <section className="hero">
+          <div className="brand-lockup">
+            <NanamiCatMascot size="gameHeader" />
+            <div>
+              <p className="kicker">{t.kicker}</p>
+              <h1>{t.appName}</h1>
+              <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale)} / {difficultyLabel(puzzle.difficulty, locale)}</p>
             </div>
-            <button className="header-button" onClick={switchLanguage}><Globe2 size={16} /> {c.switchLanguage}</button>
-            <button type="button" className="header-button help-button" onClick={openHelp}><CircleHelp size={16} /> {c.howTo}</button>
-            <button className="mobile-menu" onClick={() => setMobileOpen(!mobileOpen)} aria-label={c.menuLabel} aria-expanded={mobileOpen} aria-controls="primary-nav"><Menu size={20} /></button>
           </div>
-        </div>
+          <div className="hero-tools">
+            <button className="ghost" type="button" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>
+              <Globe2 size={15} /> {t.language}
+            </button>
+            <button className="ghost" type="button" onClick={() => setMessage(t.intro)}>
+              <HelpCircle size={15} /> {t.help}
+            </button>
+          </div>
+        </section>
+
+        <nav className="topnav" aria-label="Primary">
+          {[
+            ["game", t.appName, Sparkles],
+            ["leaderboard", t.leaderboard, Trophy],
+            ["contribute", t.contribute, PenLine]
+          ].map(([id, label, Icon]) => (
+            <button key={id} type="button" className={view === id ? "active" : ""} onClick={() => setRoute(id)}>
+              <Icon size={16} /> {label}
+            </button>
+          ))}
+        </nav>
       </header>
 
-      <main className="shell main-shell">
-        {page === 'game' && (
-          <>
-            <section className="mobile-mode-switch" aria-label={c.modeSwitchLabel}>
-              <button className={mode === 'text' ? 'active' : ''} onClick={() => switchMode('text')}><Type size={17} />{c.textMode}</button>
-              <button className={mode === 'image' ? 'active' : ''} onClick={() => switchMode('image')}><Image size={17} />{c.imageMode}</button>
-            </section>
+      {apiNotice && <p className="notice" role="status">{apiNotice}</p>}
 
-            {mode === 'image' && (
-              <section className="difficulty-switch" aria-label={c.difficultyLabel}>
-                <strong>{c.difficultyLabel}</strong>
-                <div>
-                  {difficulties.map((option) => (
-                    <button
-                      type="button"
-                      key={option.id}
-                      className={`${option.id} ${difficulty === option.id ? 'active' : ''}`}
-                      aria-pressed={difficulty === option.id}
-                      onClick={() => switchDifficulty(option.id)}
-                    >
-                      {c.difficultyNames[option.id]}
-                    </button>
-                  ))}
-                </div>
+      {view === "game" && (
+        <>
+          <section className="toolbar" aria-label="Game settings">
+            <div className="theme-picker">
+              <Palette size={16} />
+              {themes.map((item) => (
+                <button key={item.id} type="button" className={theme === item.id ? "active" : ""} onClick={() => setTheme(item.id)}>
+                  {item[locale]}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="game-workspace">
+            <aside className="game-rail">
+              <div className="mascot-rail-decor" style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
+                <NanamiCatMascot size="gameHeader" />
+              </div>
+              <section className="status">
+                <span>{t.mistakes}</span>
+                <strong aria-label={`${remainingMistakes} remaining`}>{"●".repeat(remainingMistakes)}{"○".repeat(maxMistakes - remainingMistakes)}</strong>
               </section>
-            )}
 
-            <section className="mobile-game-heading">
-              <div className="mobile-mistakes"><span>{c.mistakes}</span><MistakeHearts count={mistakes} /></div>
-              <button type="button" onClick={openHelp}><CircleHelp size={22} />{c.howTo}</button>
-            </section>
+              <section className="difficulty-strip" aria-label="Difficulty">
+                {Object.entries(difficultyMeta).map(([level, meta]) => (
+                  <button
+                    className={`difficulty-chip ${meta.className}${Number(level) === selectedDifficulty ? " active" : ""}`}
+                    type="button"
+                    key={level}
+                    onClick={() => chooseDifficulty(Number(level))}
+                    aria-pressed={Number(level) === selectedDifficulty}
+                  >
+                    <strong>{meta[locale]}</strong>
+                  </button>
+                ))}
+              </section>
+
+            </aside>
 
             <section className="game-stage">
-              <div className="stage-top">
-                <div className="status-bar" role="status"><Lightbulb size={18} />{c.status}</div>
-                <div className="mistakes">
-                  <span>{c.mistakes}</span>
-                  <MistakeHearts count={mistakes} />
-                </div>
-              </div>
+              <p className="message" role="status">{message}</p>
 
-              <div className="stage-grid">
-                <aside className="solved-column" aria-label={c.foundGroups}>
-                  <h2>{c.foundGroups}</h2>
-                  {groups.map((group, index) => {
-                    const found = solvedNames.has(groupIdentity(group));
-                    const revealed = revealedHints.has(groupIdentity(group));
-                    return (
-                      <div
-                        key={groupIdentity(group)}
-                        className={`group-slot ${group.color} ${!found ? 'hidden-hint' : ''} ${revealed && !found ? 'revealed' : ''}`}
-                      >
-                        <strong>{found || revealed ? groupDisplayName(group) : c.groupNumber(index + 1)}</strong>
-                        <span>{found ? groupDisplayDescription(group) : revealed ? c.hintInCard(groupDisplayName(group)) : c.groupProgressSmall(0)}</span>
+              <section className="board" aria-label="Puzzle board">
+                {activeItems.map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    className={selected.includes(item.id) ? "tile selected" : "tile"}
+                    onClick={() => toggleItem(item)}
+                    aria-pressed={selected.includes(item.id)}
+                  >
+                    {itemLabel(item, locale)}
+                  </button>
+                ))}
+              </section>
+
+              <section className="controls-split" aria-label="Game controls">
+                {isComplete ? (
+                  <>
+                    <button type="button" className="controls-submit primary" onClick={nextPuzzle}>{t.nextAfterComplete}</button>
+                    <button type="button" className="controls-share" onClick={shareResult}><Share2 size={16} /> {t.share}</button>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" className="controls-submit primary" onClick={submitGuess} disabled={selected.length !== 4}><Check size={18} /> {t.submit}</button>
+                    <div className="controls-grid">
+                      <button type="button" onClick={useHint}><HelpCircle size={16} /> {t.hint}</button>
+                      <button type="button" onClick={shuffleActiveItems}><Dices size={16} /> {t.shuffle}</button>
+                      <button type="button" onClick={() => { setSelected([]); setMessage(t.clearedSelection); }} disabled={!selected.length}><RotateCcw size={16} /> {t.clear}</button>
+                      <button type="button" onClick={nextPuzzle}>{t.next}</button>
+                    </div>
+                  </>
+                )}
+              </section>
+
+              {isComplete && (
+                <>
+                  {abstractGroup && (
+                    <section className={`celebration-card level-${abstractGroup.level === 4 ? "purple" : abstractGroup.level === 3 ? "blue" : abstractGroup.level === 2 ? "green" : "yellow"}`} aria-label={t.abstract}>
+                      <NanamiCatMascot size="celebration" showCelebration={true} />
+                      <div className="celebration-text">
+                        <h3>{t.abstract}</h3>
+                        <h2>{localizePuzzleTerm(abstractGroup.name, locale)}</h2>
                       </div>
-                    );
-                  })}
-                </aside>
+                    </section>
+                  )}
 
-                <div className="board-column">
-                  <div className={`puzzle-board ${mode}`} role="group" aria-label={c.puzzleBoardLabel}>
-                    {visibleItems.map((item, index) => <PuzzleTile key={item.id} item={item} selected={selected.includes(item.id)} disabled={gameLocked} imageMode={mode === 'image'} imageAlt={c.imageAlt} accessibleLabel={mode === 'image' ? c.imageTileLabel(index + 1) : item.label} onClick={() => selectItem(item)} />)}
-                  </div>
-                  <p className="board-hint"><Lightbulb size={16} />{message}</p>
-                </div>
-
-                <aside className="tool-column">
-                  <section>
-                    <h2>{c.legendTitle}</h2>
-                    <div className="legend">
-                      {groups.map((group, index) => {
-                        const found = solvedNames.has(groupIdentity(group));
-                        const revealed = revealedHints.has(groupIdentity(group));
-                        return (
-                          <div
-                            key={groupIdentity(group)}
-                            className={`legend-row ${group.color} ${!found ? 'hidden-hint' : ''} ${revealed && !found ? 'revealed-hint' : ''}`}
-                          >
-                            <strong>{found ? groupDisplayName(group) : c.undiscovered(index + 1)}</strong>
-                            <span>{found ? groupDisplayDescription(group) : revealed ? c.hintInCard(groupDisplayName(group)) : c.notFound}</span>
+                  <section className="solved" aria-live="polite" aria-label="Solved groups">
+                    {solved.map((group) => {
+                      const meta = difficultyMeta[group.level] ?? difficultyMeta[4];
+                      return (
+                        <article className={`solved-item ${meta.className}`} key={group.name}>
+                          <NanamiCatMascot size="mini" />
+                          <div>
+                            <h2>{localizePuzzleTerm(group.name, locale)}</h2>
+                            <p>{group.items.map((item) => itemLabel(item, locale)).join(" / ")}</p>
                           </div>
-                        );
-                      })}
-                    </div>
+                        </article>
+                      );
+                    })}
                   </section>
-                  <section>
-                    <h2>{c.tools}</h2>
-                    <div className="tool-buttons">
-                      <button disabled={gameLocked} onClick={useHint}><Lightbulb size={18} />{c.hintButton}{hintsUsed > 0 ? ` (${hintsUsed})` : ''}</button>
-                      <button disabled={gameLocked} onClick={shuffle}><Shuffle size={18} />{c.shuffle}</button>
-                    </div>
+
+                  <section className="completion-actions" aria-label="Completion actions">
+                    <button type="button" className="primary completion-next" onClick={nextPuzzle}>{t.nextAfterComplete}</button>
+                    <button type="button" onClick={shareResult}><Share2 size={16} /> {t.share}</button>
                   </section>
-                  <section>
-                    <h2>{c.actions}</h2>
-                    <div className="action-buttons">
-                      <button disabled={!history.length || gameLocked} onClick={undo}><Undo2 size={18} />{c.undo}</button>
-                      <button onClick={() => setSelected([])}><X size={18} />{c.cancel}</button>
-                      <button className="primary" disabled={selected.length !== 4 || gameLocked} onClick={submitGroup}><Send size={18} />{c.submit}</button>
-                    </div>
-                  </section>
-                </aside>
-              </div>
-
-              <div className="stage-footer">
-                <button className="primary next-button" onClick={nextPuzzle}>{c.next}<RefreshCcw size={18} /></button>
-                <button disabled={!allSolved} onClick={shareResult}><Share2 size={18} />{c.share}</button>
-              </div>
+                </>
+              )}
             </section>
-
-            <section className="mobile-controls">
-              <button className="hint-action" disabled={gameLocked} onClick={useHint}><Lightbulb size={18} />{c.hintButton}{hintsUsed > 0 ? ` (${hintsUsed})` : ''}</button>
-              <button className="primary submit-action" disabled={selected.length !== 4 || gameLocked} onClick={submitGroup}><Send size={18} />{c.submitGroup}</button>
-              <button className="shuffle-action" disabled={gameLocked} onClick={shuffle}><Shuffle size={18} />{c.shuffle}</button>
-              <button disabled={!history.length || gameLocked} onClick={undo}><Undo2 size={18} />{c.undo}</button>
-              <button className="next-action" onClick={nextPuzzle}><RefreshCcw size={18} />{c.next}</button>
-            </section>
-
-            <section className="mobile-legend">
-              <div><h2>{c.mobileLegendTitle}</h2><span>{c.foundCount(solved.length)}</span></div>
-              <div className="legend">
-                {groups.map((group, index) => {
-                  const found = solvedNames.has(groupIdentity(group));
-                  const revealed = revealedHints.has(groupIdentity(group));
-                  return (
-                    <div
-                      key={groupIdentity(group)}
-                      className={`legend-row ${group.color} ${!found ? 'hidden-hint' : ''} ${revealed && !found ? 'revealed-hint' : ''}`}
-                    >
-                      <strong>{found ? groupDisplayName(group) : c.undiscovered(index + 1)}</strong>
-                      <span>{found ? c.found : revealed ? c.hintInCard(groupDisplayName(group)) : c.notFound}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section className="quick-links">
-              <button onClick={() => setPage('leaderboard')}><Medal size={24} /><span><strong>{c.quickLeaderboard}</strong><small>{c.quickLeaderboardSub}</small></span></button>
-              <button onClick={() => setPage('contribute')}><PenLine size={24} /><span><strong>{c.quickContribute}</strong><small>{c.quickContributeSub}</small></span></button>
-            </section>
-          </>
-        )}
-
-        {page === 'leaderboard' && <Leaderboard copy={c} nickname={nickname} setNickname={setNickname} savedName={savedName} setSavedName={setSavedName} showToast={showToast} />}
-        {page === 'contribute' && <Contribute copy={c} nickname={nickname} setNickname={setNickname} savedName={savedName} setSavedName={setSavedName} showToast={showToast} />}
-        <Support copy={c} />
-      </main>
-
-      <nav className="mobile-bottom-nav" aria-label={c.bottomNavLabel}>
-        <button type="button" className={page === 'game' ? 'active' : ''} onClick={() => setPage('game')}><Sparkles size={19} />{c.navGame}</button>
-        <button type="button" className={page === 'leaderboard' ? 'active' : ''} onClick={() => setPage('leaderboard')}><Medal size={19} />{c.leaderboard}</button>
-        <button type="button" className={page === 'contribute' ? 'active' : ''} onClick={() => setPage('contribute')}><PenLine size={19} />{c.submitShort}</button>
-        <button type="button" onClick={openHelp}><CircleHelp size={19} />{c.play}</button>
-      </nav>
-
-      {helpOpen && <HelpModal copy={c} onClose={() => setHelpOpen(false)} />}
-      {gameOverOpen && (
-        <GameOverModal
-          copy={c}
-          nickname={nickname}
-          setNickname={setNickname}
-          setSavedName={setSavedName}
-          showToast={showToast}
-          onNext={nextPuzzle}
-          onClose={() => setGameOverOpen(false)}
-        />
+          </section>
+        </>
       )}
-      {toast && <div className="toast">{toast}</div>}
-    </div>
-  );
-}
 
-function NavButton({ active, icon, children, onClick }) {
-  return <button className={active ? 'active' : ''} onClick={onClick}>{icon}{children}</button>;
-}
-
-function MistakeHearts({ count }) {
-  return <strong className="heart-row">{[0, 1, 2, 3].map((index) => <Heart key={index} size={21} fill={index < count ? 'currentColor' : 'none'} />)}</strong>;
-}
-
-function PuzzleTile({ item, selected, disabled, imageMode, imageAlt, accessibleLabel, onClick }) {
-  return (
-    <button className={`puzzle-tile ${selected ? 'selected' : ''}`} disabled={disabled} onClick={onClick} aria-pressed={selected} aria-label={accessibleLabel}>
-      {imageMode ? (
-        <img
-          className="tile-image"
-          src={item.imageUrl}
-          alt={imageAlt}
-          loading="lazy"
-          onError={(event) => {
-            event.currentTarget.onerror = null;
-            event.currentTarget.src = fallbackImageDataUrl();
-          }}
-        />
-      ) : <strong>{item.label}</strong>}
-      {!imageMode && <span>{item.label}</span>}
-    </button>
-  );
-}
-
-function SolvedGroup({ group }) {
-  return <div className={`solved-group ${group.color}`}><strong>{group.name}</strong><span>{group.description}</span></div>;
-}
-
-function NameField({ copy: c, nickname, setNickname, setSavedName, showToast }) {
-  function saveName() {
-    const trimmed = nickname.trim();
-    if (!trimmed) {
-      showToast(c.nicknameRequired);
-      return;
-    }
-    if (trimmed.length > 32) {
-      showToast(c.nicknameTooLong);
-      return;
-    }
-    localStorage.setItem('nanamicat.nickname', trimmed);
-    setNickname(trimmed);
-    setSavedName(trimmed);
-    showToast(c.nicknameSaved(trimmed));
-  }
-  return (
-    <div className="name-row">
-      <label><span>{c.nickname}</span><input maxLength={32} value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder={c.nicknamePlaceholder} /></label>
-      <button className="primary" onClick={saveName}>{c.saveNickname}</button>
-    </div>
-  );
-}
-
-function Leaderboard(props) {
-  const c = props.copy;
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    fetch('/api/scores')
-      .then((response) => response.ok ? response.json() : { leaders: [] })
-      .then((result) => {
-        if (!cancelled) setRows(Array.isArray(result.leaders) ? result.leaders : []);
-      })
-      .catch(() => {
-        if (!cancelled) setRows([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const tableRows = rows.map((row) => [
-    row.rank,
-    row.nickname,
-    row.textClears,
-    row.imageClears,
-    row.score,
-    row.latestAt ? new Date(row.latestAt).toLocaleString(c.locale) : '',
-  ]);
-
-  return (
-    <section className="page-panel">
-      <p className="section-label">{c.recordLabel}</p>
-      <h1>{c.leaderboard}</h1>
-      <p className="page-copy">{c.leaderboardCopy}</p>
-      <NameField {...props} />
-      <div className="table-wrap">
-        <table>
-          <thead><tr>{c.tableHeads.map((head) => <th key={head}>{head}</th>)}</tr></thead>
-          <tbody>
-            {tableRows.map((row) => <tr key={row[0]}>{row.map((cell, index) => <td key={index}>{index === 4 ? <strong>{cell}</strong> : cell}</td>)}</tr>)}
-            {!loading && !tableRows.length && <tr><td colSpan={c.tableHeads.length}>{c.leaderboardEmpty}</td></tr>}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
-
-function GameOverModal(props) {
-  const c = props.copy;
-  return (
-    <div className="modal-backdrop">
-      <div className="modal crayon-panel game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
-        <button className="modal-close" onClick={props.onClose} aria-label={c.cancel} autoFocus><X size={18} /></button>
-        <p className="section-label">{c.recordLabel}</p>
-        <h2 id="game-over-title">{c.gameOverTitle}</h2>
-        <p>{c.gameOverCopy}</p>
-        <NameField {...props} />
-        <button className="primary" onClick={props.onNext}><RefreshCcw size={18} />{c.keepPlaying}</button>
-      </div>
-    </div>
-  );
-}
-
-function Contribute(props) {
-  const c = props.copy;
-  const emptyGroups = () => [{ name: '', words: '' }];
-  const [groups, setGroups] = useState(emptyGroups);
-  const [leaveContact, setLeaveContact] = useState(false);
-  const [contactEmail, setContactEmail] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  function updateGroup(index, field, value) {
-    setGroups(groups.map((group, groupIndex) => groupIndex === index ? { ...group, [field]: value } : group));
-  }
-
-  function addGroup() {
-    if (groups.length >= 10) {
-      props.showToast(c.maxGroups);
-      return;
-    }
-    setGroups([...groups, { name: '', words: '' }]);
-  }
-
-  function removeGroup(index) {
-    if (groups.length <= 1) {
-      props.showToast(c.minGroups);
-      return;
-    }
-    setGroups(groups.filter((_, groupIndex) => groupIndex !== index));
-  }
-
-  async function submitContribution(event) {
-    event.preventDefault();
-    const normalizedGroups = groups.map((group) => ({
-      name: group.name.trim(),
-      words: group.words.split(/[,，、]/).map((word) => word.trim()).filter(Boolean),
-    }));
-    if (!props.nickname.trim()) {
-      props.showToast(c.nicknameRequired);
-      return;
-    }
-    if (props.nickname.trim().length > 32) {
-      props.showToast(c.nicknameTooLong);
-      return;
-    }
-    if (normalizedGroups.length < 1 || normalizedGroups.length > 10) {
-      props.showToast(c.invalidGroupCount);
-      return;
-    }
-    if (normalizedGroups.some((group) => !group.name)) {
-      props.showToast(c.invalidGroupName);
-      return;
-    }
-    if (normalizedGroups.some((group) => group.words.length !== 4)) {
-      props.showToast(c.invalidWords);
-      return;
-    }
-    if (normalizedGroups.some((group) => group.name.length > 40 || group.words.some((word) => word.length > 40))) {
-      props.showToast(c.contributionTextTooLong);
-      return;
-    }
-    const groupNames = normalizedGroups.map((group) => group.name.toLowerCase());
-    if (new Set(groupNames).size !== groupNames.length) {
-      props.showToast(c.duplicateGroupNames);
-      return;
-    }
-    const allWords = normalizedGroups.flatMap((group) => group.words.map((word) => word.toLowerCase()));
-    if (new Set(allWords).size !== allWords.length) {
-      props.showToast(c.duplicateWords);
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const response = await fetch('/api/submissions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nickname: props.nickname,
-          title: normalizedGroups[0]?.name || '',
-          contactEmail: leaveContact ? contactEmail.trim() : '',
-          groups: normalizedGroups,
-        }),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || c.submitFailed);
-      setGroups(emptyGroups());
-      setLeaveContact(false);
-      setContactEmail('');
-      props.showToast(c.contributionSuccess);
-    } catch (error) {
-      props.showToast(error.message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <section className="page-panel">
-      <p className="section-label">{c.contributeLabel}</p>
-      <h1>{c.contributeTitle}</h1>
-      <p className="page-copy">{c.contributeCopy}</p>
-      <NameField {...props} />
-      <form className="contribute-form" onSubmit={submitContribution}>
-        <div className="contact-field">
-          <label className="check-row">
-            <input type="checkbox" checked={leaveContact} onChange={(event) => setLeaveContact(event.target.checked)} />
-            <span>{c.leaveContact}</span>
-          </label>
-          {leaveContact && (
-            <label>
-              <span>{c.contactEmail}</span>
-              <input type="email" required value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} placeholder="you@example.com" />
-            </label>
+      {view === "leaderboard" && (
+        <section className="panel">
+          <div className="panel-head">
+            <div>
+              <h2>{t.leaderboard}</h2>
+              <p>{t.leaderboardLead}</p>
+            </div>
+            <div className="name-row">
+              <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={24} placeholder={t.playerName} />
+              <button type="button" className="primary" onClick={saveNickname}>{t.saveName}</button>
+            </div>
+          </div>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>{t.playerName}</th>
+                  <th>{t.scoreText}</th>
+                  <th>{t.totalScore}</th>
+                  <th>{t.recent}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard.map((row, index) => (
+                  <tr key={row.id}>
+                    <td>{index + 1}</td>
+                    <td>{row.nickname}</td>
+                    <td>{row.text_clears}</td>
+                    <td><strong>{row.total_score}</strong></td>
+                    <td>{new Date(row.updated_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {!leaderboard.length && (
+            <div className="empty-state">
+              <NanamiCatMascot size="empty" />
+              <p className="empty">{t.emptyLeaderboard}</p>
+            </div>
           )}
-        </div>
-        <div className="group-builder-head">
-          <span>{c.groupProgress(groups.length)}</span>
-          <button type="button" onClick={addGroup} disabled={groups.length >= 10}>{c.addGroup}</button>
-        </div>
-        <div className="group-fields dynamic">
-          {groups.map((group, index) => (
-            <fieldset key={index}>
-              <legend>
-                <span>{c.groupName(index + 1)}</span>
-                <button type="button" onClick={() => removeGroup(index)} disabled={groups.length <= 1}>{c.removeGroup}</button>
-              </legend>
-              <input required maxLength={40} value={group.name} onChange={(event) => updateGroup(index, 'name', event.target.value)} placeholder={c.groupNamePlaceholder(index + 1)} />
-              <input required value={group.words} onChange={(event) => updateGroup(index, 'words', event.target.value)} placeholder={c.groupWordsPlaceholder} />
-            </fieldset>
-          ))}
-        </div>
-        <button className="primary submit-form" type="submit" disabled={submitting}><Send size={17} />{submitting ? c.submitting : c.submitToAdmin}</button>
-      </form>
-    </section>
-  );
-}
-function AdminApp() {
-  const [adminKey, setAdminKey] = useState(() => sessionStorage.getItem('nanamicat-admin-key') || '');
-  const [keyInput, setKeyInput] = useState('');
-  const [submissions, setSubmissions] = useState([]);
-  const [filter, setFilter] = useState('pending');
-  const [loading, setLoading] = useState(Boolean(adminKey));
-  const [error, setError] = useState('');
+        </section>
+      )}
 
-  const filteredSubmissions = filter === 'all' ? submissions : submissions.filter((submission) => submission.status === filter);
-  const statusLabels = { pending: '待审核', approved: '已通过', rejected: '已拒绝' };
-  const emailStatusLabels = {
-    not_requested: '未留下邮箱',
-    not_configured: '邮件服务未配置',
-    sent: '感谢邮件已发送',
-    failed: '感谢邮件发送失败',
-  };
-
-  useEffect(() => {
-    if (adminKey) loadSubmissions(adminKey);
-  }, [adminKey]);
-
-  async function api(path, options = {}, key = adminKey) {
-    const response = await fetch(path, {
-      ...options,
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': key, ...options.headers },
-    });
-    if (response.status === 204) return null;
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || '后台请求失败。');
-    return result;
-  }
-
-  async function loadSubmissions(key = adminKey) {
-    setLoading(true);
-    setError('');
-    try {
-      const result = await api('/api/admin/submissions', {}, key);
-      setSubmissions(result.submissions);
-    } catch (requestError) {
-      setError(requestError.message);
-      sessionStorage.removeItem('nanamicat-admin-key');
-      setAdminKey('');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function login(event) {
-    event.preventDefault();
-    setLoading(true);
-    setError('');
-    try {
-      const result = await api('/api/admin/submissions', {}, keyInput);
-      sessionStorage.setItem('nanamicat-admin-key', keyInput);
-      setSubmissions(result.submissions);
-      setAdminKey(keyInput);
-      setKeyInput('');
-    } catch (requestError) {
-      setError(requestError.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function setStatus(id, status) {
-    try {
-      const result = await api(`/api/admin/submissions/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) });
-      setSubmissions(submissions.map((submission) => submission.id === id ? result.submission : submission));
-    } catch (requestError) {
-      setError(requestError.message);
-    }
-  }
-
-  async function removeSubmission(id) {
-    if (!window.confirm('确定删除这条投稿吗？')) return;
-    try {
-      await api(`/api/admin/submissions/${id}`, { method: 'DELETE' });
-      setSubmissions(submissions.filter((submission) => submission.id !== id));
-    } catch (requestError) {
-      setError(requestError.message);
-    }
-  }
-
-  function logout() {
-    sessionStorage.removeItem('nanamicat-admin-key');
-    setAdminKey('');
-    setSubmissions([]);
-  }
-
-  if (!adminKey) {
-    return (
-      <div className="admin-app">
-        <main className="admin-login crayon-panel">
-          <Logo />
-          <p className="section-label">四格寻踪后台</p>
-          <h1>管理员登录</h1>
-          <p>输入管理员密钥后查看游客提交的谜题。</p>
-          <form onSubmit={login}>
-            <label><span>管理员密钥</span><input type="password" required value={keyInput} onChange={(event) => setKeyInput(event.target.value)} placeholder="输入 ADMIN_KEY" /></label>
-            <button className="primary" type="submit" disabled={loading}><LockKeyhole size={17} />{loading ? '验证中...' : '进入后台'}</button>
+      {view === "contribute" && (
+        <section className="panel">
+          <div className="panel-head">
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
+                <h2>{t.submitPuzzle}</h2>
+                <NanamiCatMascot size="header" />
+              </div>
+              <p>{t.contributionLead}</p>
+            </div>
+            <div className="name-row">
+              <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={24} placeholder={t.playerName} />
+              <button type="button" onClick={saveNickname}>{t.saveName}</button>
+            </div>
+          </div>
+          <form className="submission-form" onSubmit={submitPuzzleForm}>
+            <label>
+              {t.puzzleTitle}
+              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required maxLength={80} />
+            </label>
+            <label>
+              {t.contactEmail}
+              <input
+                type="email"
+                value={form.email}
+                onChange={(event) => setForm({ ...form, email: event.target.value })}
+                maxLength={254}
+              />
+            </label>
+            <div className="group-grid">
+              {form.groups.map((group, index) => (
+                <fieldset key={index} className="group-card">
+                  <legend>{t.groupName} {index + 1}</legend>
+                  {form.groups.length > 1 && (
+                    <button
+                      type="button"
+                      className="group-remove"
+                      onClick={() => setForm({ ...form, groups: form.groups.filter((_, i) => i !== index) })}
+                    >
+                      {t.removeGroup}
+                    </button>
+                  )}
+                  <input
+                    value={group.name}
+                    onChange={(event) => {
+                      const groups = [...form.groups];
+                      groups[index] = { ...groups[index], name: event.target.value };
+                      setForm({ ...form, groups });
+                    }}
+                  />
+                  <textarea
+                    value={group.words}
+                    onChange={(event) => {
+                      const groups = [...form.groups];
+                      groups[index] = { ...groups[index], words: event.target.value };
+                      setForm({ ...form, groups });
+                    }}
+                    placeholder={t.words}
+                  />
+                </fieldset>
+              ))}
+            </div>
+            {form.groups.length < 4 && (
+              <button
+                type="button"
+                className="add-group"
+                onClick={() => setForm({ ...form, groups: [...form.groups, { name: "", words: "" }] })}
+              >
+                {t.addGroup}
+              </button>
+            )}
+            <button type="submit" className="primary">{t.savePuzzle}</button>
           </form>
-          {error && <p className="admin-error">{error}</p>}
-          <a href="/">返回游戏</a>
-        </main>
-      </div>
-    );
-  }
+        </section>
+      )}
 
-  return (
-    <div className="admin-app">
-      <header className="admin-header">
-        <div className="shell">
-          <div className="admin-brand"><Logo /><span><small>四格寻踪</small><strong>游客投稿后台</strong></span></div>
-          <div className="admin-header-actions">
-            <a href="/">返回游戏</a>
-            <button type="button" onClick={logout}><LogOut size={16} />退出</button>
+      {view === "admin" && (
+        <section className="panel admin-panel">
+          <div className="panel-head">
+            <div>
+              <h2>{t.admin}</h2>
+              <p>{t.adminLead}</p>
+            </div>
+            <button type="button" onClick={loadAdmin}>{locale === "zh" ? "刷新" : "Refresh"}</button>
           </div>
-        </div>
-      </header>
-      <main className="shell admin-main">
-        <section className="admin-summary">
-          <div><span>全部投稿</span><strong>{submissions.length}</strong></div>
-          <div className="yellow"><span>待审核</span><strong>{submissions.filter((item) => item.status === 'pending').length}</strong></div>
-          <div className="green"><span>已通过</span><strong>{submissions.filter((item) => item.status === 'approved').length}</strong></div>
-          <div className="purple"><span>已拒绝</span><strong>{submissions.filter((item) => item.status === 'rejected').length}</strong></div>
-        </section>
-        <section className="admin-toolbar">
-          <div>
-            <p className="admin-kicker">审核队列</p>
-            <h1>游客留下的题目</h1>
-          </div>
-          <div className="admin-filters">
-            {[
-              ['pending', '待审核'],
-              ['approved', '已通过'],
-              ['rejected', '已拒绝'],
-              ['all', '全部'],
-            ].map(([value, label]) => <button key={value} className={filter === value ? 'active' : ''} onClick={() => setFilter(value)}>{label}</button>)}
-          </div>
-        </section>
-        {error && <p className="admin-error">{error}</p>}
-        {loading ? <p className="admin-empty">正在读取投稿...</p> : (
-          <section className="submission-list">
-            {filteredSubmissions.length === 0 && <p className="admin-empty">当前没有这类投稿。</p>}
-            {filteredSubmissions.map((submission) => (
-              <article className="submission-card" key={submission.id}>
-                <div className="submission-card-head">
-                  <div>
-                    <span className={`status-badge ${submission.status}`}>{statusLabels[submission.status]}</span>
-                    <h2>{submission.title}</h2>
-                    <p>投稿人：{submission.nickname} · {new Date(submission.createdAt).toLocaleString('zh-CN')}</p>
-                    <p className="submission-contact">
-                      <Mail size={14} />
-                      {submission.contactEmail ? submission.contactEmail : '未留下联系邮箱'}
-                      <span>{emailStatusLabels[submission.thankYouEmail?.status || 'not_requested']}</span>
-                    </p>
-                  </div>
+          <h3>{t.adminPuzzles}</h3>
+          <div className="admin-list">
+            {adminPuzzles.map((item) => (
+              <article key={item.id} className="admin-item">
+                <div>
+                  <strong>{item.title}</strong>
+                  <p>{item.nickname} / {new Date(item.created_at).toLocaleString()}</p>
+                  {item.contact_email ? <p>{item.contact_email}</p> : null}
+                  <pre>{JSON.stringify(JSON.parse(item.groups_json), null, 2)}</pre>
                 </div>
-                <div className="submission-groups">
-                  {submission.groups.map((group, index) => (
-                    <div className={['yellow', 'green', 'blue', 'purple'][index]} key={`${submission.id}-${index}`}>
-                      <strong>{group.name}</strong>
-                      <span>{group.words.join('、')}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="submission-actions">
-                  <button className="approve" onClick={() => setStatus(submission.id, 'approved')}><Check size={16} />通过题目</button>
-                  <button className="reject" onClick={() => setStatus(submission.id, 'rejected')}><X size={16} />拒绝题目</button>
-                  <button onClick={() => setStatus(submission.id, 'pending')}><RefreshCcw size={16} />移回待审核</button>
-                  <button className="delete" onClick={() => removeSubmission(submission.id)}><Trash2 size={16} />删除题目</button>
-                </div>
+                <select value={item.status} onChange={(event) => updateSubmission(item.id, event.target.value)}>
+                  <option value="pending">{t.statusPending}</option>
+                  <option value="reviewed">{t.statusReviewed}</option>
+                  <option value="included">{t.statusIncluded}</option>
+                  <option value="rejected">{t.statusRejected}</option>
+                </select>
               </article>
             ))}
-          </section>
-        )}
-      </main>
-    </div>
-  );
-}
-function Support({ copy: c }) {
-  const [qrOpen, setQrOpen] = useState(false);
-  useEffect(() => {
-    if (!qrOpen) return undefined;
-    function closeQr(event) {
-      if (event.key === 'Escape') setQrOpen(false);
-    }
-    window.addEventListener('keydown', closeQr);
-    return () => window.removeEventListener('keydown', closeQr);
-  }, [qrOpen]);
-  return (
-    <>
-      <aside className="support-panel" aria-label={c.supportLabel}>
-        <div>
-          <p className="section-label">{c.supportLabel}</p>
-          <h2>{c.supportTitle}</h2>
-          <p>{c.supportCopy}</p>
+            {!adminPuzzles.length && <p className="empty">{t.emptySubmissions}</p>}
+          </div>
+          <h3>{t.adminScores}</h3>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr><th>{t.playerName}</th><th>Mode</th><th>Puzzle</th><th>Points</th><th>{t.recent}</th></tr>
+              </thead>
+              <tbody>
+                {adminScores.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.nickname}</td>
+                    <td>{row.mode}</td>
+                    <td>{row.puzzle_id}</td>
+                    <td>{row.points}</td>
+                    <td>{new Date(row.created_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      <aside className="sponsor" aria-label={t.sponsorLabel}>
+        <div className="sponsor-copy">
+          <p className="sponsor-label">{t.sponsorLabel}</p>
+          <h2>{t.sponsorTitle}</h2>
+          <p>{t.sponsorBody}</p>
         </div>
-        <figure>
-          <button type="button" className="qr-button" onClick={() => setQrOpen(true)} aria-label={c.enlargeQr}>
-            <img src="/wechat-pay.jpg" alt="WeChat Pay" />
+        <figure className="pay-code">
+          <button className="pay-zoom" type="button" onClick={() => setPayOpen(true)} aria-label={t.zoomPay}>
+            <img src="/wechat-pay.jpg" alt={t.payCaption} />
+            <span><Maximize2 size={14} /> {t.zoomPay}</span>
           </button>
-          <figcaption><Coffee size={15} />WeChat Pay</figcaption>
+          <figcaption>{t.payCaption}</figcaption>
         </figure>
       </aside>
-      {qrOpen && (
-        <div className="modal-backdrop qr-backdrop" onClick={() => setQrOpen(false)}>
-          <section className="modal crayon-panel qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-title" onClick={(event) => event.stopPropagation()}>
-            <button type="button" className="modal-close" onClick={() => setQrOpen(false)} aria-label={c.cancel} autoFocus><X size={20} /></button>
-            <p className="section-label">{c.supportLabel}</p>
-            <h2 id="qr-title">{c.qrTitle}</h2>
-            <img src="/wechat-pay.jpg" alt="WeChat Pay" />
-          </section>
+
+      {payOpen && (
+        <div className="pay-modal" role="dialog" aria-modal="true" aria-label={t.payCaption}>
+          <button className="pay-modal-backdrop" type="button" aria-label="Close payment overlay" onClick={() => setPayOpen(false)} />
+          <div className="pay-modal-panel">
+            <button className="pay-modal-close" type="button" onClick={() => setPayOpen(false)} aria-label="Close">
+              <X size={18} />
+            </button>
+            <img src="/wechat-pay.jpg" alt={t.payCaption} />
+          </div>
         </div>
       )}
-    </>
+    </main>
   );
 }
 
-function HelpModal({ copy: c, onClose }) {
-  return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <section className="modal crayon-panel" role="dialog" aria-modal="true" aria-labelledby="help-title" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="modal-close" onClick={onClose} aria-label={c.cancel} autoFocus><X size={20} /></button>
-        <p className="section-label">{c.howTo}</p>
-        <h2 id="help-title">{c.helpTitle}</h2>
-        <ol className="help-steps">
-          {c.helpSteps.map((step, index) => <li key={step}><span>{index + 1}</span>{step}</li>)}
-        </ol>
-        <button type="button" className="primary" onClick={onClose}>{c.start}</button>
-      </section>
-    </div>
-  );
-}
-const isAdminRoute = /^\/admin(?:\/|$)/.test(window.location.pathname)
-  || /^\/control-panel\/?$/.test(window.location.pathname);
-createRoot(document.getElementById('root')).render(isAdminRoute ? <AdminApp /> : <App />);
-
-
-
-
-
+createRoot(document.getElementById("root")).render(<App />);
