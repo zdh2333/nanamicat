@@ -7,7 +7,7 @@ struct ContributeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var entranceStage = 0
 
-    private let entranceTotal = 8
+    private var entranceTotal: Int { 2 + viewModel.groups.count + 2 }
 
     var body: some View {
         let palette = AppPalette.palette(for: store.theme, colorScheme: colorScheme)
@@ -29,9 +29,18 @@ struct ContributeView: View {
                     introCard(palette: palette)
                         .pageEntrance(stage: entranceStage, order: 1, reduceMotion: reduceMotion)
 
-                    ForEach(0..<4, id: \.self) { index in
-                        groupCard(index: index, palette: palette)
+                    ForEach(Array(viewModel.groups.enumerated()), id: \.element.id) { index, group in
+                        groupCard(index: index, groupID: group.id, palette: palette)
                             .pageEntrance(stage: entranceStage, order: 2 + index, reduceMotion: reduceMotion)
+                    }
+
+                    if viewModel.groups.count < ContributeViewModel.maxGroups {
+                        Button(L10n.t(.addGroup, locale: store.locale)) {
+                            viewModel.addGroup()
+                        }
+                        .buttonStyle(SecondaryButtonStyle(palette: palette))
+                        .frame(maxWidth: .infinity)
+                        .pageEntrance(stage: entranceStage, order: 2 + viewModel.groups.count, reduceMotion: reduceMotion)
                     }
 
                     Button(L10n.t(.savePuzzle, locale: store.locale)) {
@@ -39,23 +48,25 @@ struct ContributeView: View {
                     }
                     .buttonStyle(PrimaryButtonStyle(accent: palette.accent, palette: palette))
                     .frame(maxWidth: .infinity)
-                    .pageEntrance(stage: entranceStage, order: 6, reduceMotion: reduceMotion)
+                    .pageEntrance(stage: entranceStage, order: 3 + viewModel.groups.count, reduceMotion: reduceMotion)
 
                     if !viewModel.notice.isEmpty {
                         Text(viewModel.notice)
                             .font(.footnote)
                             .foregroundStyle(palette.muted)
                             .noticeTransition(reduceMotion: reduceMotion)
-                            .pageEntrance(stage: entranceStage, order: 7, reduceMotion: reduceMotion)
+                            .pageEntrance(stage: entranceStage, order: 4 + viewModel.groups.count, reduceMotion: reduceMotion)
                     }
                 }
                 .padding(20)
                 .animation(reduceMotion ? nil : PageMotion.status, value: viewModel.notice)
+                .animation(reduceMotion ? nil : PageMotion.status, value: viewModel.groups.count)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { triggerEntrance() }
         .onChange(of: store.locale) { _, _ in triggerEntrance() }
+        .onChange(of: viewModel.groups.count) { _, _ in triggerEntrance() }
     }
 
     private func triggerEntrance() {
@@ -71,11 +82,16 @@ struct ContributeView: View {
                     .font(.footnote)
                     .foregroundStyle(palette.muted)
             }
-            TextField(L10n.t(.puzzleTitle, locale: store.locale), text: $viewModel.title)
+            TextField(L10n.t(.playerName, locale: store.locale), text: $store.nickname)
+                .onChange(of: store.nickname) { _, newValue in
+                    if newValue.count > 24 {
+                        store.nickname = String(newValue.prefix(24))
+                    }
+                }
                 .font(.body)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
-                .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(palette.surface.opacity(0.95), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(palette.muted.opacity(0.25), lineWidth: 1)
@@ -86,7 +102,7 @@ struct ContributeView: View {
                 .font(.body)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
-                .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(palette.surface.opacity(0.95), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(palette.muted.opacity(0.25), lineWidth: 1)
@@ -97,26 +113,60 @@ struct ContributeView: View {
     }
 
     @ViewBuilder
-    private func groupCard(index: Int, palette: AppPalette) -> some View {
+    private func groupCard(index: Int, groupID: UUID, palette: AppPalette) -> some View {
+        let binding = Binding(
+            get: {
+                viewModel.groups.first(where: { $0.id == groupID }) ?? ContributeViewModel.DraftGroup()
+            },
+            set: { updated in
+                guard let slot = viewModel.groups.firstIndex(where: { $0.id == groupID }) else { return }
+                viewModel.groups[slot] = updated
+            }
+        )
+
         VStack(alignment: .leading, spacing: 10) {
-            Text("\(L10n.t(.groupName, locale: store.locale)) \(index + 1)")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(palette.ink)
-            TextField(L10n.t(.groupName, locale: store.locale), text: $viewModel.groups[index].name)
+            HStack {
+                Text("\(L10n.t(.groupName, locale: store.locale)) \(index + 1)")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(palette.ink)
+                Spacer()
+                if viewModel.groups.count > 1 {
+                    Button(L10n.t(.removeGroup, locale: store.locale)) {
+                        viewModel.removeGroup(id: groupID)
+                    }
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(palette.muted)
+                }
+            }
+            TextField(L10n.t(.groupName, locale: store.locale), text: Binding(
+                get: { binding.wrappedValue.name },
+                set: { newValue in
+                    var updated = binding.wrappedValue
+                    updated.name = newValue
+                    binding.wrappedValue = updated
+                }
+            ))
                 .font(.body)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
-                .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(palette.surface.opacity(0.95), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(palette.muted.opacity(0.25), lineWidth: 1)
                 }
-            TextField(L10n.t(.wordsPlaceholder, locale: store.locale), text: $viewModel.groups[index].words, axis: .vertical)
+            TextField(L10n.t(.wordsPlaceholder, locale: store.locale), text: Binding(
+                get: { binding.wrappedValue.words },
+                set: { newValue in
+                    var updated = binding.wrappedValue
+                    updated.words = newValue
+                    binding.wrappedValue = updated
+                }
+            ), axis: .vertical)
                 .lineLimit(2...4)
                 .font(.body)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
-                .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(palette.surface.opacity(0.95), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(palette.muted.opacity(0.25), lineWidth: 1)

@@ -15,9 +15,73 @@ import {
   X
 } from "lucide-react";
 import "./styles.css";
+import {
+  buildTextPuzzles,
+  getTodayIndex,
+  loadPuzzleCatalog,
+  mostAbstractGroup
+} from "./puzzleEngine.js";
 
-const maxMistakes = 4;
-const textPuzzleCount = 100;
+const DEFAULT_MAX_MISTAKES = 4;
+
+const hintEconomy = {
+  initialBalance: 3,
+  clearsPerReward: 3
+};
+
+const playedPuzzleStorageKey = "nanamicat.playedPuzzleIds";
+
+function getStored(key, fallback) {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function setStored(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Local storage is optional for gameplay.
+  }
+}
+
+function readStoredInt(key, fallback) {
+  const raw = getStored(key, String(fallback));
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function readPlayedPuzzleIds(pool) {
+  try {
+    const raw = getStored(playedPuzzleStorageKey, "[]");
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const valid = new Set(pool.map((item) => item.id));
+    return parsed.filter((id) => typeof id === "string" && valid.has(id));
+  } catch {
+    return [];
+  }
+}
+
+function writePlayedPuzzleIds(ids) {
+  setStored(playedPuzzleStorageKey, JSON.stringify(ids));
+}
+
+function pickNextPuzzleIndex(pool, playedIds, preferredStart = 0, predicate = () => true) {
+  const candidates = pool
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => predicate(item));
+  if (!candidates.length) return 0;
+
+  const played = new Set(playedIds);
+  const unplayed = candidates.filter(({ item }) => !played.has(item.id));
+  const source = unplayed.length ? unplayed : candidates;
+  const sortedIndexes = source.map(({ index }) => index).sort((a, b) => a - b);
+  const hit = sortedIndexes.find((index) => index >= preferredStart);
+  return hit ?? sortedIndexes[0];
+}
 
 const difficultyMeta = {
   1: { zh: "直观分类", en: "Direct sets", className: "level-yellow" },
@@ -77,10 +141,16 @@ const themes = [
 
 const copy = {
   zh: {
-    appName: "四格寻踪",
+    appName: "喵格谜",
     kicker: "每日分类谜题",
     language: "English",
     help: "玩法说明",
+    rulesBody: "16 个词里找出 4 组，每组 4 个。\n点选 4 个后提交，最多失误 4 次。",
+    rulesExampleTitle: "例子",
+    rulesExampleName: "早餐主食",
+    rulesExampleWords: "油条 · 包子 · 豆浆 · 烧饼",
+    rulesExampleNote: "↑ 这 4 个属于同一组",
+    rulesClose: "知道了",
     theme: "主题",
     mistakes: "失误",
     shuffle: "打乱",
@@ -108,6 +178,8 @@ const copy = {
     removeGroup: "删除本组",
     adminPuzzles: "投稿",
     adminScores: "成绩事件",
+    adminGroupCount: "%d 组",
+    adminGroupWords: "词条",
     sponsorLabel: "赞助本题",
     sponsorTitle: "喜欢这个小游戏，可以请我喝杯咖啡。",
     sponsorBody: "微信扫码赞助，支持继续做中文题库、历史题和主题包。",
@@ -120,12 +192,15 @@ const copy = {
     out: "失误次数已用完，继续尝试完成本题。",
     complete: "四组全部找到了。",
     savedScore: "成绩已写入排行榜。",
-    needsName: "设置昵称后会把通关写入排行榜。",
+    needsName: "设置昵称后，通关会累计到排行榜。",
     abstract: "本题最抽象的一组",
-    contributionLead: "最少填写 1 组，每组 4 个词，投稿会先进入 pending 状态，方便开发者审核后编入题库。",
-    leaderboardLead: "留下昵称后，通关可累计积分。",
+    hintsEmpty: "提示次数已用完。每通关三题可获得 1 次提示。",
+    hintsEarned: "通关三题，获得 1 次提示。",
+    contributionLead: "最少 1 组、最多 10 组，每组须有组名和 4 个词。投稿进入待审核。",
+    leaderboardLead: "保存昵称即可上榜，尚未通关也会显示为 0 次。",
     adminLead: "后台由 Cloudflare Access 保护，只给开发者查看。",
-    emptyLeaderboard: "还没有成绩，先通关一题。",
+    emptyLeaderboard: "还没有玩家上榜，保存昵称成为第一个。",
+    joinedLeaderboard: "已加入排行榜，通关 %d 次。",
     emptySubmissions: "还没有投稿。",
     statusPending: "待审核",
     statusReviewed: "已查看",
@@ -136,10 +211,16 @@ const copy = {
     thankYouEmailNotSent: "投稿成功，但感谢邮件暂未发送（稍后可重试）。"
   },
   en: {
-    appName: "FourFind",
+    appName: "MeowGrid",
     kicker: "Daily category puzzle",
     language: "中文",
     help: "Rules",
+    rulesBody: "Find 4 groups of 4 from 16 words.\nSelect 4, then submit. Four mistakes allowed.",
+    rulesExampleTitle: "Example",
+    rulesExampleName: "Breakfast staples",
+    rulesExampleWords: "Youtiao · Bun · Soy milk · Shaobing",
+    rulesExampleNote: "↑ these four belong together",
+    rulesClose: "Got it",
     theme: "Theme",
     mistakes: "Mistakes",
     shuffle: "Shuffle",
@@ -167,6 +248,8 @@ const copy = {
     removeGroup: "Remove group",
     adminPuzzles: "Submissions",
     adminScores: "Score events",
+    adminGroupCount: "%d groups",
+    adminGroupWords: "Words",
     sponsorLabel: "Support this puzzle",
     sponsorTitle: "If you like this small game, you can buy me a coffee.",
     sponsorBody: "Use WeChat Pay to support more Chinese puzzles, archives, and theme packs.",
@@ -179,12 +262,15 @@ const copy = {
     out: "Mistakes are gone. You can still finish the puzzle.",
     complete: "All four groups found.",
     savedScore: "Score saved to the leaderboard.",
-    needsName: "Set a nickname to write clears to the leaderboard.",
+    needsName: "Set a nickname to track clears on the leaderboard.",
     abstract: "Most abstract group",
-    contributionLead: "Submit at least one group with four words. Submissions are saved as pending for developer review.",
-    leaderboardLead: "Set a nickname to save your puzzle score.",
+    hintsEmpty: "No hints left. Clear three puzzles to earn one more.",
+    hintsEarned: "Cleared three puzzles — +1 hint.",
+    contributionLead: "Submit 1–10 groups. Each needs a name and exactly four words. Review starts as pending.",
+    leaderboardLead: "Save a nickname to join — you'll show 0 clears until you finish a puzzle.",
     adminLead: "Admin is protected by Cloudflare Access and is only visible to developers.",
-    emptyLeaderboard: "No scores yet. Clear a puzzle first.",
+    emptyLeaderboard: "No players yet. Save a nickname to be the first.",
+    joinedLeaderboard: "Joined the leaderboard with %d clear(s).",
     emptySubmissions: "No submissions yet.",
     statusPending: "Pending",
     statusReviewed: "Reviewed",
@@ -196,134 +282,8 @@ const copy = {
   }
 };
 
-const textGroupBank = [
-  { level: 1, name: "早餐主食", words: ["油条", "包子", "豆浆", "烧饼"] },
-  { level: 1, name: "火锅食材", words: ["鸭血", "毛肚", "黄喉", "肥牛"] },
-  { level: 1, name: "传统节日", words: ["春节", "清明", "端午", "中秋"] },
-  { level: 1, name: "中国城市", words: ["北京", "上海", "广州", "成都"] },
-  { level: 1, name: "出行方式", words: ["地铁", "公交", "骑行", "打车"] },
-  { level: 1, name: "厨房工具", words: ["菜刀", "砧板", "锅铲", "漏勺"] },
-  { level: 1, name: "校园空间", words: ["教室", "操场", "食堂", "图书馆"] },
-  { level: 1, name: "水果", words: ["苹果", "香蕉", "葡萄", "西瓜"] },
-  { level: 1, name: "颜色", words: ["赤", "橙", "青", "紫"] },
-  { level: 1, name: "衣物", words: ["衬衫", "外套", "围巾", "手套"] },
-  { level: 1, name: "运动项目", words: ["足球", "篮球", "羽毛球", "乒乓球"] },
-  { level: 1, name: "乐器", words: ["钢琴", "吉他", "笛子", "鼓"] },
-  { level: 2, name: "古代书写材料", words: ["竹简", "帛书", "宣纸", "碑刻"] },
-  { level: 2, name: "网络互动", words: ["点赞", "转发", "评论", "收藏"] },
-  { level: 2, name: "电影镜头", words: ["特写", "长镜", "推轨", "摇镜"] },
-  { level: 2, name: "项目流程", words: ["立项", "排期", "上线", "验收"] },
-  { level: 2, name: "系统状态", words: ["启动", "运行", "暂停", "恢复"] },
-  { level: 2, name: "安全动作", words: ["认证", "授权", "加密", "审计"] },
-  { level: 2, name: "叙事结构", words: ["开端", "铺垫", "转折", "收束"] },
-  { level: 2, name: "城市设施", words: ["路灯", "井盖", "站牌", "护栏"] },
-  { level: 3, name: "不可见成本", words: ["维护", "折旧", "延迟", "机会"] },
-  { level: 3, name: "反馈类型", words: ["正向", "负向", "即时", "滞后"] },
-  { level: 3, name: "边界动作", words: ["过滤", "隔离", "映射", "转译"] },
-  { level: 3, name: "秩序形成", words: ["排队", "编号", "分层", "归档"] },
-  { level: 3, name: "连接两端", words: ["桥", "接口", "翻译", "中介"] },
-  { level: 3, name: "容器与被容纳", words: ["壳", "匣", "港湾", "文件夹"] },
-  { level: 3, name: "镜像与对称", words: ["倒影", "双关", "复写", "平衡"] },
-  { level: 3, name: "身份凭证", words: ["徽章", "签名", "指纹", "密钥"] },
-  { level: 3, name: "压缩的信息", words: ["摘要", "图标", "缩略图", "索引"] },
-  { level: 3, name: "表面隐藏结构", words: ["皮肤", "界面", "包装", "标题"] },
-  { level: 4, name: "以限制制造自由", words: ["格律", "棋盘", "预算", "协议"] },
-  { level: 4, name: "把连续切成离散", words: ["帧", "刻度", "章节", "像素"] },
-  { level: 4, name: "先承诺后兑现", words: ["押金", "期权", "伏笔", "预约"] },
-  { level: 4, name: "自身也是地图", words: ["目录", "索引", "导航", "坐标系"] },
-  { level: 4, name: "用失败校准成功", words: ["试错", "回滚", "复盘", "对照组"] },
-  { level: 4, name: "把关系伪装成物", words: ["货币", "合同", "名片", "证书"] },
-  { level: 4, name: "被观看改变自身", words: ["表演", "排名", "直播", "测评"] },
-  { level: 4, name: "用重复制造差异", words: ["排练", "迭代", "复刻", "循环"] },
-  { level: 4, name: "局部代表整体", words: ["样本", "徽标", "切片", "提要"] },
-  { level: 4, name: "秩序依赖例外", words: ["豁免", "假日", "后门", "特例"] }
-];
-
-const puzzleThemes = [
-  "烟火中国", "街头日常", "纸上风物", "系统背面", "意义滑移", "抽象关系", "内在牵引", "隐喻机器", "城市缝隙", "屏幕生活",
-  "旧物新义", "时间暗线", "边界游戏", "秩序与例外", "声音地图", "人情规则", "手艺与算法", "观看方式", "流动结构", "记忆容器"
-];
-
-const redHerringNotes = [
-  "有些词共享场景，但真正分组看的是用途。",
-  "有一组会被近义动作干扰，别只看字面。",
-  "两组都像工具，关键差别在是否承担连接。",
-  "注意红鲱鱼：一个词看似同类，其实属于更抽象的关系。",
-  "这题故意让日常词和系统词互相靠近。",
-  "不要只按名词分类，试着看动作和结构。"
-];
-
-
-const englishPuzzleTerms = {
-  "早餐主食": "Breakfast staples", "油条": "Fried dough", "包子": "Steamed bun", "豆浆": "Soy milk", "烧饼": "Baked flatbread",
-  "火锅食材": "Hot pot ingredients", "鸭血": "Duck blood", "毛肚": "Beef tripe", "黄喉": "Aorta", "肥牛": "Sliced beef",
-  "传统节日": "Traditional festivals", "春节": "Spring Festival", "清明": "Qingming", "端午": "Dragon Boat", "中秋": "Mid-Autumn",
-  "中国城市": "Chinese cities", "北京": "Beijing", "上海": "Shanghai", "广州": "Guangzhou", "成都": "Chengdu",
-  "出行方式": "Ways to travel", "地铁": "Metro", "公交": "Bus", "骑行": "Cycling", "打车": "Taxi",
-  "厨房工具": "Kitchen tools", "菜刀": "Cleaver", "砧板": "Cutting board", "锅铲": "Spatula", "漏勺": "Slotted spoon",
-  "校园空间": "Campus spaces", "教室": "Classroom", "操场": "Playground", "食堂": "Cafeteria", "图书馆": "Library",
-  "水果": "Fruit", "苹果": "Apple", "香蕉": "Banana", "葡萄": "Grape", "西瓜": "Watermelon",
-  "颜色": "Colors", "赤": "Red", "橙": "Orange", "青": "Cyan", "紫": "Purple",
-  "衣物": "Clothing", "衬衫": "Shirt", "外套": "Coat", "围巾": "Scarf", "手套": "Gloves",
-  "运动项目": "Sports", "足球": "Football", "篮球": "Basketball", "羽毛球": "Badminton", "乒乓球": "Table tennis",
-  "乐器": "Musical instruments", "钢琴": "Piano", "吉他": "Guitar", "笛子": "Flute", "鼓": "Drum",
-  "古代书写材料": "Ancient writing media", "竹简": "Bamboo slips", "帛书": "Silk manuscript", "宣纸": "Rice paper", "碑刻": "Stone inscription",
-  "网络互动": "Online interactions", "点赞": "Like", "转发": "Repost", "评论": "Comment", "收藏": "Bookmark",
-  "电影镜头": "Film shots", "特写": "Close-up", "长镜": "Long take", "推轨": "Dolly shot", "摇镜": "Pan shot",
-  "项目流程": "Project workflow", "立项": "Kickoff", "排期": "Scheduling", "上线": "Launch", "验收": "Acceptance",
-  "系统状态": "System states", "启动": "Starting", "运行": "Running", "暂停": "Paused", "恢复": "Resuming",
-  "安全动作": "Security actions", "认证": "Authentication", "授权": "Authorization", "加密": "Encryption", "审计": "Audit",
-  "叙事结构": "Narrative structure", "开端": "Opening", "铺垫": "Setup", "转折": "Turning point", "收束": "Resolution",
-  "城市设施": "City fixtures", "路灯": "Streetlight", "井盖": "Manhole cover", "站牌": "Bus stop sign", "护栏": "Guardrail",
-  "不可见成本": "Invisible costs", "维护": "Maintenance", "折旧": "Depreciation", "延迟": "Delay", "机会": "Opportunity",
-  "反馈类型": "Feedback types", "正向": "Positive", "负向": "Negative", "即时": "Immediate", "滞后": "Delayed",
-  "边界动作": "Boundary operations", "过滤": "Filtering", "隔离": "Isolation", "映射": "Mapping", "转译": "Translation",
-  "秩序形成": "Creating order", "排队": "Queueing", "编号": "Numbering", "分层": "Layering", "归档": "Archiving",
-  "连接两端": "Connecting two sides", "桥": "Bridge", "接口": "Interface", "翻译": "Interpreter", "中介": "Mediator",
-  "容器与被容纳": "Containers and contents", "壳": "Shell", "匣": "Case", "港湾": "Harbor", "文件夹": "Folder",
-  "镜像与对称": "Mirrors and symmetry", "倒影": "Reflection", "双关": "Double meaning", "复写": "Copy", "平衡": "Balance",
-  "身份凭证": "Identity credentials", "徽章": "Badge", "签名": "Signature", "指纹": "Fingerprint", "密钥": "Key",
-  "压缩的信息": "Compressed information", "摘要": "Summary", "图标": "Icon", "缩略图": "Thumbnail", "索引": "Index",
-  "表面隐藏结构": "Structure hidden by a surface", "皮肤": "Skin", "界面": "Interface", "包装": "Packaging", "标题": "Title",
-  "以限制制造自由": "Freedom through constraints", "格律": "Meter", "棋盘": "Board", "预算": "Budget", "协议": "Protocol",
-  "把连续切成离散": "Dividing a continuum", "帧": "Frame", "刻度": "Scale mark", "章节": "Chapter", "像素": "Pixel",
-  "先承诺后兑现": "Promise now, deliver later", "押金": "Deposit", "期权": "Option", "伏笔": "Foreshadowing", "预约": "Reservation",
-  "自身也是地图": "Things that are also maps", "目录": "Table of contents", "导航": "Navigation", "坐标系": "Coordinate system",
-  "用失败校准成功": "Using failure to calibrate success", "试错": "Trial and error", "回滚": "Rollback", "复盘": "Retrospective", "对照组": "Control group",
-  "把关系伪装成物": "Relationships disguised as objects", "货币": "Currency", "合同": "Contract", "名片": "Business card", "证书": "Certificate",
-  "被观看改变自身": "Changed by being watched", "表演": "Performance", "排名": "Ranking", "直播": "Livestream", "测评": "Review",
-  "用重复制造差异": "Difference through repetition", "排练": "Rehearsal", "迭代": "Iteration", "复刻": "Reproduction", "循环": "Loop",
-  "局部代表整体": "Parts representing wholes", "样本": "Sample", "徽标": "Logo", "切片": "Slice", "提要": "Abstract",
-  "秩序依赖例外": "Order depending on exceptions", "豁免": "Exemption", "假日": "Holiday", "后门": "Backdoor", "特例": "Special case",
-  "烟火中国": "Everyday China", "街头日常": "Street life", "纸上风物": "Paper and culture", "系统背面": "Behind the system",
-  "意义滑移": "Shifting meanings", "抽象关系": "Abstract relations", "内在牵引": "Hidden forces", "隐喻机器": "Metaphor machine",
-  "城市缝隙": "Urban gaps", "屏幕生活": "Screen life", "旧物新义": "New meanings for old things", "时间暗线": "Threads of time",
-  "边界游戏": "Boundary games", "秩序与例外": "Order and exceptions", "声音地图": "Map of sound", "人情规则": "Social rules",
-  "手艺与算法": "Craft and algorithms", "观看方式": "Ways of seeing", "流动结构": "Structures in motion", "记忆容器": "Containers of memory",
-  "收纳容器": "Storage containers", "方向移动": "Directional movement", "旧痕迹": "Old traces", "成双相似": "Matching pairs",
-  "门窗边界": "Door and window edges", "小物件": "Small objects", "圆形循环": "Circular loops", "破损修补": "Damage and repair",
-  "支撑结构": "Support structures", "外表材质": "Surface materials", "道路路径": "Road paths", "遮挡露出": "Hidden and revealed",
-  "地面基础": "Ground foundations", "高处标志": "High-up signs", "连接工具": "Connecting tools", "证件标牌": "Badges and signs",
-  "重复图案": "Repeated patterns", "安静空场": "Quiet empty scenes", "未来计划": "Future plans", "局部特写": "Detail close-ups",
-  "被人观看": "Being watched", "框内限制": "Confined by frames", "手工差异": "Handmade variation", "水流稳定": "Steady water flow",
-  "分格切片": "Grid slices", "镜面对称": "Mirror symmetry", "特殊例外": "Special exceptions", "等待兑现": "Waiting for delivery",
-  "地图索引": "Map indexes", "声音重复": "Repeated sounds", "外壳保护": "Protective shells", "阶梯层级": "Stepped levels",
-  "留白空处": "Blank spaces", "桥梁连接": "Bridge connections", "影子证据": "Shadow evidence", "单向方向": "One-way direction",
-  "纹理表面": "Textured surfaces", "入口门槛": "Entrance thresholds", "框架边线": "Frame edges", "流线引导": "Flow-line guidance",
-  "入口提示": "Entrance cues", "封存保管": "Sealed storage", "分层摆放": "Layered placement", "偏差标记": "Deviation marks",
-  "身份标记": "Identity marks", "语言转译": "Language translation", "延迟反应": "Delayed reactions", "碎片拼合": "Fragment assembly",
-  "几何秩序": "Geometric order", "自然痕迹": "Natural traces", "机械节奏": "Mechanical rhythm", "人工涂改": "Manual alterations",
-  "向内聚拢": "Gathering inward", "向外扩散": "Spreading outward", "横向连接": "Horizontal connections", "纵向堆叠": "Vertical stacks",
-  "锁和钥匙": "Locks and keys", "窗和视线": "Windows and sightlines", "环形循环": "Ring-shaped loops", "针头方向": "Needle directions",
-  "植物种子": "Plant seeds", "根部支撑": "Root support", "枝叶展开": "Branches unfolding", "果实收成": "Fruit harvest",
-  "前景遮挡": "Foreground occlusion", "背景暗示": "Background hints", "边缘线索": "Edge clues", "中心空缺": "Missing centers",
-  "水面倒影": "Water reflections", "沙地足迹": "Footprints in sand", "墙面裂缝": "Wall cracks", "纸面折痕": "Paper creases",
-  "握手连接": "Handshake connections", "接口对接": "Interface matching", "信号放大": "Signal amplification", "噪声过滤": "Noise filtering",
-  "开头标记": "Opening markers", "过程重复": "Process repetition", "结尾回收": "Ending callbacks", "额外彩蛋": "Bonus details"
-};
-
-function localizePuzzleTerm(value, locale) {
-  return locale === "en" ? englishPuzzleTerms[value] ?? value : value;
+function localizePuzzleTerm(value, locale, terms = {}) {
+  return locale === "en" ? terms[value] ?? value : value;
 }
 
 function puzzleLabel(puzzle, locale) {
@@ -332,97 +292,17 @@ function puzzleLabel(puzzle, locale) {
   return puzzle.label;
 }
 
-function puzzleTheme(puzzle, locale) {
-  return localizePuzzleTerm(puzzle.theme, locale);
+function puzzleTheme(puzzle, locale, terms) {
+  return localizePuzzleTerm(puzzle.theme, locale, terms);
 }
 
-function itemLabel(item, locale) {
-  if (item.label) return localizePuzzleTerm(item.label, locale);
+function itemLabel(item, locale, terms) {
+  if (item.label) return localizePuzzleTerm(item.label, locale, terms);
   if (locale === "zh") return item.alt;
   const match = item.alt.match(/^(.*) (\d+)$/);
-  if (!match) return localizePuzzleTerm(item.alt, locale);
-  return `${localizePuzzleTerm(match[1], locale)} ${match[2]}`;
+  if (!match) return localizePuzzleTerm(item.alt, locale, terms);
+  return `${localizePuzzleTerm(match[1], locale, terms)} ${match[2]}`;
 }
-
-function getStored(key, fallback) {
-  try {
-    return localStorage.getItem(key) ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function setStored(key, value) {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    // Local storage is optional for gameplay.
-  }
-}
-
-const playedPuzzleStorageKey = "nanamicat.playedPuzzleIds";
-
-function readPlayedPuzzleIds(pool) {
-  try {
-    const raw = getStored(playedPuzzleStorageKey, "[]");
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    const valid = new Set(pool.map((item) => item.id));
-    return parsed.filter((id) => typeof id === "string" && valid.has(id));
-  } catch {
-    return [];
-  }
-}
-
-function writePlayedPuzzleIds(ids) {
-  setStored(playedPuzzleStorageKey, JSON.stringify(ids));
-}
-
-function pickNextPuzzleIndex(pool, playedIds, preferredStart = 0, predicate = () => true) {
-  const candidates = pool
-    .map((item, index) => ({ item, index }))
-    .filter(({ item }) => predicate(item));
-  if (!candidates.length) return 0;
-
-  const played = new Set(playedIds);
-  const unplayed = candidates.filter(({ item }) => !played.has(item.id));
-  const source = unplayed.length ? unplayed : candidates;
-  const sortedIndexes = source.map(({ index }) => index).sort((a, b) => a - b);
-  const hit = sortedIndexes.find((index) => index >= preferredStart);
-  return hit ?? sortedIndexes[0];
-}
-
-function textItem(label, puzzleId) {
-  return { id: `${puzzleId}-${label}`, label };
-}
-
-function buildTextPuzzles() {
-  return Array.from({ length: textPuzzleCount }, (_, index) => {
-    const difficulty = Math.min(4, Math.floor(index / 25) + 1);
-    const candidates = textGroupBank.filter((group) => group.level <= difficulty);
-    const offsets = [0, 7, 19, 31].map((step) => (index * 5 + step + difficulty * 3) % candidates.length);
-    const groups = offsets.map((groupIndex, groupSlot) => {
-      const source = candidates[groupIndex];
-      return {
-        name: source.name,
-        level: Math.min(4, Math.max(source.level, groupSlot + 1)),
-        items: source.words.map((word) => textItem(word, `text-${index + 1}-${groupSlot}`))
-      };
-    });
-
-    return {
-      id: `text-${String(index + 1).padStart(3, "0")}`,
-      label: `文字题 ${index + 1}`,
-      theme: puzzleThemes[index % puzzleThemes.length],
-      type: "text",
-      difficulty,
-      redHerring: redHerringNotes[index % redHerringNotes.length],
-      groups
-    };
-  });
-}
-
-const textPuzzles = buildTextPuzzles();
 
 function shuffle(items) {
   const copy = [...items];
@@ -433,73 +313,186 @@ function shuffle(items) {
   return copy;
 }
 
-function getTodayIndex(max) {
-  const now = new Date();
-  return (now.getUTCFullYear() * 372 + now.getUTCMonth() * 31 + now.getUTCDate()) % max;
+function submissionGroups(item) {
+  if (Array.isArray(item?.groups)) return item.groups;
+  try {
+    const parsed = JSON.parse(item?.groups_json || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
-function mostAbstractGroup(groups) {
-  return [...groups].sort((a, b) => b.level - a.level)[0];
+function submissionSummary(item, t) {
+  if (item?.summary) return item.summary;
+  const groups = submissionGroups(item);
+  const names = groups.map((group) => group.name).filter(Boolean);
+  if (names.length) {
+    return `${t.adminGroupCount.replace("%d", String(names.length))}：${names.join(" / ")}`;
+  }
+  return item?.title || "-";
+}
+
+function humanizeApiError(message, locale = getStored("nanamicat.locale", "zh")) {
+  if (message === "Not found") {
+    return locale === "zh" ? "服务暂不可用，请稍后再试。" : "Service unavailable. Please try again later.";
+  }
+  return message;
+}
+
+function resolveViewFromPath(pathname) {
+  if (pathname.startsWith("/admin")) return "admin";
+  if (pathname.startsWith("/leaderboard")) return "leaderboard";
+  if (pathname.startsWith("/contribute")) return "contribute";
+  return "game";
+}
+
+function adminRequestHeaders() {
+  const key = getStored("nanamicat.adminKey", "");
+  return key ? { "x-admin-key": key } : {};
 }
 
 async function api(path, options = {}) {
+  const locale = getStored("nanamicat.locale", "zh");
   let response;
   try {
     response = await fetch(path, {
       ...options,
       headers: {
         "Content-Type": "application/json",
+        ...(path.startsWith("/api/admin") ? adminRequestHeaders() : {}),
         ...(options.headers ?? {})
       }
     });
   } catch {
-    throw new Error("网络连接失败，请检查网络后重试。");
+    throw new Error(locale === "zh" ? "网络连接失败，请检查网络后重试。" : "Network error. Check your connection and try again.");
   }
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     const fallback = response.status >= 500
-      ? "服务器暂时不可用，请稍后再试。"
-      : "请求失败，请稍后重试。";
-    throw new Error(payload.error || fallback);
+      ? (locale === "zh" ? "服务器暂时不可用，请稍后再试。" : "Server unavailable. Please try again later.")
+      : (locale === "zh" ? "请求失败，请稍后重试。" : "Request failed. Please try again.");
+    throw new Error(humanizeApiError(payload.error || fallback, locale));
   }
   return payload;
 }
 
 function App() {
-  const pool = textPuzzles;
-  const [playedPuzzleIds, setPlayedPuzzleIds] = useState(() => readPlayedPuzzleIds(pool));
+  const [catalog, setCatalog] = useState(null);
+  const [pool, setPool] = useState([]);
+  const [catalogLoading, setCatalogLoading] = useState(true);
+  const [catalogError, setCatalogError] = useState("");
+  const [playedPuzzleIds, setPlayedPuzzleIds] = useState([]);
   const [locale, setLocale] = useState(() => getStored("nanamicat.locale", "zh"));
   const [theme, setTheme] = useState(() => getStored("nanamicat.theme", "default"));
-  const [view, setView] = useState(() => (location.pathname.startsWith("/admin") ? "admin" : "game"));
-  const [puzzleIndex, setPuzzleIndex] = useState(() => pickNextPuzzleIndex(pool, readPlayedPuzzleIds(pool), getTodayIndex(pool.length)));
-  const [selectedDifficulty, setSelectedDifficulty] = useState(1);
+  const [view, setView] = useState(() => resolveViewFromPath(location.pathname));
+  const [sponsorImageOk, setSponsorImageOk] = useState(true);
+  const [puzzleIndex, setPuzzleIndex] = useState(0);
+  const [boardShuffleSeed, setBoardShuffleSeed] = useState(0);
   const [selected, setSelected] = useState([]);
   const [solved, setSolved] = useState([]);
   const [mistakes, setMistakes] = useState(0);
   const [hintIndex, setHintIndex] = useState(0);
+  const [hintBalance, setHintBalance] = useState(() => readStoredInt("nanamicat.hintBalance", hintEconomy.initialBalance));
+  const [completedPuzzleCount, setCompletedPuzzleCount] = useState(() => readStoredInt("nanamicat.completedPuzzleCount", 0));
   const [message, setMessage] = useState("");
   const [payOpen, setPayOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [nickname, setNickname] = useState(() => getStored("nanamicat.nickname", ""));
   const [playerId, setPlayerId] = useState(() => getStored("nanamicat.playerId", ""));
   const [leaderboard, setLeaderboard] = useState([]);
   const [adminPuzzles, setAdminPuzzles] = useState([]);
   const [adminScores, setAdminScores] = useState([]);
   const [form, setForm] = useState(() => ({
-    title: "",
     email: "",
     groups: [{ name: "", words: "" }]
   }));
   const [apiNotice, setApiNotice] = useState("");
+  const [adminKeyInput, setAdminKeyInput] = useState(() => getStored("nanamicat.adminKey", ""));
 
   const t = copy[locale];
-  const currentIndex = puzzleIndex;
-  const puzzle = pool[currentIndex % pool.length];
-  const items = useMemo(() => shuffle(puzzle.groups.flatMap((group) => group.items)), [puzzle.id]);
+  const englishTerms = catalog?.englishPuzzleTerms ?? {};
+  const maxMistakes = catalog?.maxMistakes ?? DEFAULT_MAX_MISTAKES;
+  const currentIndex = pool.length ? puzzleIndex % pool.length : 0;
+  const puzzle = pool[currentIndex] ?? { id: "loading", groups: [], theme: "", difficulty: 1, redHerring: "", label: "" };
+  const items = useMemo(
+    () => (pool.length ? shuffle(puzzle.groups.flatMap((group) => group.items)) : []),
+    [puzzle.id, pool.length, boardShuffleSeed]
+  );
   const solvedIds = solved.flatMap((group) => group.items.map((item) => item.id));
   const activeItems = items.filter((item) => !solvedIds.includes(item.id));
   const remainingMistakes = Math.max(0, maxMistakes - mistakes);
-  const isComplete = solved.length === puzzle.groups.length;
+  const isComplete = pool.length > 0 && puzzle.groups.length === 4 && solved.length === puzzle.groups.length;
   const abstractGroup = isComplete ? mostAbstractGroup(puzzle.groups) : null;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await loadPuzzleCatalog();
+        const built = buildTextPuzzles(data);
+        if (cancelled) return;
+        setCatalog(data);
+        setPool(built);
+        const played = readPlayedPuzzleIds(built);
+        setPlayedPuzzleIds(played);
+        setPuzzleIndex(pickNextPuzzleIndex(built, played, getTodayIndex(built.length)));
+      } catch (error) {
+        if (!cancelled) setCatalogError(error.message);
+      } finally {
+        if (!cancelled) setCatalogLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!helpOpen && !payOpen) return undefined;
+    function onKeyDown(event) {
+      if (event.key === "Escape") {
+        setHelpOpen(false);
+        setPayOpen(false);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [helpOpen, payOpen]);
+
+  useEffect(() => {
+    function onPopState() {
+      setView(resolveViewFromPath(location.pathname));
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  useEffect(() => {
+    if (catalogLoading) return undefined;
+    async function refreshCatalog() {
+      if (document.hidden) return;
+      try {
+        const data = await loadPuzzleCatalog();
+        const built = buildTextPuzzles(data);
+        if (!built.length) return;
+        const prevSignature = catalog ? `${catalog.textPuzzleCount}:${catalog.textGroupBank?.length}` : "";
+        const nextSignature = `${data.textPuzzleCount}:${data.textGroupBank?.length}`;
+        if (prevSignature && prevSignature !== nextSignature) {
+          setCatalog(data);
+          setPool(built);
+          setApiNotice(locale === "zh" ? "题库已更新，下一题将使用新题目。" : "Puzzle catalog updated. New puzzles apply on the next round.");
+        }
+      } catch {
+        // keep current catalog
+      }
+    }
+    function onVisibilityChange() {
+      if (!document.hidden) refreshCatalog();
+    }
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [catalog, catalogLoading, locale]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -511,19 +504,25 @@ function App() {
   }, [locale]);
 
   useEffect(() => {
-    let normalized = playedPuzzleIds.filter((id) => pool.some((item) => item.id === id));
-    if (normalized.length >= pool.length) normalized = [];
+    if (!pool.length) return;
+    const normalized = playedPuzzleIds.filter((id) => pool.some((item) => item.id === id));
     if (normalized.length !== playedPuzzleIds.length) {
       setPlayedPuzzleIds(normalized);
       writePlayedPuzzleIds(normalized);
-      return;
     }
-    if (!normalized.includes(puzzle.id)) {
-      const next = [...normalized, puzzle.id];
-      setPlayedPuzzleIds(next);
-      writePlayedPuzzleIds(next);
-    }
-  }, [playedPuzzleIds, puzzle.id, pool]);
+  }, [playedPuzzleIds, pool]);
+
+  function markPuzzlePlayed(puzzleId) {
+    if (!puzzleId || puzzleId === "loading" || !pool.length) return;
+    setPlayedPuzzleIds((current) => {
+      const valid = current.filter((id) => pool.some((item) => item.id === id));
+      if (valid.includes(puzzleId)) return valid;
+      const next = [...valid, puzzleId];
+      const stored = next.length >= pool.length ? [] : next;
+      writePlayedPuzzleIds(stored);
+      return stored;
+    });
+  }
 
   useEffect(() => {
     setMessage(t.intro);
@@ -532,7 +531,7 @@ function App() {
   }, [puzzle.id, locale]);
 
   useEffect(() => {
-    loadLeaderboard();
+    loadLeaderboard({ showError: view === "leaderboard" });
     if (view === "admin") loadAdmin();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
@@ -547,25 +546,13 @@ function App() {
 
   function setRoute(nextView) {
     setView(nextView);
-    const path = nextView === "admin" ? "/admin/" : "/";
-    history.replaceState(null, "", path);
-  }
-
-  function chooseDifficulty(level) {
-    setSelectedDifficulty(level);
-    const nextIndex = pickNextPuzzleIndex(
-      pool,
-      playedPuzzleIds,
-      puzzleIndex + 1,
-      (item) => item.difficulty === level
-    );
-    setPuzzleIndex(nextIndex);
-    resetPuzzleState();
-    setMessage(
-      locale === "zh"
-        ? `切换到「${difficultyLabel(level, locale)}」类题目。`
-        : `Switched to ${difficultyLabel(level, locale)} puzzles.`
-    );
+    const paths = {
+      game: "/",
+      leaderboard: "/leaderboard/",
+      contribute: "/contribute/",
+      admin: "/admin/"
+    };
+    history.pushState(null, "", paths[nextView] ?? "/");
   }
 
   function toggleItem(item) {
@@ -580,7 +567,7 @@ function App() {
   function nearMissMessage() {
     const counts = puzzle.groups
       .map((group) => ({
-        name: localizePuzzleTerm(group.name, locale),
+        name: localizePuzzleTerm(group.name, locale, englishTerms),
         count: group.items.filter((item) => selected.includes(item.id)).length
       }))
       .sort((a, b) => b.count - a.count);
@@ -638,9 +625,21 @@ function App() {
       setSelected([]);
       if (nextSolved.length === puzzle.groups.length) {
         setMessage(t.complete);
+        markPuzzlePlayed(puzzle.id);
+        const nextCompleted = completedPuzzleCount + 1;
+        setCompletedPuzzleCount(nextCompleted);
+        setStored("nanamicat.completedPuzzleCount", String(nextCompleted));
+        if (nextCompleted % hintEconomy.clearsPerReward === 0) {
+          setHintBalance((current) => {
+            const next = current + 1;
+            setStored("nanamicat.hintBalance", String(next));
+            return next;
+          });
+          setApiNotice(t.hintsEarned);
+        }
         submitScore();
       } else {
-        setMessage(locale === "zh" ? `答对一组：${matched.name}` : `Correct group: ${localizePuzzleTerm(matched.name, locale)}`);
+        setMessage(locale === "zh" ? `答对一组：${matched.name}` : `Correct group: ${localizePuzzleTerm(matched.name, locale, englishTerms)}`);
       }
       return;
     }
@@ -651,16 +650,32 @@ function App() {
   }
 
   function shuffleActiveItems() {
-    resetPuzzleState();
-    setMessage(locale === "zh" ? "已重新打乱并重开本题。" : "Puzzle reset and shuffled.");
+    const activeIds = new Set(activeItems.map((item) => item.id));
+    setSelected((current) => current.filter((id) => activeIds.has(id)));
+    setBoardShuffleSeed((current) => current + 1);
+    setMessage(locale === "zh" ? "已打乱未解锁项目。" : "Unsolved items shuffled.");
   }
 
   function useHint() {
+    if (hintBalance <= 0) {
+      setMessage(t.hintsEmpty);
+      return;
+    }
     const unsolvedGroups = puzzle.groups.filter((group) => !solved.some((item) => item.name === group.name));
     if (!unsolvedGroups.length) return;
+    setHintBalance((current) => {
+      const next = Math.max(0, current - 1);
+      setStored("nanamicat.hintBalance", String(next));
+      return next;
+    });
     const hintGroup = unsolvedGroups[hintIndex % unsolvedGroups.length];
     setHintIndex((current) => current + 1);
-    setMessage(locale === "zh" ? `提示：有一组与「${hintGroup.name}」有关。${puzzle.redHerring}` : `Hint: one group relates to "${localizePuzzleTerm(hintGroup.name, locale)}".`);
+    const herring = localizePuzzleTerm(puzzle.redHerring, locale, englishTerms);
+    setMessage(
+      locale === "zh"
+        ? `提示：有一组与「${hintGroup.name}」有关。${herring}`
+        : `Hint: one group relates to "${localizePuzzleTerm(hintGroup.name, locale, englishTerms)}". ${herring}`
+    );
   }
 
   function nextPuzzle() {
@@ -673,7 +688,8 @@ function App() {
     try {
       const player = await ensurePlayer();
       if (player) {
-        setApiNotice(locale === "zh" ? "昵称已保存。" : "Nickname saved.");
+        const clears = Number(player.text_clears ?? 0);
+        setApiNotice(t.joinedLeaderboard.replace("%d", String(clears)));
         loadLeaderboard();
       }
     } catch (error) {
@@ -681,12 +697,12 @@ function App() {
     }
   }
 
-  async function loadLeaderboard() {
+  async function loadLeaderboard({ showError = false } = {}) {
     try {
       const payload = await api("/api/leaderboard");
       setLeaderboard(payload.leaderboard ?? []);
     } catch (error) {
-      setApiNotice(error.message);
+      if (showError) setApiNotice(error.message);
     }
   }
 
@@ -702,6 +718,9 @@ function App() {
       if (!filledGroups.length) {
         throw new Error(locale === "zh" ? "最少填写 1 组，每组 4 个词。" : "Add at least one group with exactly four words.");
       }
+      if (filledGroups.length > 10) {
+        throw new Error(locale === "zh" ? "一次最多提交 10 组。" : "You can submit at most 10 groups at a time.");
+      }
       if (filledGroups.some((group) => !group.name || group.words.length !== 4)) {
         throw new Error(locale === "zh" ? "每个已填写分组必须有组名且恰好 4 个词。" : "Each filled group needs a name and exactly four words.");
       }
@@ -710,12 +729,11 @@ function App() {
         body: JSON.stringify({
           playerId: player?.id,
           nickname: nickname.trim() || "Guest",
-          title: form.title.trim(),
           email: form.email.trim() || undefined,
           groups: filledGroups
         })
       });
-      setForm({ title: "", email: "", groups: [{ name: "", words: "" }] });
+      setForm({ email: "", groups: [{ name: "", words: "" }] });
       if (payload?.email?.attempted && payload?.email?.sent) {
         setApiNotice(t.thankYouEmailSent);
       } else if (form.email.trim()) {
@@ -754,13 +772,32 @@ function App() {
   }
 
   async function shareResult() {
-    const report = `${t.appName} ${puzzleLabel(puzzle, locale)}\n${solved.length}/4\n${t.mistakes}: ${mistakes}\n${t.abstract}: ${abstractGroup ? localizePuzzleTerm(abstractGroup.name, locale) : "-"}\nhttps://nanamicat.com`;
+    const report = `${t.appName} ${puzzleLabel(puzzle, locale)}\n${solved.length}/4\n${t.mistakes}: ${mistakes}\n${t.abstract}: ${abstractGroup ? localizePuzzleTerm(abstractGroup.name, locale, englishTerms) : "-"}\nhttps://nanamicat.com`;
     if (navigator.share) {
       await navigator.share({ text: report }).catch(() => {});
       return;
     }
     await navigator.clipboard?.writeText(report);
     setMessage(locale === "zh" ? "结果已复制。" : "Result copied.");
+  }
+
+  if (catalogLoading) {
+    return (
+      <main className="page page-loading" role="status" aria-live="polite">
+        <p>{locale === "zh" ? "正在加载题库…" : "Loading puzzles…"}</p>
+      </main>
+    );
+  }
+
+  if (catalogError || !pool.length) {
+    return (
+      <main className="page page-loading" role="alert">
+        <p>{catalogError || (locale === "zh" ? "题库加载失败。" : "Failed to load puzzles.")}</p>
+        <button type="button" className="primary" onClick={() => window.location.reload()}>
+          {locale === "zh" ? "重试" : "Retry"}
+        </button>
+      </main>
+    );
   }
 
   return (
@@ -772,14 +809,14 @@ function App() {
             <div>
               <p className="kicker">{t.kicker}</p>
               <h1>{t.appName}</h1>
-              <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale)} / {difficultyLabel(puzzle.difficulty, locale)}</p>
+              <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale, englishTerms)} / {difficultyLabel(puzzle.difficulty, locale)}</p>
             </div>
           </div>
           <div className="hero-tools">
             <button className="ghost" type="button" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>
               <Globe2 size={15} /> {t.language}
             </button>
-            <button className="ghost" type="button" onClick={() => setMessage(t.intro)}>
+            <button className="ghost" type="button" onClick={() => setHelpOpen(true)}>
               <HelpCircle size={15} /> {t.help}
             </button>
           </div>
@@ -822,25 +859,15 @@ function App() {
                 <span>{t.mistakes}</span>
                 <strong aria-label={`${remainingMistakes} remaining`}>{"●".repeat(remainingMistakes)}{"○".repeat(maxMistakes - remainingMistakes)}</strong>
               </section>
-
-              <section className="difficulty-strip" aria-label="Difficulty">
-                {Object.entries(difficultyMeta).map(([level, meta]) => (
-                  <button
-                    className={`difficulty-chip ${meta.className}${Number(level) === selectedDifficulty ? " active" : ""}`}
-                    type="button"
-                    key={level}
-                    onClick={() => chooseDifficulty(Number(level))}
-                    aria-pressed={Number(level) === selectedDifficulty}
-                  >
-                    <strong>{meta[locale]}</strong>
-                  </button>
-                ))}
+              <section className="status">
+                <span>{t.hint}</span>
+                <strong aria-label={`${hintBalance} hints remaining`}>{hintBalance}</strong>
               </section>
 
             </aside>
 
             <section className="game-stage">
-              <p className="message" role="status">{message}</p>
+              <p className="message" role="status" aria-live="polite">{message}</p>
 
               <section className="board" aria-label="Puzzle board">
                 {activeItems.map((item) => (
@@ -850,23 +877,19 @@ function App() {
                     className={selected.includes(item.id) ? "tile selected" : "tile"}
                     onClick={() => toggleItem(item)}
                     aria-pressed={selected.includes(item.id)}
+                    aria-label={itemLabel(item, locale, englishTerms)}
                   >
-                    {itemLabel(item, locale)}
+                    {itemLabel(item, locale, englishTerms)}
                   </button>
                 ))}
               </section>
 
               <section className="controls-split" aria-label="Game controls">
-                {isComplete ? (
-                  <>
-                    <button type="button" className="controls-submit primary" onClick={nextPuzzle}>{t.nextAfterComplete}</button>
-                    <button type="button" className="controls-share" onClick={shareResult}><Share2 size={16} /> {t.share}</button>
-                  </>
-                ) : (
+                {!isComplete && (
                   <>
                     <button type="button" className="controls-submit primary" onClick={submitGuess} disabled={selected.length !== 4}><Check size={18} /> {t.submit}</button>
                     <div className="controls-grid">
-                      <button type="button" onClick={useHint}><HelpCircle size={16} /> {t.hint}</button>
+                      <button type="button" onClick={useHint} disabled={hintBalance <= 0}><HelpCircle size={16} /> {t.hint} ({hintBalance})</button>
                       <button type="button" onClick={shuffleActiveItems}><Dices size={16} /> {t.shuffle}</button>
                       <button type="button" onClick={() => { setSelected([]); setMessage(t.clearedSelection); }} disabled={!selected.length}><RotateCcw size={16} /> {t.clear}</button>
                       <button type="button" onClick={nextPuzzle}>{t.next}</button>
@@ -882,7 +905,7 @@ function App() {
                       <NanamiCatMascot size="celebration" showCelebration={true} />
                       <div className="celebration-text">
                         <h3>{t.abstract}</h3>
-                        <h2>{localizePuzzleTerm(abstractGroup.name, locale)}</h2>
+                        <h2>{localizePuzzleTerm(abstractGroup.name, locale, englishTerms)}</h2>
                       </div>
                     </section>
                   )}
@@ -894,8 +917,8 @@ function App() {
                         <article className={`solved-item ${meta.className}`} key={group.name}>
                           <NanamiCatMascot size="mini" />
                           <div>
-                            <h2>{localizePuzzleTerm(group.name, locale)}</h2>
-                            <p>{group.items.map((item) => itemLabel(item, locale)).join(" / ")}</p>
+                            <h2>{localizePuzzleTerm(group.name, locale, englishTerms)}</h2>
+                            <p>{group.items.map((item) => itemLabel(item, locale, englishTerms)).join(" / ")}</p>
                           </div>
                         </article>
                       );
@@ -975,10 +998,6 @@ function App() {
           </div>
           <form className="submission-form" onSubmit={submitPuzzleForm}>
             <label>
-              {t.puzzleTitle}
-              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required maxLength={80} />
-            </label>
-            <label>
               {t.contactEmail}
               <input
                 type="email"
@@ -1020,7 +1039,7 @@ function App() {
                 </fieldset>
               ))}
             </div>
-            {form.groups.length < 4 && (
+            {form.groups.length < 10 && (
               <button
                 type="button"
                 className="add-group"
@@ -1043,15 +1062,37 @@ function App() {
             </div>
             <button type="button" onClick={loadAdmin}>{locale === "zh" ? "刷新" : "Refresh"}</button>
           </div>
+          <label className="admin-key-field">
+            <span>{locale === "zh" ? "本地 Admin Key（可选）" : "Local admin key (optional)"}</span>
+            <input
+              type="password"
+              value={adminKeyInput}
+              onChange={(event) => {
+                setAdminKeyInput(event.target.value);
+                setStored("nanamicat.adminKey", event.target.value);
+              }}
+              placeholder={locale === "zh" ? "与 .env 中 ADMIN_KEY 一致" : "Match ADMIN_KEY in .env"}
+              autoComplete="off"
+            />
+          </label>
           <h3>{t.adminPuzzles}</h3>
           <div className="admin-list">
-            {adminPuzzles.map((item) => (
+            {adminPuzzles.map((item) => {
+              const groups = submissionGroups(item);
+              return (
               <article key={item.id} className="admin-item">
                 <div>
-                  <strong>{item.title}</strong>
+                  <strong>{submissionSummary(item, t)}</strong>
                   <p>{item.nickname} / {new Date(item.created_at).toLocaleString()}</p>
                   {item.contact_email ? <p>{item.contact_email}</p> : null}
-                  <pre>{JSON.stringify(JSON.parse(item.groups_json), null, 2)}</pre>
+                  <div className="admin-groups">
+                    {groups.map((group, index) => (
+                      <div key={`${item.id}-${index}`} className="admin-group-card">
+                        <strong>{group.name || `${t.groupName} ${index + 1}`}</strong>
+                        <p>{t.adminGroupWords}：{(group.words || []).join(" · ")}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <select value={item.status} onChange={(event) => updateSubmission(item.id, event.target.value)}>
                   <option value="pending">{t.statusPending}</option>
@@ -1060,7 +1101,8 @@ function App() {
                   <option value="rejected">{t.statusRejected}</option>
                 </select>
               </article>
-            ))}
+              );
+            })}
             {!adminPuzzles.length && <p className="empty">{t.emptySubmissions}</p>}
           </div>
           <h3>{t.adminScores}</h3>
@@ -1085,6 +1127,7 @@ function App() {
         </section>
       )}
 
+      {sponsorImageOk && (
       <aside className="sponsor" aria-label={t.sponsorLabel}>
         <div className="sponsor-copy">
           <p className="sponsor-label">{t.sponsorLabel}</p>
@@ -1093,12 +1136,38 @@ function App() {
         </div>
         <figure className="pay-code">
           <button className="pay-zoom" type="button" onClick={() => setPayOpen(true)} aria-label={t.zoomPay}>
-            <img src="/wechat-pay.jpg" alt={t.payCaption} />
+            <img src="/wechat-pay.jpg" alt={t.payCaption} onError={() => setSponsorImageOk(false)} />
             <span><Maximize2 size={14} /> {t.zoomPay}</span>
           </button>
           <figcaption>{t.payCaption}</figcaption>
         </figure>
       </aside>
+      )}
+
+      {helpOpen && (
+        <div className="pay-modal rules-modal" role="dialog" aria-modal="true" aria-label={t.help}>
+          <button className="pay-modal-backdrop" type="button" aria-label="Close rules overlay" onClick={() => setHelpOpen(false)} />
+          <div className="pay-modal-panel rules-modal-panel">
+            <button className="pay-modal-close" type="button" onClick={() => setHelpOpen(false)} aria-label="Close">
+              <X size={18} />
+            </button>
+            <div className="rules-modal-head">
+              <NanamiCatMascot size="mini" />
+              <h2>{t.help}</h2>
+            </div>
+            <p className="rules-modal-body">{t.rulesBody}</p>
+            <div className="rules-modal-example">
+              <p className="rules-modal-example-label">{t.rulesExampleTitle}</p>
+              <strong>{t.rulesExampleName}</strong>
+              <p>{t.rulesExampleWords}</p>
+              <p className="rules-modal-example-note">{t.rulesExampleNote}</p>
+            </div>
+            <button type="button" className="primary rules-modal-close-btn" onClick={() => setHelpOpen(false)}>
+              {t.rulesClose}
+            </button>
+          </div>
+        </div>
+      )}
 
       {payOpen && (
         <div className="pay-modal" role="dialog" aria-modal="true" aria-label={t.payCaption}>

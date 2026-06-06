@@ -8,14 +8,17 @@ enum L10n {
     enum Key: Hashable {
         case appName, kicker, mistakes, shuffle, clear, hint, submit, next, nextAfterComplete, share
         case leaderboard, contribute, settings, playerName, saveName, totalScore, textClears
-        case intro, chooseFour, wrong, out, complete, savedScore, needsName, abstractTitle
-        case leaderboardLead, contributeLead, emptyLeaderboard, submitPuzzle, puzzleTitle, contactEmail, groupName, wordsPlaceholder, savePuzzle
-        case sponsorTitle, sponsorBody, rulesTitle, rulesBody, language, theme, themeFooter, recent, pendingSaved
+        case intro, chooseFour, wrong, out, complete, savedScore, needsName, abstractTitle, hintsEmpty, hintsEarned
+        case leaderboardLead, contributeLead, emptyLeaderboard, joinedLeaderboard, submitPuzzle, contactEmail, groupName, wordsPlaceholder, savePuzzle, addGroup, removeGroup
+        case rulesTitle, rulesBody, rulesExampleTitle, rulesExampleName, rulesExampleWords, rulesExampleNote, rulesClose
+        case language, theme, themeFooter, recent, pendingSaved, ok
+        case clearedSelection, correctGroup, shuffled, hintMessage, catalogUpdated
+        case thankYouEmailSent, thankYouEmailNotSent, nicknameRequired
     }
 
     private static let table: [AppLocale: [Key: String]] = [
         .zh: [
-            .appName: "四格寻踪",
+            .appName: "喵格谜",
             .kicker: "每日分类谜题",
             .mistakes: "失误",
             .shuffle: "打乱",
@@ -38,29 +41,45 @@ enum L10n {
             .out: "失误次数已用完，继续尝试完成本题。",
             .complete: "四组全部找到了。",
             .savedScore: "成绩已写入排行榜。",
-            .needsName: "设置昵称后会把通关写入排行榜。",
+            .needsName: "设置昵称后，通关会累计到排行榜。",
             .abstractTitle: "本题最抽象的一组",
-            .leaderboardLead: "留下昵称后，通关可累计积分。",
-            .contributeLead: "最少填写 1 组，每组 4 个词，投稿会先进入 pending 状态。",
-            .emptyLeaderboard: "还没有成绩，先通关一题。",
+            .hintsEmpty: "提示次数已用完。每通关三题可获得 1 次提示。",
+            .hintsEarned: "通关三题，获得 1 次提示。",
+            .leaderboardLead: "保存昵称即可上榜，尚未通关也会显示为 0 次。",
+            .contributeLead: "最少 1 组、最多 10 组，每组须有组名和 4 个词。投稿进入待审核。",
+            .addGroup: "添加一组",
+            .removeGroup: "删除本组",
+            .emptyLeaderboard: "还没有玩家上榜，保存昵称成为第一个。",
+            .joinedLeaderboard: "已加入排行榜，通关 %d 次。",
             .submitPuzzle: "提交谜题",
-            .puzzleTitle: "谜题标题",
             .contactEmail: "联系邮箱（可选）",
             .groupName: "组名",
             .wordsPlaceholder: "4 个词，用逗号分隔",
             .savePuzzle: "提交到后台",
-            .sponsorTitle: "喜欢这个小游戏，可以请我喝杯咖啡。",
-            .sponsorBody: "微信扫码赞助，支持继续做中文题库。",
             .rulesTitle: "玩法说明",
-            .rulesBody: "从 16 个项目中找出 4 组，每组 4 个。选中 4 个后点提交。最多 4 次失误。",
+            .rulesBody: "16 个词里找出 4 组，每组 4 个。\n点选 4 个后提交，最多失误 4 次。",
+            .rulesExampleTitle: "例子",
+            .rulesExampleName: "早餐主食",
+            .rulesExampleWords: "油条 · 包子 · 豆浆 · 烧饼",
+            .rulesExampleNote: "↑ 这 4 个属于同一组",
+            .rulesClose: "知道了",
             .language: "语言",
             .theme: "主题",
             .themeFooter: "Morandi 低饱和配色，全 App 统一生效。",
             .recent: "最近",
-            .pendingSaved: "投稿已保存为待审核。"
+            .pendingSaved: "投稿已保存为待审核。",
+            .ok: "知道了",
+            .clearedSelection: "已取消当前选择。",
+            .correctGroup: "答对一组：%@",
+            .shuffled: "已打乱未解锁项目。",
+            .hintMessage: "提示：有一组与「%1$@」有关。%2$@",
+            .catalogUpdated: "题库已更新，下一题将使用新题目。",
+            .thankYouEmailSent: "投稿成功，感谢邮件已发送。",
+            .thankYouEmailNotSent: "投稿成功，但感谢邮件暂未发送（稍后可重试）。",
+            .nicknameRequired: "请先填写昵称。"
         ],
         .en: [
-            .appName: "FourFind",
+            .appName: "MeowGrid",
             .kicker: "Daily category puzzle",
             .mistakes: "Mistakes",
             .shuffle: "Shuffle",
@@ -83,26 +102,42 @@ enum L10n {
             .out: "No mistakes left. Keep trying.",
             .complete: "All four groups found.",
             .savedScore: "Score saved to the leaderboard.",
-            .needsName: "Set a nickname to save your score.",
+            .needsName: "Set a nickname to track clears on the leaderboard.",
             .abstractTitle: "Most abstract group",
-            .leaderboardLead: "Set a nickname to save your puzzle score.",
-            .contributeLead: "Submit at least one group with four words. Review status starts as pending.",
-            .emptyLeaderboard: "No scores yet. Clear a puzzle first.",
+            .hintsEmpty: "No hints left. Clear three puzzles to earn one more.",
+            .hintsEarned: "Cleared three puzzles — +1 hint.",
+            .leaderboardLead: "Save a nickname to join — you'll show 0 clears until you finish a puzzle.",
+            .contributeLead: "Submit 1–10 groups. Each needs a name and exactly four words. Review starts as pending.",
+            .addGroup: "Add group",
+            .removeGroup: "Remove group",
+            .emptyLeaderboard: "No players yet. Save a nickname to be the first.",
+            .joinedLeaderboard: "Joined the leaderboard with %d clear(s).",
             .submitPuzzle: "Submit puzzle",
-            .puzzleTitle: "Puzzle title",
             .contactEmail: "Contact email (optional)",
             .groupName: "Group name",
             .wordsPlaceholder: "Four words, comma separated",
             .savePuzzle: "Submit",
-            .sponsorTitle: "Enjoy the game? Buy me a coffee.",
-            .sponsorBody: "Scan to sponsor via WeChat.",
             .rulesTitle: "Rules",
-            .rulesBody: "Find four groups of four from sixteen items. You get four mistakes.",
+            .rulesBody: "Find 4 groups of 4 from 16 words.\nSelect 4, then submit. Four mistakes allowed.",
+            .rulesExampleTitle: "Example",
+            .rulesExampleName: "Breakfast staples",
+            .rulesExampleWords: "Youtiao · Bun · Soy milk · Shaobing",
+            .rulesExampleNote: "↑ these four belong together",
+            .rulesClose: "Got it",
             .language: "Language",
             .theme: "Theme",
             .themeFooter: "Morandi muted palettes apply across the whole app.",
             .recent: "Recent",
-            .pendingSaved: "Submission saved as pending."
+            .pendingSaved: "Submission saved as pending.",
+            .ok: "OK",
+            .clearedSelection: "Selection cleared.",
+            .correctGroup: "Correct group: %@",
+            .shuffled: "Unsolved items shuffled.",
+            .hintMessage: "Hint: one group relates to \"%1$@\". %2$@",
+            .catalogUpdated: "Puzzle catalog updated. New puzzles apply on the next round.",
+            .thankYouEmailSent: "Submission saved and thank-you email sent.",
+            .thankYouEmailNotSent: "Submission saved, but thank-you email was not sent yet.",
+            .nicknameRequired: "Enter a nickname first."
         ]
     ]
 }

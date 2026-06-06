@@ -114,7 +114,6 @@ struct PuzzleSubmissionPayload: Codable {
     var nickname: String
     var playerId: String?
     var email: String?
-    var title: String
     var groups: [PuzzleSubmissionGroup]
 }
 
@@ -124,7 +123,14 @@ struct PuzzleSubmissionResponse: Codable {
         let status: String
     }
 
+    struct EmailResult: Codable {
+        let attempted: Bool?
+        let sent: Bool?
+        let reason: String?
+    }
+
     let submission: Submission
+    let email: EmailResult?
 }
 
 enum UserDefaultsKeys {
@@ -133,4 +139,11 @@ enum UserDefaultsKeys {
     static let nickname = "nanamicat.nickname"
     static let playerId = "nanamicat.playerId"
     static let playedPuzzleIDs = "nanamicat.playedPuzzleIds"
+    static let hintBalance = "nanamicat.hintBalance"
+    static let completedPuzzleCount = "nanamicat.completedPuzzleCount"
+}
+
+enum HintEconomy {
+    static let initialBalance = 3
+    static let clearsPerReward = 3
 }

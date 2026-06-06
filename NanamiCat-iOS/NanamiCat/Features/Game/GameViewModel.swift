@@ -51,6 +51,11 @@ final class GameViewModel: ObservableObject {
         loadPuzzle()
     }
 
+    /// 远程题库更新后调用：不打断当前局，下一题起使用新题库。
+    func handleCatalogUpdate() {
+        notice = L10n.t(.catalogUpdated, locale: store.locale)
+    }
+
     private func loadPuzzle() {
         let pool = PuzzleCatalog.textPuzzles
         puzzle = Self.puzzle(at: textIndex, in: pool)
@@ -70,7 +75,7 @@ final class GameViewModel: ObservableObject {
 
     func clearSelection() {
         selectedIDs.removeAll()
-        message = store.locale == .zh ? "已取消当前选择。" : "Selection cleared."
+        message = L10n.t(.clearedSelection, locale: store.locale)
     }
 
     func submitGuess() {
@@ -87,11 +92,13 @@ final class GameViewModel: ObservableObject {
             selectedIDs.removeAll()
             if solvedGroups.count == puzzle.groups.count {
                 isComplete = true
+                markPuzzleAsPlayed()
                 message = L10n.t(.complete, locale: store.locale)
+                grantHintRewardIfNeeded()
                 Haptics.success()
                 Task { await submitScoreIfPossible() }
             } else {
-                message = store.locale == .zh ? "答对一组：\(matched.name)" : "Correct group: \(PuzzleLocalization.term(matched.name, locale: store.locale))"
+                message = String(format: L10n.t(.correctGroup, locale: store.locale), PuzzleLocalization.term(matched.name, locale: store.locale))
                 Haptics.success()
             }
             return
@@ -106,16 +113,18 @@ final class GameViewModel: ObservableObject {
     }
 
     func useHint() {
+        guard store.hintBalance > 0 else {
+            message = L10n.t(.hintsEmpty, locale: store.locale)
+            return
+        }
         let unsolved = puzzle.groups.filter { group in !solvedGroups.contains(where: { $0.name == group.name }) }
         guard !unsolved.isEmpty else { return }
+        store.hintBalance -= 1
         let group = unsolved[hintIndex % unsolved.count]
         hintIndex += 1
         let name = PuzzleLocalization.term(group.name, locale: store.locale)
-        if store.locale == .zh {
-            message = "提示：有一组与「\(name)」有关。\(puzzle.redHerring)"
-        } else {
-            message = "Hint: one group relates to \"\(name)\". \(puzzle.redHerring)"
-        }
+        let herring = PuzzleLocalization.term(puzzle.redHerring, locale: store.locale)
+        message = String(format: L10n.t(.hintMessage, locale: store.locale), name, herring)
     }
 
     func shuffleBoard() {
@@ -128,7 +137,7 @@ final class GameViewModel: ObservableObject {
         let boardIDs = Set(boardItems.map(\.id))
         selectedIDs = selectedIDs.intersection(boardIDs)
 
-        message = store.locale == .zh ? "已打乱未解锁项目。" : "Unsolved items shuffled."
+        message = L10n.t(.shuffled, locale: store.locale)
     }
 
     func nextPuzzle() {
@@ -186,6 +195,13 @@ final class GameViewModel: ObservableObject {
         }
     }
 
+    private func grantHintRewardIfNeeded() {
+        store.completedPuzzleCount += 1
+        guard store.completedPuzzleCount % HintEconomy.clearsPerReward == 0 else { return }
+        store.hintBalance += 1
+        notice = L10n.t(.hintsEarned, locale: store.locale)
+    }
+
     private func resetRound() {
         solvedGroups = []
         selectedIDs = []
@@ -200,10 +216,10 @@ final class GameViewModel: ObservableObject {
         boardItems = PuzzleEngine.shuffleItems(PuzzleEngine.allItems(in: puzzle))
     }
 
-    func markCurrentPuzzleAsPlayed() {
+    func markPuzzleAsPlayed() {
         let pool = PuzzleCatalog.textPuzzles
         guard !pool.isEmpty else { return }
-        
+
         var played = normalizedPlayedSet(in: pool)
         played.insert(puzzle.id)
         store.playedPuzzleIDs = Array(played)
@@ -239,8 +255,6 @@ final class GameViewModel: ObservableObject {
 
         textIndex = nextIndex
         puzzle = pool[nextIndex]
-        played.insert(puzzle.id)
-        store.playedPuzzleIDs = Array(played)
     }
 
     private func normalizedPlayedSet(in pool: [Puzzle]) -> Set<String> {
@@ -278,12 +292,15 @@ final class LeaderboardViewModel: ObservableObject {
 
     func saveNickname(store: UserDefaultsStore) async {
         let trimmed = store.nickname.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty else {
+            notice = L10n.t(.nicknameRequired, locale: store.locale)
+            return
+        }
         do {
             let player = try await APIClient.shared.registerPlayer(nickname: trimmed, playerId: store.playerId.nilIfEmpty)
             store.playerId = player.id
             store.nickname = player.nickname
-            notice = store.locale == .zh ? "昵称已保存。" : "Nickname saved."
+            notice = String(format: L10n.t(.joinedLeaderboard, locale: store.locale), player.textClears)
             await load()
         } catch {
             notice = error.localizedDescription
@@ -293,14 +310,26 @@ final class LeaderboardViewModel: ObservableObject {
 
 @MainActor
 final class ContributeViewModel: ObservableObject {
-    @Published var title = ""
+    static let maxGroups = 10
+
     @Published var email = ""
-    @Published var groups: [DraftGroup] = (0..<4).map { _ in DraftGroup() }
+    @Published var groups: [DraftGroup] = [DraftGroup()]
     @Published var notice = ""
 
-    struct DraftGroup {
+    struct DraftGroup: Identifiable {
+        let id = UUID()
         var name = ""
         var words = ""
+    }
+
+    func addGroup() {
+        guard groups.count < Self.maxGroups else { return }
+        groups.append(DraftGroup())
+    }
+
+    func removeGroup(id: UUID) {
+        guard groups.count > 1 else { return }
+        groups.removeAll { $0.id == id }
     }
 
     func submit(store: UserDefaultsStore) async {
@@ -313,13 +342,13 @@ final class ContributeViewModel: ObservableObject {
                 store.nickname = player.nickname
                 playerId = player.id
             }
-            let parsedGroups = groups.enumerated().map { index, group in
+            let parsedGroups = groups.map { group in
                 let name = group.name.trimmingCharacters(in: .whitespacesAndNewlines)
                 let words = group.words
                     .split(whereSeparator: { ",，\n".contains($0) })
                     .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
                     .filter { !$0.isEmpty }
-                return (index: index, name: name, words: words)
+                return (name: name, words: words)
             }
 
             let filledGroups = parsedGroups.filter { !$0.name.isEmpty || !$0.words.isEmpty }
@@ -330,33 +359,39 @@ final class ContributeViewModel: ObservableObject {
                 return
             }
 
-            guard filledGroups.allSatisfy({ $0.words.count == 4 }) else {
+            guard filledGroups.count <= Self.maxGroups else {
                 notice = store.locale == .zh
-                    ? "每个已填写分组必须恰好 4 个词。"
-                    : "Each filled group must contain exactly four words."
+                    ? "一次最多提交 10 组。"
+                    : "You can submit at most 10 groups at a time."
                 return
             }
 
-            let payloadGroups = filledGroups.map { group in
-                PuzzleSubmissionGroup(
-                    name: group.name.isEmpty
-                        ? (store.locale == .zh ? "未命名分组 \(group.index + 1)" : "Group \(group.index + 1)")
-                        : group.name,
-                    words: group.words
-                )
+            guard filledGroups.allSatisfy({ !$0.name.isEmpty && $0.words.count == 4 }) else {
+                notice = store.locale == .zh
+                    ? "每个已填写分组必须有组名且恰好 4 个词。"
+                    : "Each filled group needs a name and exactly four words."
+                return
+            }
+
+            let payloadGroups = filledGroups.map {
+                PuzzleSubmissionGroup(name: $0.name, words: $0.words)
             }
             let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
-            _ = try await APIClient.shared.submitPuzzle(PuzzleSubmissionPayload(
+            let response = try await APIClient.shared.submitPuzzle(PuzzleSubmissionPayload(
                 nickname: trimmed.isEmpty ? "Guest" : trimmed,
                 playerId: playerId,
                 email: trimmedEmail.isEmpty ? nil : trimmedEmail,
-                title: title.trimmingCharacters(in: .whitespacesAndNewlines),
                 groups: payloadGroups
             ))
-            title = ""
             email = ""
-            groups = (0..<4).map { _ in DraftGroup() }
-            notice = L10n.t(.pendingSaved, locale: store.locale)
+            groups = [DraftGroup()]
+            if let emailResult = response.email, emailResult.attempted == true {
+                notice = emailResult.sent == true
+                    ? L10n.t(.thankYouEmailSent, locale: store.locale)
+                    : L10n.t(.thankYouEmailNotSent, locale: store.locale)
+            } else {
+                notice = L10n.t(.pendingSaved, locale: store.locale)
+            }
         } catch {
             notice = error.localizedDescription
         }

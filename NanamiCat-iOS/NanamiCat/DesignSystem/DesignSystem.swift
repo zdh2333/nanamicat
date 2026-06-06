@@ -523,7 +523,7 @@ struct NanamiCatMascot: View {
             if let card = size.cardSize {
                 mascotImage
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
                     .frame(width: card, height: card)
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
@@ -538,6 +538,7 @@ struct NanamiCatMascot: View {
                     .frame(width: size.dimension, height: size.dimension)
             }
         }
+        .fixedSize()
         .accessibilityLabel("NanamiCat")
     }
 
@@ -739,6 +740,54 @@ struct CrayonLanguageToggle: View {
                 )
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct RulesHelpPopup: View {
+    let locale: AppLocale
+    let palette: AppPalette
+    let onDismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .center) {
+                NanamiCatMascot(size: .mini)
+                Text(L10n.t(.rulesTitle, locale: locale))
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(palette.ink)
+                Spacer(minLength: 0)
+            }
+
+            Text(L10n.t(.rulesBody, locale: locale))
+                .font(.body)
+                .foregroundStyle(palette.ink)
+                .fixedSize(horizontal: false, vertical: true)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(L10n.t(.rulesExampleTitle, locale: locale))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(palette.muted)
+                Text(L10n.t(.rulesExampleName, locale: locale))
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(palette.ink)
+                Text(L10n.t(.rulesExampleWords, locale: locale))
+                    .font(.footnote)
+                    .foregroundStyle(palette.muted)
+                Text(L10n.t(.rulesExampleNote, locale: locale))
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(palette.accent)
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .crayonCard(palette: palette, cornerRadius: 12, seed: 88, fill: palette.surface.opacity(0.92))
+
+            Button(L10n.t(.rulesClose, locale: locale), action: onDismiss)
+                .buttonStyle(PrimaryButtonStyle(accent: palette.accent, palette: palette))
+                .frame(maxWidth: .infinity)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(CrayonPaperBackground(palette: palette))
     }
 }
 

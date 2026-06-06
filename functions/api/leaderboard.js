@@ -6,8 +6,8 @@ export async function onRequestGet({ env }) {
     const result = await db.prepare(`
       SELECT id, nickname, text_clears, total_score, updated_at
       FROM players
-      ORDER BY total_score DESC, updated_at DESC
-      LIMIT 20
+      ORDER BY total_score DESC, text_clears DESC, updated_at DESC
+      LIMIT 100
     `).all();
 
     return json({ leaderboard: result.results ?? [] });

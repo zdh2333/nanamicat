@@ -1,6 +1,7 @@
-const STATUSES = new Set(['pending', 'approved', 'rejected']);
+const STATUSES = new Set(['pending', 'reviewed', 'included', 'rejected', 'approved']);
+const REVIEW_STATUSES = new Set(['pending', 'reviewed', 'included', 'rejected']);
 const GROUP_COLORS = ['yellow', 'green', 'blue', 'purple'];
-const SCORE_KEY_PATTERN = /^(text-(built-in-\d+|community-\d+)|image-(yellow|green|blue|purple)-(yellow|green|blue|purple)-\d+)$/;
+const SCORE_KEY_PATTERN = /^(text-(\d{3}|built-in-\d+|community-\d+)|image-(yellow|green|blue|purple)-(yellow|green|blue|purple)-\d+)$/;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -14,55 +15,80 @@ function json(data, status = 200) {
   });
 }
 
+async function readPuzzleSubmissionRows(env, { limit = 100 } = {}) {
+  const result = await env.DB.prepare(`
+    SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+    FROM puzzle_submissions
+    ORDER BY created_at DESC
+    LIMIT ?
+  `).bind(limit).all();
+  return result.results ?? [];
+}
+
 async function readSubmissions(env) {
-  const { results } = await env.DB.prepare(
-    `SELECT id, nickname, title, contact_email, groups_json, status,
-      thank_you_email_json, created_at, updated_at
-    FROM submissions ORDER BY created_at DESC`,
-  ).all();
-  return results.map((row) => ({
+  return (await readPuzzleSubmissionRows(env)).map((row) => ({
     id: row.id,
     nickname: row.nickname,
     title: row.title,
     contactEmail: row.contact_email,
-    groups: JSON.parse(row.groups_json),
-    status: row.status,
-    thankYouEmail: JSON.parse(row.thank_you_email_json),
+    groups: parseSubmissionGroups(row.groups_json),
+    status: row.status === 'approved' ? 'included' : row.status,
+    thankYouEmail: { status: 'not_requested' },
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
 }
 
 async function insertSubmission(env, submission) {
-  await env.DB.prepare(
-    `INSERT INTO submissions (
-      id, nickname, title, contact_email, groups_json, status,
-      thank_you_email_json, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).bind(
+  const now = submission.updatedAt || submission.createdAt || new Date().toISOString();
+  await env.DB.prepare(`
+    INSERT INTO puzzle_submissions (
+      id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
     submission.id,
+    submission.playerId || null,
     submission.nickname,
+    submission.contactEmail || null,
     submission.title,
-    submission.contactEmail,
     JSON.stringify(submission.groups),
-    submission.status,
-    JSON.stringify(submission.thankYouEmail),
-    submission.createdAt,
-    submission.updatedAt,
+    submission.status === 'approved' ? 'included' : submission.status,
+    submission.createdAt || now,
+    submission.updatedAt || now,
   ).run();
 }
 
 async function readScores(env) {
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT id, dedupe_key, nickname, mode, puzzle_key, points, created_at
+      FROM scores ORDER BY created_at DESC`,
+    ).all();
+    if (results?.length) {
+      return results.map((row) => ({
+        id: row.id,
+        dedupeKey: row.dedupe_key,
+        nickname: row.nickname,
+        mode: row.mode,
+        puzzleKey: row.puzzle_key,
+        points: row.points,
+        createdAt: row.created_at,
+      }));
+    }
+  } catch {
+    // fall through to score_events
+  }
+
   const { results } = await env.DB.prepare(
-    `SELECT id, dedupe_key, nickname, mode, puzzle_key, points, created_at
-    FROM scores ORDER BY created_at DESC`,
+    `SELECT id, player_id, nickname, mode, puzzle_id, points, created_at
+    FROM score_events ORDER BY created_at DESC`,
   ).all();
-  return results.map((row) => ({
+  return (results ?? []).map((row) => ({
     id: row.id,
-    dedupeKey: row.dedupe_key,
+    dedupeKey: `${row.player_id}|${row.mode}|${row.puzzle_id}`,
     nickname: row.nickname,
     mode: row.mode,
-    puzzleKey: row.puzzle_key,
+    puzzleKey: row.puzzle_id,
     points: row.points,
     createdAt: row.created_at,
   }));
@@ -116,7 +142,7 @@ function validateScore(body) {
 
 function buildApprovedTextPuzzles(submissions) {
   const approvedGroups = submissions
-    .filter((submission) => submission.status === 'approved')
+    .filter((submission) => submission.status === 'approved' || submission.status === 'included')
     .flatMap((submission) => submission.groups.map((group) => ({
       name: String(group.name || '').trim(),
       words: Array.isArray(group.words) ? group.words.map((word) => String(word).trim()).filter(Boolean) : [],
@@ -151,7 +177,90 @@ function buildApprovedTextPuzzles(submissions) {
 }
 
 function requireAdmin(request, env) {
-  return env.ADMIN_KEY && request.headers.get('x-admin-key') === env.ADMIN_KEY;
+  const email = request.headers.get('CF-Access-Authenticated-User-Email');
+  const jwt = request.headers.get('CF-Access-Jwt-Assertion');
+  if (email && jwt) return true;
+  return Boolean(env.ADMIN_KEY && request.headers.get('x-admin-key') === env.ADMIN_KEY);
+}
+
+function cleanNickname(value) {
+  const nickname = String(value || '').trim().replace(/\s+/g, ' ');
+  if (!nickname) throw new Error('Nickname is required');
+  if (nickname.length > 24) throw new Error('Nickname must be 24 characters or fewer');
+  return nickname;
+}
+
+function newId(prefix) {
+  return `${prefix}_${crypto.randomUUID().replaceAll('-', '')}`;
+}
+
+function normalizeEmail(value) {
+  const email = String(value || '').trim().toLowerCase();
+  if (!email) return null;
+  if (email.length > 254) throw new Error('Email must be 254 characters or fewer');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Invalid email format');
+  return email;
+}
+
+function normalizeGroups(groups) {
+  if (!Array.isArray(groups) || groups.length === 0) {
+    throw new Error('Puzzle submissions must contain at least 1 group');
+  }
+  const normalized = groups.map((group, index) => {
+    const name = String(group?.name || '').trim();
+    const words = Array.isArray(group?.words)
+      ? group.words.map((word) => String(word).trim()).filter(Boolean)
+      : [];
+    if (!name && words.length === 0) return null;
+    if (!name) throw new Error(`Group ${index + 1} needs a name`);
+    if (words.length !== 4) throw new Error(`Group ${index + 1} must contain exactly 4 words`);
+    if (words.some((word) => word.length > 24)) throw new Error('Each word must be 24 characters or fewer');
+    return { name, words };
+  });
+  const filled = normalized.filter(Boolean);
+  if (!filled.length) throw new Error('Puzzle submissions must contain at least 1 group');
+  if (filled.length > 10) throw new Error('Puzzle submissions can include at most 10 groups');
+  return filled;
+}
+
+function deriveSubmissionTitle({ title, groups, nickname }) {
+  const trimmed = String(title || '').trim();
+  if (trimmed) return trimmed.slice(0, 80);
+  const fromGroups = groups.map((group) => group.name).filter(Boolean).join(' / ');
+  if (fromGroups) return fromGroups.slice(0, 80);
+  return `投稿 ${String(nickname || 'Guest').trim() || 'Guest'}`.slice(0, 80);
+}
+
+function parseSubmissionGroups(groupsJson) {
+  try {
+    const parsed = JSON.parse(groupsJson || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function serializeSubmission(row) {
+  const groups = parseSubmissionGroups(row.groups_json);
+  const summary = (() => {
+    const names = groups.map((group) => String(group?.name || '').trim()).filter(Boolean);
+    if (names.length) return `${names.length} 组：${names.join(' / ')}`;
+    return deriveSubmissionTitle({ title: row.title, groups, nickname: row.nickname });
+  })();
+  return {
+    id: row.id,
+    player_id: row.player_id,
+    nickname: row.nickname,
+    contact_email: row.contact_email,
+    title: row.title,
+    groups_json: row.groups_json,
+    groups,
+    group_count: groups.length,
+    summary,
+    status: row.status,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
 }
 
 function validateSubmission(body) {
@@ -219,24 +328,24 @@ function buildThankYouMessage(submission, env) {
   const text = [
     `Hi ${nickname},`,
     '',
-    `Thank you for leaving the puzzle "${title}" for FourFind.`,
+    `Thank you for leaving the puzzle "${title}" for MeowGrid.`,
     'Your support helps make the puzzle bank more interesting. I will review the submission before adding it to a future puzzle set.',
     '',
     'Have fun playing today.',
-    'FourFind',
+    'MeowGrid',
   ].join('\n');
 
   return {
-    from: `FourFind <${from}>`,
+    from: `MeowGrid <${from}>`,
     to: [submission.contactEmail],
     reply_to: replyTo,
-    subject: 'Thank you for submitting a FourFind puzzle',
+    subject: 'Thank you for submitting a MeowGrid puzzle',
     text,
     html: [
       `<p>Hi ${escapeHtml(nickname)},</p>`,
-      `<p>Thank you for leaving the puzzle "<strong>${escapeHtml(title)}</strong>" for FourFind.</p>`,
+      `<p>Thank you for leaving the puzzle "<strong>${escapeHtml(title)}</strong>" for MeowGrid.</p>`,
       '<p>Your support helps make the puzzle bank more interesting. I will review the submission before adding it to a future puzzle set.</p>',
-      '<p>Have fun playing today.<br />FourFind</p>',
+      '<p>Have fun playing today.<br />MeowGrid</p>',
     ].join(''),
   };
 }
@@ -315,8 +424,169 @@ async function handleRequest(request, env) {
     return json({ submission }, 201);
   }
 
+  if (path === '/api/leaderboard' && request.method === 'GET') {
+    const result = await env.DB.prepare(`
+      SELECT id, nickname, text_clears, total_score, updated_at
+      FROM players
+      ORDER BY total_score DESC, text_clears DESC, updated_at DESC
+      LIMIT 100
+    `).all();
+    return json({ leaderboard: result.results ?? [] });
+  }
+
+  if (path === '/api/player' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      const nickname = cleanNickname(body.nickname);
+      const playerId = String(body.playerId || '').trim();
+      const now = new Date().toISOString();
+
+      if (playerId) {
+        const existing = await env.DB.prepare('SELECT * FROM players WHERE id = ?').bind(playerId).first();
+        if (existing) {
+          await env.DB.prepare('UPDATE players SET nickname = ?, updated_at = ? WHERE id = ?')
+            .bind(nickname, now, playerId).run();
+          return json({ player: { ...existing, nickname, updated_at: now } });
+        }
+      }
+
+      const byName = await env.DB.prepare('SELECT * FROM players WHERE nickname = ?').bind(nickname).first();
+      if (byName) {
+        await env.DB.prepare('UPDATE players SET nickname = ?, updated_at = ? WHERE id = ?')
+          .bind(nickname, now, byName.id).run();
+        return json({ player: { ...byName, nickname, updated_at: now } });
+      }
+
+      const id = newId('player');
+      await env.DB.prepare(`
+        INSERT INTO players (id, nickname, created_at, updated_at)
+        VALUES (?, ?, ?, ?)
+      `).bind(id, nickname, now, now).run();
+      return json({
+        player: {
+          id,
+          nickname,
+          text_clears: 0,
+          total_score: 0,
+          created_at: now,
+          updated_at: now,
+        },
+      }, 201);
+    } catch (error) {
+      const status = /nickname/i.test(error.message) ? 400 : 500;
+      return json({ error: error.message }, status);
+    }
+  }
+
+  if (path === '/api/score' && request.method === 'POST') {
+    try {
+      const body = await request.json();
+      const mode = String(body.mode || 'text').trim();
+      const puzzleId = String(body.puzzleId || '').trim();
+      const playerId = String(body.playerId || '').trim();
+      const nickname = cleanNickname(body.nickname);
+      if (mode !== 'text') throw new Error('Mode must be text');
+      if (!puzzleId) throw new Error('Puzzle id is required');
+      if (!playerId) throw new Error('Player id is required');
+
+      const player = await env.DB.prepare('SELECT * FROM players WHERE id = ?').bind(playerId).first();
+      if (!player) throw new Error('Player does not exist');
+
+      const points = 1;
+      const now = new Date().toISOString();
+      const eventId = newId('score');
+      const insert = await env.DB.prepare(`
+        INSERT OR IGNORE INTO score_events (id, player_id, nickname, mode, puzzle_id, points, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(eventId, playerId, nickname, mode, puzzleId, points, now).run();
+
+      if (insert.meta?.changes) {
+        await env.DB.prepare(`
+          UPDATE players
+          SET nickname = ?, text_clears = text_clears + 1, total_score = total_score + ?, updated_at = ?
+          WHERE id = ?
+        `).bind(nickname, points, now, playerId).run();
+      }
+
+      const updated = await env.DB.prepare('SELECT * FROM players WHERE id = ?').bind(playerId).first();
+      return json({ player: updated, points, duplicate: !insert.meta?.changes });
+    } catch (error) {
+      const badRequest = /required|must|does not exist/i.test(error.message);
+      return json({ error: error.message }, badRequest ? 400 : 500);
+    }
+  }
+
+  if (path === '/api/puzzles' && request.method === 'POST') {
+    try {
+      if (!await consumeRateLimit(request, env, 'submissions', 20, 86400)) {
+        return json({ error: 'Too many submissions. Please try again later.' }, 429);
+      }
+      const body = await request.json();
+      const nickname = cleanNickname(body.nickname || 'Guest');
+      const playerId = String(body.playerId || '').trim() || null;
+      const contactEmail = normalizeEmail(body.email);
+      const groups = normalizeGroups(body.groups);
+      const title = deriveSubmissionTitle({ title: body.title, groups, nickname });
+      const now = new Date().toISOString();
+      const id = newId('submission');
+
+      await env.DB.prepare(`
+        INSERT INTO puzzle_submissions (id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+      `).bind(id, playerId, nickname, contactEmail, title, JSON.stringify(groups), now, now).run();
+
+      let email = { attempted: false, sent: false };
+      if (contactEmail) {
+        const thankYou = await sendThankYouEmail({
+          id,
+          nickname,
+          title,
+          contactEmail,
+          groups,
+          status: 'pending',
+          thankYouEmail: { status: 'not_requested' },
+          createdAt: now,
+          updatedAt: now,
+        }, env);
+        email = {
+          attempted: thankYou.status !== 'not_requested',
+          sent: thankYou.status === 'sent',
+          reason: thankYou.error,
+        };
+      }
+
+      return json({
+        submission: {
+          id,
+          player_id: playerId,
+          nickname,
+          contact_email: contactEmail,
+          title,
+          groups,
+          status: 'pending',
+          created_at: now,
+          updated_at: now,
+        },
+        email,
+      }, 201);
+    } catch (error) {
+      const badRequest = /required|must|needs|characters|invalid|group|submission/i.test(error.message);
+      return json({ error: error.message }, badRequest ? 400 : 500);
+    }
+  }
+
   if (path === '/api/puzzles' && request.method === 'GET') {
-    const submissions = await readSubmissions(env);
+    const result = await env.DB.prepare(`
+      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      FROM puzzle_submissions
+      ORDER BY created_at DESC
+    `).all();
+    const submissions = (result.results ?? []).map((row) => ({
+      id: row.id,
+      nickname: row.nickname,
+      groups: parseSubmissionGroups(row.groups_json),
+      status: row.status,
+    }));
     return json({ puzzles: buildApprovedTextPuzzles(submissions) });
   }
 
@@ -375,37 +645,91 @@ async function handleRequest(request, env) {
     return json({ score, leaders: publicScoreboard(scores) }, existed ? 200 : 201);
   }
 
+  if (path === '/api/admin/puzzles' && request.method === 'GET') {
+    if (!requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
+    const result = await env.DB.prepare(`
+      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      FROM puzzle_submissions
+      ORDER BY created_at DESC
+      LIMIT 100
+    `).all();
+    return json({ submissions: (result.results ?? []).map(serializeSubmission) });
+  }
+
+  if (path === '/api/admin/scores' && request.method === 'GET') {
+    if (!requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
+    const result = await env.DB.prepare(`
+      SELECT id, player_id, nickname, mode, puzzle_id, points, created_at
+      FROM score_events
+      ORDER BY created_at DESC
+      LIMIT 100
+    `).all();
+    return json({ scores: result.results ?? [] });
+  }
+
+  const adminPuzzleMatch = path.match(/^\/api\/admin\/puzzles\/([^/]+)$/);
+  if (adminPuzzleMatch && request.method === 'PATCH') {
+    if (!requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
+    const body = await request.json().catch(() => null);
+    let status = String(body?.status || '').trim();
+    if (status === 'approved') status = 'included';
+    if (!REVIEW_STATUSES.has(status)) return json({ error: 'Invalid review status' }, 400);
+    const now = new Date().toISOString();
+    const updated = await env.DB.prepare(`
+      UPDATE puzzle_submissions SET status = ?, updated_at = ? WHERE id = ?
+    `).bind(status, now, adminPuzzleMatch[1]).run();
+    if (!updated.meta?.changes) return json({ error: 'Submission not found' }, 404);
+    const row = await env.DB.prepare(`
+      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      FROM puzzle_submissions WHERE id = ?
+    `).bind(adminPuzzleMatch[1]).first();
+    return json({ submission: serializeSubmission(row) });
+  }
+
   if (path === '/api/admin/submissions' && request.method === 'GET') {
     if (!requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
-    return json({ submissions: await readSubmissions(env) });
+    const rows = await readPuzzleSubmissionRows(env);
+    return json({ submissions: rows.map(serializeSubmission) });
   }
 
   if (path === '/api/admin/scores' && request.method === 'DELETE') {
     if (!requireAdmin(request, env)) return json({ error: 'Invalid admin key.' }, 401);
     const nickname = String(url.searchParams.get('nickname') || '').trim().toLowerCase();
     if (!nickname) return json({ error: 'Missing nickname.' }, 400);
-    const deleted = await env.DB.prepare('DELETE FROM scores WHERE lower(trim(nickname)) = ?').bind(nickname).run();
+    let deletedCount = 0;
+    try {
+      const deleted = await env.DB.prepare('DELETE FROM scores WHERE lower(trim(nickname)) = ?').bind(nickname).run();
+      deletedCount = Number(deleted.meta?.changes || 0);
+    } catch {
+      const deleted = await env.DB.prepare('DELETE FROM score_events WHERE lower(trim(nickname)) = ?').bind(nickname).run();
+      deletedCount = Number(deleted.meta?.changes || 0);
+    }
     const scores = await readScores(env);
-    return json({ deleted: Number(deleted.meta?.changes || 0), leaders: publicScoreboard(scores) });
+    return json({ deleted: deletedCount, leaders: publicScoreboard(scores) });
   }
 
   const match = path.match(/^\/api\/admin\/submissions\/([^/]+)$/);
   if (match && request.method === 'PATCH') {
     if (!requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
     const body = await request.json().catch(() => null);
-    if (!STATUSES.has(body?.status)) return json({ error: '审核状态无效。' }, 400);
+    let status = String(body?.status || '').trim();
+    if (status === 'approved') status = 'included';
+    if (!STATUSES.has(status)) return json({ error: '审核状态无效。' }, 400);
     const updatedAt = new Date().toISOString();
     const updated = await env.DB.prepare(
-      'UPDATE submissions SET status = ?, updated_at = ? WHERE id = ?',
-    ).bind(body.status, updatedAt, match[1]).run();
+      'UPDATE puzzle_submissions SET status = ?, updated_at = ? WHERE id = ?',
+    ).bind(status, updatedAt, match[1]).run();
     if (Number(updated.meta?.changes || 0) === 0) return json({ error: '投稿不存在。' }, 404);
-    const submission = (await readSubmissions(env)).find((item) => item.id === match[1]);
-    return json({ submission });
+    const row = await env.DB.prepare(`
+      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      FROM puzzle_submissions WHERE id = ?
+    `).bind(match[1]).first();
+    return json({ submission: serializeSubmission(row) });
   }
 
   if (match && request.method === 'DELETE') {
     if (!requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
-    const deleted = await env.DB.prepare('DELETE FROM submissions WHERE id = ?').bind(match[1]).run();
+    const deleted = await env.DB.prepare('DELETE FROM puzzle_submissions WHERE id = ?').bind(match[1]).run();
     if (Number(deleted.meta?.changes || 0) === 0) return json({ error: '投稿不存在。' }, 404);
     return new Response(null, { status: 204 });
   }

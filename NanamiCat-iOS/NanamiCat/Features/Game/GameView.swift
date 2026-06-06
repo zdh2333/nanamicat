@@ -15,6 +15,7 @@ struct GameView: View {
     @State private var solvedPulseTick = 0
     @State private var boardRevealToken = 0
     @State private var completionCelebrationTick = 0
+    @State private var showRules = false
 
     var body: some View {
         let palette = AppPalette.palette(for: store.theme, colorScheme: colorScheme)
@@ -72,12 +73,21 @@ struct GameView: View {
         .onAppear {
             PageMotion.runEntrance(stage: $entranceStage, total: 7, reduceMotion: reduceMotion)
             boardRevealToken += 1
-            viewModel.markCurrentPuzzleAsPlayed()
         }
         .onChange(of: viewModel.puzzle.id) { _, _ in
             PageMotion.runEntrance(stage: $entranceStage, total: 7, reduceMotion: reduceMotion)
             boardRevealToken += 1
-            viewModel.markCurrentPuzzleAsPlayed()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .puzzleCatalogDidUpdate)) { _ in
+            viewModel.handleCatalogUpdate()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .sheet(isPresented: $showRules) {
+            RulesHelpPopup(locale: store.locale, palette: palette) {
+                showRules = false
+            }
+            .presentationDetents([.medium])
+            .presentationDragIndicator(.visible)
         }
     }
 
@@ -85,6 +95,7 @@ struct GameView: View {
     private func header(palette: AppPalette) -> some View {
         HStack(alignment: .top, spacing: 12) {
             NanamiCatMascot(size: .gameHeader)
+                .layoutPriority(1)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(L10n.t(.kicker, locale: store.locale))
@@ -104,6 +115,16 @@ struct GameView: View {
             Spacer(minLength: 4)
 
             VStack(alignment: .trailing, spacing: 10) {
+                Button {
+                    showRules = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.title3.weight(.medium))
+                        .foregroundStyle(palette.muted)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L10n.t(.rulesTitle, locale: store.locale))
+
                 HStack(spacing: 6) {
                     NanamiCatMascot(size: .mini)
                     Text("\(L10n.t(.mistakes, locale: store.locale)) \(viewModel.mistakes)/\(viewModel.maxMistakes)")
@@ -112,6 +133,12 @@ struct GameView: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .crayonCard(palette: palette, cornerRadius: 8, seed: 12, fill: Color(red: 0.91, green: 0.71, blue: 0.69).opacity(0.25))
+                    Text("\(L10n.t(.hint, locale: store.locale)) \(store.hintBalance)")
+                        .font(.caption.monospacedDigit().weight(.medium))
+                        .foregroundStyle(store.hintBalance == 0 ? .red : palette.muted)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .crayonCard(palette: palette, cornerRadius: 8, seed: 13, fill: Color(red: 0.78, green: 0.86, blue: 0.94).opacity(0.35))
                 }
             }
         }
@@ -163,9 +190,11 @@ struct GameView: View {
                     .foregroundStyle(palette.ink)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+                    .accessibilityAddTraits(.updatesFrequently)
             }
             .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.86), value: viewModel.message)
         }
+        .accessibilityElement(children: .combine)
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .crayonCard(palette: palette, cornerRadius: 12, seed: 55)
@@ -239,21 +268,7 @@ struct GameView: View {
             }
 
             if viewModel.isComplete {
-                HStack(spacing: 10) {
-                    Button(L10n.t(.nextAfterComplete, locale: store.locale)) { viewModel.nextPuzzle() }
-                        .buttonStyle(PrimaryButtonStyle(accent: palette.accent, palette: palette, font: .title2.weight(.bold), height: 112))
-                        .frame(height: 112)
-                        .frame(maxWidth: .infinity)
-
-                    ShareLink(item: viewModel.shareText()) {
-                        Text(L10n.t(.share, locale: store.locale))
-                            .font(.body.weight(.bold))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    .buttonStyle(SecondaryButtonStyle(palette: palette, font: .body.weight(.bold), height: 112))
-                    .frame(height: 112)
-                    .frame(maxWidth: .infinity)
-                }
+                EmptyView()
             } else {
                 HStack(alignment: .top, spacing: 10) {
                     Button(L10n.t(.submit, locale: store.locale)) { viewModel.submitGuess() }
@@ -263,9 +278,10 @@ struct GameView: View {
                         .pulseOnTick(solvedPulseTick, reduceMotion: reduceMotion)
 
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                        Button(L10n.t(.hint, locale: store.locale)) { viewModel.useHint() }
+                        Button("\(L10n.t(.hint, locale: store.locale)) (\(store.hintBalance))") { viewModel.useHint() }
                             .buttonStyle(SecondaryButtonStyle(palette: palette, font: .body.weight(.bold), height: 52))
                             .frame(height: 52)
+                            .disabled(store.hintBalance == 0)
                         Button(L10n.t(.shuffle, locale: store.locale)) { viewModel.shuffleBoard() }
                             .buttonStyle(SecondaryButtonStyle(palette: palette, font: .body.weight(.bold), height: 52))
                             .frame(height: 52)

@@ -40,20 +40,36 @@ export function requireDb(env) {
   return env.DB;
 }
 
-export async function sendThankYouEmail({ env, to, nickname, title, submissionId }) {
+export function parseSubmissionGroups(groupsJson) {
+  try {
+    const parsed = JSON.parse(groupsJson || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function formatSubmissionSummary({ title, groups, nickname }) {
+  const names = (groups || []).map((group) => String(group?.name || "").trim()).filter(Boolean);
+  if (names.length) return `${names.length} 组：${names.join(" / ")}`;
+  return deriveSubmissionTitle({ title, groups: groups || [], nickname });
+}
+
+export async function sendThankYouEmail({ env, to, nickname, title, submissionId, groups }) {
   if (!to) return { attempted: false, sent: false, reason: "missing_email" };
 
   const apiKey = env.RESEND_API_KEY;
-  const from = env.THANK_YOU_EMAIL_FROM;
+  const from = env.THANK_YOU_EMAIL_FROM || env.MAIL_FROM;
   if (!apiKey || !from) return { attempted: false, sent: false, reason: "not_configured" };
 
   const siteUrl = env.SITE_URL || "https://nanamicat.com";
+  const summary = formatSubmissionSummary({ title, groups, nickname });
   const subject = "感谢投稿到 NanamiCat";
   const text = [
     `你好 ${nickname || "朋友"}，`,
     "",
     "感谢你向 NanamiCat 投稿谜题，我们已经收到并进入待审核队列。",
-    `投稿标题：${title}`,
+    `题组：${summary}`,
     `投稿编号：${submissionId}`,
     "",
     `你可以在 ${siteUrl} 继续体验最新题目。`,
@@ -117,5 +133,40 @@ export function normalizeGroups(groups) {
 
   const filled = normalized.filter(Boolean);
   if (!filled.length) throw new Error("Puzzle submissions must contain at least 1 group");
+  if (filled.length > 10) throw new Error("Puzzle submissions can include at most 10 groups");
   return filled;
 }
+
+export function deriveSubmissionTitle({ title, groups, nickname }) {
+  const trimmed = String(title || "").trim();
+  if (trimmed) return trimmed.slice(0, 80);
+  const fromGroups = groups.map((group) => group.name).filter(Boolean).join(" / ");
+  if (fromGroups) return fromGroups.slice(0, 80);
+  return `投稿 ${String(nickname || "Guest").trim() || "Guest"}`.slice(0, 80);
+}
+
+export function serializeSubmission(row) {
+  const groups = parseSubmissionGroups(row.groups_json);
+  const summary = formatSubmissionSummary({
+    title: row.title,
+    groups,
+    nickname: row.nickname
+  });
+
+  return {
+    id: row.id,
+    player_id: row.player_id,
+    nickname: row.nickname,
+    contact_email: row.contact_email,
+    title: row.title,
+    groups_json: row.groups_json,
+    groups,
+    group_count: groups.length,
+    summary,
+    status: row.status,
+    created_at: row.created_at,
+    updated_at: row.updated_at
+  };
+}
+
+export const submissionStatuses = new Set(["pending", "reviewed", "included", "rejected"]);

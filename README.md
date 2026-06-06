@@ -1,4 +1,4 @@
-# FourFind / 四格寻踪
+# MeowGrid / 喵格谜
 
 A responsive category-grouping puzzle game for text and image challenges.
 
@@ -18,12 +18,34 @@ Never commit `.env` or production credentials.
 npm run build
 ```
 
+## Puzzle data (single source of truth)
+
+Built-in text puzzles live in `NanamiCat-iOS/NanamiCat/Resources/puzzle-data.json`.
+After editing that file, sync copies to the web bundle and docs:
+
+```sh
+npm run sync:puzzles
+npm run validate:puzzles
+```
+
+The web app loads `/puzzle-data.json` at runtime (same manifest as iOS hot-update).
+
+## Local API (v2)
+
+`npm run dev` mounts lightweight v2 routes from `server/dev-api.js`
+(`/api/leaderboard`, `/api/player`, `/api/score`, admin puzzle review) using JSON
+files under `data/`. Production uses the Cloudflare Worker in `worker/nanamicat-api.js`.
+
 ## Production
 
 The frontend deploys to Cloudflare Pages. The API uses Cloudflare Workers and
 D1. Copy `wrangler.example.toml` to `wrangler.toml`, configure your own
 bindings and domain, then store `ADMIN_KEY` and `RESEND_API_KEY` as Cloudflare
-secrets.
+secrets. Deploy the API Worker after backend changes:
+
+```sh
+npx wrangler deploy
+```
 
 The support QR image is intentionally excluded from the repository. Add your
 own `public/wechat-pay.jpg` locally if you want to enable that support panel.

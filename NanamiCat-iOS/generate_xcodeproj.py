@@ -16,7 +16,7 @@ def uid():
 def collect_files():
     swift = sorted(str(p.relative_to(APP)).replace("\\", "/") for p in APP.rglob("*.swift"))
     resources = []
-    for rel in ["Resources/puzzle-data.json", "Resources/wechat-pay.jpg", "Resources/Assets.xcassets"]:
+    for rel in ["Resources/puzzle-data.json", "Resources/Assets.xcassets"]:
         if (APP / rel).exists():
             resources.append(rel)
     return swift, resources
@@ -28,6 +28,7 @@ def file_type(path: str) -> str:
         ".swift": "sourcecode.swift",
         ".json": "text.json",
         ".jpg": "image.jpeg",
+        ".plist": "text.plist.xml",
         ".xcassets": "folder.assetcatalog",
     }.get(ext, "text")
 
@@ -112,10 +113,7 @@ common = [
     "CURRENT_PROJECT_VERSION = 1;",
     "ENABLE_PREVIEWS = YES;",
     "GENERATE_INFOPLIST_FILE = YES;",
-    "INFOPLIST_KEY_CFBundleDisplayName = \"四格寻踪\";",
-    "INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;",
-    "INFOPLIST_KEY_UILaunchScreen_Generation = YES;",
-    "INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;",
+    "INFOPLIST_FILE = NanamiCat/Info.plist;",
     "IPHONEOS_DEPLOYMENT_TARGET = 17.0;",
     "LD_RUNPATH_SEARCH_PATHS = \"$(inherited) @executable_path/Frameworks\";",
     "MARKETING_VERSION = 1.0;",
@@ -125,7 +123,7 @@ common = [
     "SUPPORTED_PLATFORMS = \"iphoneos iphonesimulator\";",
     "SWIFT_EMIT_LOC_STRINGS = YES;",
     "SWIFT_VERSION = 5.0;",
-    "TARGETED_DEVICE_FAMILY = \"1,2\";",
+    "TARGETED_DEVICE_FAMILY = 1;",
 ]
 
 for cid, name, extra in [

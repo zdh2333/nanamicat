@@ -1,5 +1,5 @@
 {
-  "name": "nanamicat-fourfind-redesign",
+  "name": "nanamicat-meowgrid",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -7,7 +7,9 @@
     "dev": "node --env-file-if-exists=.env server.js",
     "build": "vite build",
     "start": "node --env-file-if-exists=.env server.js",
-    "test:puzzles": "node scripts/validate-puzzles.mjs"
+    "test:puzzles": "node scripts/validate-puzzles.mjs",
+    "sync:puzzles": "node scripts/sync-puzzle-data.mjs",
+    "validate:puzzles": "node scripts/validate-puzzle-manifest.mjs NanamiCat-iOS/NanamiCat/Resources/puzzle-data.json"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.4.1",

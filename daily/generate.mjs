@@ -1,5 +1,5 @@
 // daily/generate.mjs
-// Daily puzzle generation pipeline for the FourFind / NanamiCat game.
+// Daily puzzle generation pipeline for the MeowGrid / NanamiCat game.
 // Reads/writes daily/data/image-puzzles.json and daily/data/text-puzzles.json,
 // saves AI-generated images to public/daily-puzzles/<YYYY-MM-DD>/...
 //
@@ -125,7 +125,7 @@ async function generateImage({ prompt, outPath, dryRun }) {
 // ---------- Prompts ----------
 
 const PLANNER_SYSTEM = `你是一名 NYT Connections 风格的中文分类谜题出题人。
-为游戏「四格寻踪 FourFind | NanamiCat」出题，规则：
+为游戏「喵格谜 MeowGrid | NanamiCat」出题，规则：
 1. 每题 16 个词，分 4 组，每组 4 个词共享一个隐藏主题。
 2. 必须**唯一解** — 任何词被错放到另一组的可能性必须被排除。
 3. 难度档位与品牌调性严格对齐：

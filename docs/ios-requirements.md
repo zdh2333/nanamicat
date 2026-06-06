@@ -2,7 +2,7 @@
 
 | 项 | 内容 |
 |---|---|
-| 产品 | 四格寻踪 / FourFind |
+| 产品 | 喵格谜 / MeowGrid |
 | 平台 | iOS 17+，SwiftUI |
 | 后端 | `https://nanamicat.com` Cloudflare Pages API |
 | 版本 | v1.0 规划 |

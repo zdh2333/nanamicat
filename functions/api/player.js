@@ -19,7 +19,11 @@ export async function onRequestPost({ request, env }) {
     }
 
     const byName = await db.prepare("SELECT * FROM players WHERE nickname = ?").bind(nickname).first();
-    if (byName) return json({ player: byName });
+    if (byName) {
+      await db.prepare("UPDATE players SET nickname = ?, updated_at = ? WHERE id = ?")
+        .bind(nickname, now, byName.id).run();
+      return json({ player: { ...byName, nickname, updated_at: now } });
+    }
 
     const id = newId("player");
     await db.prepare(`

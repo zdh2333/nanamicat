@@ -1,6 +1,6 @@
-# NanamiCat iOS
+# NanamiCat iOS（喵格谜 / MeowGrid）
 
-Native SwiftUI client for the NanamiCat daily category puzzle.
+Native SwiftUI client for MeowGrid — the NanamiCat daily category puzzle.
 
 ## Open in Xcode
 
@@ -22,11 +22,21 @@ python3 NanamiCat-iOS/generate_xcodeproj.py
 
 ## Structure
 
-- `NanamiCat/App` — entry + tab shell
+- `NanamiCat/App` — entry, splash gate, tab shell
 - `NanamiCat/Features` — Game, Leaderboard, Contribute, Settings
-- `NanamiCat/Core` — puzzle engine, API, persistence
+- `NanamiCat/Core` — puzzle engine, API, persistence, ads (splash prep)
 - `NanamiCat/DesignSystem` — palette, haptics, copy
-- `NanamiCat/Resources` — `puzzle-data.json`, bonus webp sheets, sponsor image
+- `NanamiCat/Resources` — `puzzle-data.json`, Assets
+
+## Splash ads (future)
+
+Cold start flows through `SplashGateView` → `SplashAdCoordinator`.
+
+1. Implement `SplashAdServing` for your network (e.g. Google AdMob app open ad).
+2. Set `SplashAdConfiguration.current` to `enabled: true` and the matching `provider`.
+3. Add SDK via SPM, `GADApplicationIdentifier` / SKAdNetwork IDs in Info.plist, and call `ATTrackingManager.requestTrackingAuthorization` before loading if required.
+
+Until then, users see a ~1s brand splash (Nanami + app name) with no third-party ads.
 
 ## Docs
 

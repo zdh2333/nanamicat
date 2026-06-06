@@ -10,7 +10,7 @@ Chinese-speaking casual puzzle players who want a short daily thinking challenge
 
 ## Product Purpose
 
-FourFind presents sixteen words or images and asks players to discover four hidden categories. Success means the game is immediately understandable, pleasant to revisit, and fully usable across screen sizes.
+MeowGrid presents sixteen words or images and asks players to discover four hidden categories. Success means the game is immediately understandable, pleasant to revisit, and fully usable across screen sizes.
 
 ## Brand Personality
 

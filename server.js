@@ -112,7 +112,7 @@ function validateScore(body) {
 
 function buildApprovedTextPuzzles(submissions) {
   const approvedGroups = submissions
-    .filter((submission) => submission.status === 'approved')
+    .filter((submission) => submission.status === 'approved' || submission.status === 'included')
     .flatMap((submission) => submission.groups.map((group) => ({
       name: String(group.name || '').trim(),
       words: Array.isArray(group.words) ? group.words.map((word) => String(word).trim()).filter(Boolean) : [],
@@ -209,23 +209,23 @@ async function sendThankYouEmail(submission) {
 
   try {
     await mailTransport.sendMail({
-      from: `"FourFind" <${mailFrom}>`,
+      from: `"MeowGrid" <${mailFrom}>`,
       to: submission.contactEmail,
-      subject: 'Thank you for submitting a FourFind puzzle',
+      subject: 'Thank you for submitting a MeowGrid puzzle',
       text: [
         `Hi ${submission.nickname},`,
         '',
-        `Thank you for leaving the puzzle "${submission.title}" for FourFind.`,
+        `Thank you for leaving the puzzle "${submission.title}" for MeowGrid.`,
         'Your support helps make the puzzle bank more interesting. I will review the submission before adding it to a future puzzle set.',
         '',
         'Have fun playing today.',
-        'FourFind',
+        'MeowGrid',
       ].join('\n'),
       html: `
         <p>Hi ${escapeHtml(submission.nickname)},</p>
-        <p>Thank you for leaving the puzzle "<strong>${escapeHtml(submission.title)}</strong>" for FourFind.</p>
+        <p>Thank you for leaving the puzzle "<strong>${escapeHtml(submission.title)}</strong>" for MeowGrid.</p>
         <p>Your support helps make the puzzle bank more interesting. I will review the submission before adding it to a future puzzle set.</p>
-        <p>Have fun playing today.<br />FourFind</p>
+        <p>Have fun playing today.<br />MeowGrid</p>
       `,
     });
     return { status: 'sent', sentAt: new Date().toISOString(), from: mailFrom };
@@ -238,8 +238,11 @@ async function sendThankYouEmail(submission) {
   }
 }
 
+import { mountDevApi } from './server/dev-api.js';
+
 const app = express();
 app.use(express.json({ limit: '100kb' }));
+mountDevApi(app, dataDir, { adminKey, allowOpenAdmin: !isProduction && !adminKey });
 
 app.post('/api/submissions', async (request, response) => {
   if (!consumeRateLimit(request, 'submissions', 20, 86400)) {
@@ -272,10 +275,6 @@ app.post('/api/submissions', async (request, response) => {
   submissions.unshift(submission);
   await saveSubmissions(submissions);
   response.status(201).json({ submission });
-});
-
-app.get('/api/puzzles', async (_request, response) => {
-  response.json({ puzzles: buildApprovedTextPuzzles(await readSubmissions()) });
 });
 
 app.get('/api/scores', async (_request, response) => {
@@ -332,8 +331,10 @@ app.delete('/api/admin/scores', requireAdmin, async (request, response) => {
 });
 
 app.patch('/api/admin/submissions/:id', requireAdmin, async (request, response) => {
-  const allowedStatuses = new Set(['pending', 'approved', 'rejected']);
-  if (!allowedStatuses.has(request.body?.status)) {
+  const allowedStatuses = new Set(['pending', 'reviewed', 'included', 'rejected', 'approved']);
+  let nextStatus = String(request.body?.status || '').trim();
+  if (nextStatus === 'approved') nextStatus = 'included';
+  if (!allowedStatuses.has(nextStatus)) {
     response.status(400).json({ error: '审核状态无效。' });
     return;
   }
@@ -343,7 +344,7 @@ app.patch('/api/admin/submissions/:id', requireAdmin, async (request, response) 
     response.status(404).json({ error: '投稿不存在。' });
     return;
   }
-  submission.status = request.body.status;
+  submission.status = nextStatus;
   submission.updatedAt = new Date().toISOString();
   await saveSubmissions(submissions);
   response.json({ submission });

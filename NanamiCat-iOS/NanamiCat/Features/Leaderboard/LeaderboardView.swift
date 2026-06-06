@@ -22,7 +22,12 @@ struct LeaderboardView: View {
                     nicknameCard(palette: palette)
                         .pageEntrance(stage: entranceStage, order: 1, reduceMotion: reduceMotion)
 
-                    if viewModel.entries.isEmpty {
+                    if viewModel.isLoading && viewModel.entries.isEmpty {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 40)
+                            .pageEntrance(stage: entranceStage, order: 2, reduceMotion: reduceMotion)
+                    } else if viewModel.entries.isEmpty {
                         emptyCard(palette: palette)
                             .pageEntrance(stage: entranceStage, order: 2, reduceMotion: reduceMotion)
                     } else {
@@ -77,9 +82,14 @@ struct LeaderboardView: View {
         VStack(alignment: .leading, spacing: 12) {
             TextField(L10n.t(.playerName, locale: store.locale), text: $store.nickname)
                 .font(.body)
+                .onChange(of: store.nickname) { _, newValue in
+                    if newValue.count > 24 {
+                        store.nickname = String(newValue.prefix(24))
+                    }
+                }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
-                .background(Color.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .background(palette.surface.opacity(0.95), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .stroke(palette.muted.opacity(0.25), lineWidth: 1)
@@ -131,6 +141,10 @@ struct LeaderboardView: View {
                 Text(L10n.t(.totalScore, locale: store.locale))
                     .font(.caption.weight(.medium))
                     .foregroundStyle(palette.muted)
+                Text(L10n.t(.recent, locale: store.locale))
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(palette.muted)
+                    .frame(width: 72, alignment: .trailing)
             }
             .padding(.horizontal, 4)
             .padding(.bottom, 8)
@@ -150,6 +164,10 @@ struct LeaderboardView: View {
                     Spacer()
                     Text("\(entry.totalScore)")
                         .font(.headline.monospacedDigit().weight(.medium))
+                    Text(formatUpdatedAt(entry.updatedAt, locale: store.locale))
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(palette.muted)
+                        .frame(width: 72, alignment: .trailing)
                 }
                 .padding(.vertical, 12)
                 .padding(.horizontal, 4)
@@ -163,5 +181,22 @@ struct LeaderboardView: View {
         }
         .padding(16)
         .crayonCard(palette: palette, cornerRadius: 14, seed: 103)
+    }
+
+    private func formatUpdatedAt(_ raw: String?, locale: AppLocale) -> String {
+        guard let raw, !raw.isEmpty else { return "—" }
+        let iso = ISO8601DateFormatter()
+        iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        var date = iso.date(from: raw)
+        if date == nil {
+            iso.formatOptions = [.withInternetDateTime]
+            date = iso.date(from: raw)
+        }
+        guard let date else { return "—" }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: locale == .zh ? "zh_CN" : "en_US")
+        formatter.dateStyle = .short
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
     }
 }

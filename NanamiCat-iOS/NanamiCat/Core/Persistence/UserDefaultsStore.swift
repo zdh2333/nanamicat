@@ -22,6 +22,14 @@ final class UserDefaultsStore: ObservableObject {
         didSet { defaults.set(playedPuzzleIDs, forKey: UserDefaultsKeys.playedPuzzleIDs) }
     }
 
+    @Published var hintBalance: Int {
+        didSet { defaults.set(hintBalance, forKey: UserDefaultsKeys.hintBalance) }
+    }
+
+    @Published var completedPuzzleCount: Int {
+        didSet { defaults.set(completedPuzzleCount, forKey: UserDefaultsKeys.completedPuzzleCount) }
+    }
+
     private let defaults = UserDefaults.standard
 
     init() {
@@ -30,5 +38,11 @@ final class UserDefaultsStore: ObservableObject {
         nickname = defaults.string(forKey: UserDefaultsKeys.nickname) ?? ""
         playerId = defaults.string(forKey: UserDefaultsKeys.playerId) ?? ""
         playedPuzzleIDs = defaults.stringArray(forKey: UserDefaultsKeys.playedPuzzleIDs) ?? []
+        if defaults.object(forKey: UserDefaultsKeys.hintBalance) == nil {
+            hintBalance = HintEconomy.initialBalance
+        } else {
+            hintBalance = max(0, defaults.integer(forKey: UserDefaultsKeys.hintBalance))
+        }
+        completedPuzzleCount = max(0, defaults.integer(forKey: UserDefaultsKeys.completedPuzzleCount))
     }
 }
