@@ -67,10 +67,11 @@ enum ButtonRole {
     }
 
     /// Used for the inset dashed border on the button face (Web `button::after`).
+    /// Slightly stronger on the dark `next` button so the dashes read against navy.
     var dashColor: Color {
         switch self {
-        case .next:    return Color(red: 1.000, green: 0.976, blue: 0.933).opacity(0.28)
-        default:       return Color(red: 0.071, green: 0.204, blue: 0.373).opacity(0.22)
+        case .next:    return Color(red: 1.000, green: 0.976, blue: 0.933).opacity(0.22)
+        default:       return Color(red: 0.071, green: 0.204, blue: 0.373).opacity(0.16)
         }
     }
 }
@@ -747,33 +748,42 @@ struct PrimaryButtonStyle: ButtonStyle {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         let ink = Color(red: 0.071, green: 0.204, blue: 0.373)
 
-        return configuration.label
-            .font(font)
-            .foregroundStyle(role.foreground)
-            .padding(.horizontal, 18)
-            .frame(maxWidth: .infinity)
-            .frame(height: height)
-            .background {
-                ZStack {
-                    role.fill
-                    CrayonPaperNoise()
-                        .opacity(role == .next ? 0.40 : 0.55)
-                }
-                .clipShape(shape)
+        return ZStack {
+            // 1. Box layer — gets the offset ink shadow (Web's `box-shadow`).
+            ZStack {
+                role.fill
+                CrayonPaperNoise()
+                    .opacity(role == .next ? 0.40 : 0.55)
             }
+            .clipShape(shape)
             .overlay {
                 // Outer 3px solid ink border (Web: border: 3px solid var(--ink))
                 shape.strokeBorder(ink, lineWidth: 3)
             }
             .overlay {
-                // Inset 1px dashed accent border (Web: button::after)
-                RoundedRectangle(cornerRadius: max(cornerRadius - 5, 1), style: .continuous)
+                // Inset dashed accent border (Web: button::after).  Pushed 7pt
+                // inward so the dashes never collide with the label glyphs —
+                // Caveat's wide advance on CJK was previously causing the
+                // dashes to thread through the empty channels between chars.
+                RoundedRectangle(cornerRadius: max(cornerRadius - 8, 1), style: .continuous)
                     .strokeBorder(role.dashColor, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-                    .padding(4)
+                    .padding(7)
             }
             .shadow(color: ink.opacity(0.9), radius: 0, x: pressed ? 1 : 3, y: pressed ? 1 : 4)
-            .offset(x: pressed ? 2 : 0, y: pressed ? 3 : 0)
-            .animation(.spring(response: 0.18, dampingFraction: 0.78), value: pressed)
+
+            // 2. Label layer — no shadow, no anti-aliasing halo.
+            configuration.label
+                .font(font)
+                .foregroundStyle(role.foreground)
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
+                .truncationMode(.tail)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
+                .frame(height: height)
+        }
+        .offset(x: pressed ? 2 : 0, y: pressed ? 3 : 0)
+        .animation(.spring(response: 0.18, dampingFraction: 0.78), value: pressed)
     }
 }
 
@@ -795,34 +805,37 @@ struct SecondaryButtonStyle: ButtonStyle {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         let ink = Color(red: 0.071, green: 0.204, blue: 0.373)
 
-        return configuration.label
-            .font(font)
-            .foregroundStyle(role.foreground)
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-            .truncationMode(.tail)
-            .padding(.horizontal, 12)
-            .frame(maxWidth: .infinity)
-            .frame(height: height)
-            .background {
-                ZStack {
-                    role.fill
-                    CrayonPaperNoise()
-                        .opacity(role == .next ? 0.40 : 0.55)
-                }
-                .clipShape(shape)
+        return ZStack {
+            // Box layer with offset shadow (Web's `box-shadow`).
+            ZStack {
+                role.fill
+                CrayonPaperNoise()
+                    .opacity(role == .next ? 0.40 : 0.55)
             }
+            .clipShape(shape)
+            .overlay { shape.strokeBorder(ink, lineWidth: 3) }
             .overlay {
-                shape.strokeBorder(ink, lineWidth: 3)
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: max(cornerRadius - 5, 1), style: .continuous)
+                // Inset dashed accent (Web: button::after).  See PrimaryButtonStyle
+                // for why the 7pt inset is important with Caveat.
+                RoundedRectangle(cornerRadius: max(cornerRadius - 8, 1), style: .continuous)
                     .strokeBorder(role.dashColor, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-                    .padding(4)
+                    .padding(7)
             }
             .shadow(color: ink.opacity(0.9), radius: 0, x: pressed ? 1 : 3, y: pressed ? 1 : 4)
-            .offset(x: pressed ? 2 : 0, y: pressed ? 3 : 0)
-            .animation(.spring(response: 0.18, dampingFraction: 0.78), value: pressed)
+
+            // Label layer — no shadow so Caveat glyphs render clean.
+            configuration.label
+                .font(font)
+                .foregroundStyle(role.foreground)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .truncationMode(.tail)
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity)
+                .frame(height: height)
+        }
+        .offset(x: pressed ? 2 : 0, y: pressed ? 3 : 0)
+        .animation(.spring(response: 0.18, dampingFraction: 0.78), value: pressed)
     }
 }
 
