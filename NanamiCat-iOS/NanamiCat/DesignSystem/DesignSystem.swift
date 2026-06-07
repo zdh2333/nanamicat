@@ -768,7 +768,7 @@ struct DifficultyStairs: View {
             ForEach(1...4, id: \.self) { level in
                 let h = CGFloat(level) * (maxHeight / 4)
                 let color = DifficultyStyle.barColors[level - 1]
-                let solved = solvedLevels.contains(level)
+                let solved = level == 1 || solvedLevels.contains(level)
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(color.opacity(solved ? 1 : 0.22))
                     .frame(width: barWidth, height: h)

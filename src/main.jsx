@@ -904,7 +904,7 @@ function App() {
                 <div className="diff-stairs" role="img" aria-label={`${solved.length}/4 groups solved`}>
                   {[1,2,3,4].map((lvl) => {
                     const barColors = ["#f7c948","#7bc67b","#6db6e8","#a87dc8"];
-                    const isSolved = solved.some((g) => g.level === lvl);
+                    const isSolved = lvl === 1 || solved.some((g) => g.level === lvl);
                     return (
                       <div
                         key={lvl}
