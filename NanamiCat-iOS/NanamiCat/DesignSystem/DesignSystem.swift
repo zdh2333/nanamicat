@@ -78,6 +78,17 @@ enum ButtonRole {
 
 // MARK: - Palette
 
+/// Page-surface tokens pinned to Web's `styles.css` warm-cream contract.
+/// These are intentionally **not** driven by the Morandi theme so that
+/// nanamicat.com and the iOS app share an identical canvas / surface
+/// background, no matter which Morandi preset the user has picked.
+private enum WebSurfaceTokens {
+    /// Web `--bg` (#f8f1e4).
+    static let canvas = Color(red: 0.973, green: 0.945, blue: 0.894)
+    /// Web `--surface` (#fff9ee).
+    static let surface = Color(red: 1.0, green: 0.976, blue: 0.933)
+}
+
 struct AppPalette {
     let canvas: Color
     let surface: Color
@@ -110,15 +121,22 @@ struct AppPalette {
         }
 
         return AppPalette(
-            canvas: tokens.crayonPaper,
-            surface: tokens.surface,
+            // Canvas + surface + crayonPaper are pinned to Web's warm-cream
+            // tokens (styles.css `--bg` / `--surface`) so the page surface
+            // looks identical on Web and iOS regardless of which Morandi
+            // theme the user picks.  The Morandi token's `crayonPaper`
+            // differs per theme (roseDust's pink, sageCalm's green, etc.)
+            // which broke the visual contract that iOS should look like
+            // nanamicat.com at all times.
+            canvas: WebSurfaceTokens.canvas,
+            surface: WebSurfaceTokens.surface,
             ink: Color(red: 0.071, green: 0.204, blue: 0.373),
             muted: Color(red: 0.373, green: 0.443, blue: 0.518),
             primary: tokens.primary,
             secondary: tokens.secondary,
             accent: tokens.accent,
             accentSoft: tokens.accent.opacity(0.12),
-            crayonPaper: tokens.crayonPaper,
+            crayonPaper: WebSurfaceTokens.canvas,
             crayonInk: Color(red: 0.071, green: 0.204, blue: 0.373),
             crayonJitter: 1.5
         )
