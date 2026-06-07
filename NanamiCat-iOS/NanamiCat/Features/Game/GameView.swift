@@ -282,6 +282,12 @@ struct GameView: View {
 
             if viewModel.isComplete {
                 EmptyView()
+            } else if viewModel.isGameOver {
+                // Game over — only allow moving to next puzzle
+                Button(L10n.t(.next, locale: store.locale)) { viewModel.nextPuzzle() }
+                    .buttonStyle(SecondaryButtonStyle(role: .next, height: 52))
+                    .frame(height: 52)
+                    .frame(maxWidth: .infinity)
             } else {
                 HStack(alignment: .top, spacing: 10) {
                     Button(L10n.t(.submit, locale: store.locale)) { viewModel.submitGuess() }

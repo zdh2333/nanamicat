@@ -429,6 +429,7 @@ function App() {
   const solvedIds = solved.flatMap((group) => group.items.map((item) => item.id));
   const activeItems = items.filter((item) => !solvedIds.includes(item.id));
   const remainingMistakes = Math.max(0, maxMistakes - mistakes);
+  const isGameOver = mistakes >= maxMistakes && solved.length < (puzzle.groups?.length ?? 4);
   const isComplete = pool.length > 0 && puzzle.groups.length === 4 && solved.length === puzzle.groups.length;
   const abstractGroup = isComplete ? mostAbstractGroup(puzzle.groups) : null;
 
@@ -617,6 +618,7 @@ function App() {
   }
 
   function submitGuess() {
+    if (isComplete || isGameOver) return;
     if (selected.length !== 4) {
       setMessage(t.chooseFour);
       return;
@@ -940,7 +942,7 @@ function App() {
               </div>
 
               <section className="controls-split" aria-label="Game controls">
-                {!isComplete && (
+                {!isComplete && !isGameOver && (
                   <>
                     <button type="button" className="controls-submit primary" onClick={submitGuess} disabled={selected.length !== 4}><Check size={18} /> {t.submit}</button>
                     <div className="controls-grid">
@@ -950,6 +952,11 @@ function App() {
                       <button type="button" className="control-next" onClick={nextPuzzle}>{t.next}</button>
                     </div>
                   </>
+                )}
+                {isGameOver && (
+                  <div className="controls-grid">
+                    <button type="button" className="control-next" onClick={nextPuzzle}>{t.next}</button>
+                  </div>
                 )}
               </section>
 

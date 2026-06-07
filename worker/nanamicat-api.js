@@ -69,11 +69,15 @@ async function insertSubmission(env, submission) {
 }
 
 async function readScores(env) {
+  // Cap each read at 1000 most-recent rows.  publicScoreboard() only surfaces
+  // the top 50 unique nicknames, so anything older is irrelevant to the
+  // leaderboard UI and would just slow the read.
+  const SCORE_READ_LIMIT = 1000;
   try {
     const { results } = await env.DB.prepare(
       `SELECT id, dedupe_key, nickname, mode, puzzle_key, points, created_at
-      FROM scores ORDER BY created_at DESC`,
-    ).all();
+      FROM scores ORDER BY created_at DESC LIMIT ?`,
+    ).bind(SCORE_READ_LIMIT).all();
     if (results?.length) {
       return results.map((row) => ({
         id: row.id,
@@ -91,8 +95,8 @@ async function readScores(env) {
 
   const { results } = await env.DB.prepare(
     `SELECT id, player_id, nickname, mode, puzzle_id, points, created_at
-    FROM score_events ORDER BY created_at DESC`,
-  ).all();
+    FROM score_events ORDER BY created_at DESC LIMIT ?`,
+  ).bind(SCORE_READ_LIMIT).all();
   return (results ?? []).map((row) => ({
     id: row.id,
     dedupeKey: `${row.player_id}|${row.mode}|${row.puzzle_id}`,
@@ -142,7 +146,7 @@ function publicScoreboard(scores) {
 function validateScore(body) {
   const nickname = String(body?.nickname || '').trim();
   if (!nickname) return 'Please enter a nickname.';
-  if (nickname.length > 32) return 'Nickname is too long.';
+  if (nickname.length > 24) return 'Nickname is too long (max 24 characters).';
   if (!['text', 'image'].includes(body?.mode)) return 'Invalid puzzle mode.';
   const puzzleKey = String(body?.puzzleKey || '').trim();
   if (!puzzleKey) return 'Missing puzzle key.';
@@ -324,7 +328,7 @@ function validateSubmission(body) {
   if (!body || typeof body !== 'object') return 'Invalid submission format.';
   const nickname = String(body.nickname || '').trim();
   if (!nickname) return 'Please enter a nickname.';
-  if (nickname.length > 32) return 'Nickname is too long.';
+  if (nickname.length > 24) return 'Nickname is too long (max 24 characters).';
   const contactEmail = String(body.contactEmail || '').trim();
   if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) return 'Please enter a valid email address.';
   if (!Array.isArray(body.groups) || body.groups.length < 1 || body.groups.length > 10) return 'Submit between 1 and 10 groups.';
@@ -341,7 +345,7 @@ function validateSubmission(body) {
     }
     for (const rawWord of group.words) {
       const word = String(rawWord).trim();
-      if (word.length > 40) return 'Words must be 40 characters or fewer.';
+      if (word.length > 24) return 'Words must be 24 characters or fewer.';
       const key = word.toLowerCase();
       if (allWords.has(key)) return 'Every word in a submission must be unique.';
       allWords.add(key);
@@ -492,6 +496,12 @@ async function handleRequest(request, env) {
   }
 
   if (path === '/api/player' && request.method === 'POST') {
+    // Rate-limit player registration: 20 / hour / IP.  Without this an
+    // attacker can spam unique nicknames to bloat the `players` table or
+    // collide with an existing player's nickname to merge accounts.
+    if (!await consumeRateLimit(request, env, 'player-reg', 20, 3600)) {
+      return json({ error: 'Too many registration requests. Please try again later.' }, 429);
+    }
     try {
       const body = await request.json();
       const nickname = cleanNickname(body.nickname);

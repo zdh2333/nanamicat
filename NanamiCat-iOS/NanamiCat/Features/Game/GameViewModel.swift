@@ -18,6 +18,7 @@ final class GameViewModel: ObservableObject {
     private var textIndex: Int
 
     var maxMistakes: Int { PuzzleCatalog.shared.maxMistakes }
+    var isGameOver: Bool { !isComplete && mistakes >= maxMistakes }
 
     init(store: UserDefaultsStore) {
         self.store = store
@@ -64,7 +65,7 @@ final class GameViewModel: ObservableObject {
     }
 
     func toggleSelection(_ item: PuzzleItem) {
-        guard !isComplete, !solvedGroups.contains(where: { $0.items.contains(where: { $0.id == item.id }) }) else { return }
+        guard !isComplete, !isGameOver, !solvedGroups.contains(where: { $0.items.contains(where: { $0.id == item.id }) }) else { return }
         if selectedIDs.contains(item.id) {
             selectedIDs.remove(item.id)
         } else if selectedIDs.count < 4 {
@@ -79,6 +80,7 @@ final class GameViewModel: ObservableObject {
     }
 
     func submitGuess() {
+        guard !isGameOver else { return }
         guard selectedIDs.count == 4 else {
             message = L10n.t(.chooseFour, locale: store.locale)
             return
