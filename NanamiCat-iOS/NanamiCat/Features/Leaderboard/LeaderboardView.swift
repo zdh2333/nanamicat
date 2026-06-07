@@ -98,7 +98,7 @@ struct LeaderboardView: View {
             Button(L10n.t(.saveName, locale: store.locale)) {
                 Task { await viewModel.saveNickname(store: store) }
             }
-            .buttonStyle(PrimaryButtonStyle(accent: palette.accent, palette: palette))
+            .buttonStyle(PrimaryButtonStyle(role: .submit, height: 48))
             .frame(maxWidth: .infinity)
         }
         .padding(16)

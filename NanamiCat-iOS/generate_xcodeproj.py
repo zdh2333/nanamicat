@@ -19,6 +19,12 @@ def collect_files():
     for rel in ["Resources/puzzle-data.json", "Resources/Assets.xcassets"]:
         if (APP / rel).exists():
             resources.append(rel)
+    for p in sorted((APP / "Resources/Fonts").glob("*.ttf")):
+        if p.is_file():
+            resources.append(str(p.relative_to(APP)).replace("\\", "/"))
+    for p in sorted((APP / "Resources/Fonts").glob("*.otf")):
+        if p.is_file():
+            resources.append(str(p.relative_to(APP)).replace("\\", "/"))
     return swift, resources
 
 
@@ -29,6 +35,8 @@ def file_type(path: str) -> str:
         ".json": "text.json",
         ".jpg": "image.jpeg",
         ".plist": "text.plist.xml",
+        ".ttf": "file",
+        ".otf": "file",
         ".xcassets": "folder.assetcatalog",
     }.get(ext, "text")
 

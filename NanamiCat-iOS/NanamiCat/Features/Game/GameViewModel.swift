@@ -225,6 +225,26 @@ final class GameViewModel: ObservableObject {
         store.playedPuzzleIDs = Array(played)
     }
 
+    // MARK: - Debug (used by launch arg screenshots)
+
+    /// Mark first N groups as solved without consuming selection state.
+    func debugMarkSolvedGroups(_ n: Int) {
+        let groupsToSolve = puzzle.groups.prefix(min(n, puzzle.groups.count))
+        solvedGroups = Array(groupsToSolve)
+        if groupsToSolve.count == puzzle.groups.count {
+            isComplete = true
+        }
+    }
+
+    /// Mark the whole puzzle complete and strip solved items from the board.
+    func debugForceComplete() {
+        solvedGroups = puzzle.groups
+        let solvedIDs = Set(puzzle.groups.flatMap { $0.items.map(\.id) })
+        boardItems = boardItems.filter { !solvedIDs.contains($0.id) }
+        isComplete = true
+        message = L10n.t(.complete, locale: store.locale)
+    }
+
     private static func calcNextUnplayedIndex(startingAt preferred: Int, in pool: [Puzzle], store: UserDefaultsStore) -> Int {
         guard !pool.isEmpty else { return 0 }
         

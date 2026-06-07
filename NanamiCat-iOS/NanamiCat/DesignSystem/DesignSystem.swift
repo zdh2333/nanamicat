@@ -1,5 +1,80 @@
 import SwiftUI
 
+// MARK: - Typography (Caveat, bundled)
+
+enum CrayonFont {
+    /// Bundled Caveat variable font — family name "Caveat".
+    /// Variable axis: wght (400–700). Use `.weight(.bold)` etc. to switch.
+    static let family = "Caveat"
+
+    static func display(_ size: CGFloat) -> Font {
+        .custom(family, size: size, relativeTo: .largeTitle).weight(.bold)
+    }
+
+    static func title(_ size: CGFloat = 22) -> Font {
+        .custom(family, size: size, relativeTo: .title2).weight(.bold)
+    }
+
+    static func body(_ size: CGFloat = 17) -> Font {
+        .custom(family, size: size, relativeTo: .body).weight(.semibold)
+    }
+
+    static func button(_ size: CGFloat = 17) -> Font {
+        .custom(family, size: size, relativeTo: .body).weight(.bold)
+    }
+
+    static func buttonLarge(_ size: CGFloat = 22) -> Font {
+        .custom(family, size: size, relativeTo: .title2).weight(.bold)
+    }
+
+    static func caption(_ size: CGFloat = 13) -> Font {
+        .custom(family, size: size, relativeTo: .caption).weight(.semibold)
+    }
+}
+
+// MARK: - Button Role Palette
+// 4-color button roles from the brand reference (paper notebook style).
+// These are intentionally **not** driven by Morandi theme — they mirror Web's
+// styles.css four-button contract (submit yellow / hint blue / shuffle green
+// / cancel cream / next-or-share navy).
+
+enum ButtonRole {
+    case submit    // 提交黄 — primary submit
+    case hint      // 提示蓝
+    case shuffle   // 洗牌绿
+    case cancel    // 取消米白
+    case next      // 下一题深蓝 (also used by share)
+    case accent    // 通用 Morandi accent (used by 排行榜保存昵称, 投稿主按钮)
+
+    var fill: Color {
+        switch self {
+        case .submit:  return Color(red: 0.969, green: 0.788, blue: 0.282)   // #F7C948
+        case .hint:    return Color(red: 0.427, green: 0.714, blue: 0.910)   // #6DB6E8
+        case .shuffle: return Color(red: 0.482, green: 0.776, blue: 0.482)   // #7BC67B
+        case .cancel:  return Color(red: 1.000, green: 0.976, blue: 0.933)   // #FFF9EE
+        case .next:    return Color(red: 0.071, green: 0.204, blue: 0.373)   // #12345F
+        case .accent:  return Color(red: 0.969, green: 0.788, blue: 0.282)   // fallback to submit yellow
+        }
+    }
+
+    var foreground: Color {
+        switch self {
+        case .submit, .hint, .shuffle, .cancel, .accent:
+            return Color(red: 0.071, green: 0.204, blue: 0.373)               // #12345F navy
+        case .next:
+            return Color(red: 1.000, green: 0.976, blue: 0.933)               // #FFF9EE cream
+        }
+    }
+
+    /// Used for the inset dashed border on the button face (Web `button::after`).
+    var dashColor: Color {
+        switch self {
+        case .next:    return Color(red: 1.000, green: 0.976, blue: 0.933).opacity(0.28)
+        default:       return Color(red: 0.071, green: 0.204, blue: 0.373).opacity(0.22)
+        }
+    }
+}
+
 // MARK: - Palette
 
 struct AppPalette {
@@ -655,66 +730,132 @@ enum DifficultyStyle {
 }
 
 struct PrimaryButtonStyle: ButtonStyle {
-    let accent: Color
-    let palette: AppPalette?
-    var font: Font = .body.weight(.medium)
-    var height: CGFloat? = nil
+    let role: ButtonRole
+    var font: Font = CrayonFont.button()
+    var height: CGFloat? = 56
+    var cornerRadius: CGFloat = 18
 
-    init(accent: Color, palette: AppPalette? = nil, font: Font = .body.weight(.medium), height: CGFloat? = nil) {
-        self.accent = accent
-        self.palette = palette
+    init(role: ButtonRole, font: Font = CrayonFont.button(), height: CGFloat? = 56, cornerRadius: CGFloat = 18) {
+        self.role = role
         self.font = font
         self.height = height
+        self.cornerRadius = cornerRadius
     }
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
+        let pressed = configuration.isPressed
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        let ink = Color(red: 0.071, green: 0.204, blue: 0.373)
+
+        return configuration.label
             .font(font)
-            .foregroundStyle(palette?.ink ?? .white)
-            .padding(.horizontal, 16)
+            .foregroundStyle(role.foreground)
+            .padding(.horizontal, 18)
             .frame(maxWidth: .infinity)
-            .frame(height: height ?? 44)
-            .background(accent, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .shadow(color: (palette?.crayonInk ?? .black).opacity(0.9), radius: 0, x: configuration.isPressed ? 1 : 3, y: configuration.isPressed ? 1 : 4)
-            .overlay {
-                CrayonBorder(cornerRadius: 12, seed: 20)
-                    .stroke((palette?.crayonInk ?? Color.black), lineWidth: 2.5)
+            .frame(height: height)
+            .background {
+                ZStack {
+                    role.fill
+                    CrayonPaperNoise()
+                        .opacity(role == .next ? 0.40 : 0.55)
+                }
+                .clipShape(shape)
             }
-            .offset(x: configuration.isPressed ? 2 : 0, y: configuration.isPressed ? 3 : 0)
-            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: configuration.isPressed)
+            .overlay {
+                // Outer 3px solid ink border (Web: border: 3px solid var(--ink))
+                shape.strokeBorder(ink, lineWidth: 3)
+            }
+            .overlay {
+                // Inset 1px dashed accent border (Web: button::after)
+                RoundedRectangle(cornerRadius: max(cornerRadius - 5, 1), style: .continuous)
+                    .strokeBorder(role.dashColor, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .padding(4)
+            }
+            .shadow(color: ink.opacity(0.9), radius: 0, x: pressed ? 1 : 3, y: pressed ? 1 : 4)
+            .offset(x: pressed ? 2 : 0, y: pressed ? 3 : 0)
+            .animation(.spring(response: 0.18, dampingFraction: 0.78), value: pressed)
     }
 }
 
 struct SecondaryButtonStyle: ButtonStyle {
-    let palette: AppPalette
-    let fill: Color?
-    let foreground: Color?
-    var font: Font = .body.weight(.medium)
-    var height: CGFloat? = nil
+    let role: ButtonRole
+    var font: Font = CrayonFont.button()
+    var height: CGFloat? = 52
+    var cornerRadius: CGFloat = 16
 
-    init(palette: AppPalette, fill: Color? = nil, foreground: Color? = nil, font: Font = .body.weight(.medium), height: CGFloat? = nil) {
-        self.palette = palette
-        self.fill = fill
-        self.foreground = foreground
+    init(role: ButtonRole, font: Font = CrayonFont.button(), height: CGFloat? = 52, cornerRadius: CGFloat = 16) {
+        self.role = role
         self.font = font
         self.height = height
+        self.cornerRadius = cornerRadius
     }
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
+        let pressed = configuration.isPressed
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        let ink = Color(red: 0.071, green: 0.204, blue: 0.373)
+
+        return configuration.label
             .font(font)
-            .foregroundStyle(foreground ?? palette.ink)
-            .padding(.horizontal, 14)
+            .foregroundStyle(role.foreground)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .truncationMode(.tail)
+            .padding(.horizontal, 12)
             .frame(maxWidth: .infinity)
-            .frame(height: height ?? 44)
-            .background(fill ?? palette.surface.opacity(0.9), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .shadow(color: palette.crayonInk.opacity(0.9), radius: 0, x: configuration.isPressed ? 1 : 3, y: configuration.isPressed ? 1 : 4)
-            .overlay {
-                CrayonBorder(cornerRadius: 12, seed: 21)
-                    .stroke(palette.crayonInk, lineWidth: 2.5)
+            .frame(height: height)
+            .background {
+                ZStack {
+                    role.fill
+                    CrayonPaperNoise()
+                        .opacity(role == .next ? 0.40 : 0.55)
+                }
+                .clipShape(shape)
             }
-            .offset(x: configuration.isPressed ? 2 : 0, y: configuration.isPressed ? 3 : 0)
-            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: configuration.isPressed)
+            .overlay {
+                shape.strokeBorder(ink, lineWidth: 3)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: max(cornerRadius - 5, 1), style: .continuous)
+                    .strokeBorder(role.dashColor, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                    .padding(4)
+            }
+            .shadow(color: ink.opacity(0.9), radius: 0, x: pressed ? 1 : 3, y: pressed ? 1 : 4)
+            .offset(x: pressed ? 2 : 0, y: pressed ? 3 : 0)
+            .animation(.spring(response: 0.18, dampingFraction: 0.78), value: pressed)
+    }
+}
+
+/// Two-layer dot noise that mirrors Web's
+/// `radial-gradient(...) 0.7px, transparent 0.8px` over the button face.
+struct CrayonPaperNoise: View {
+    var body: some View {
+        Canvas { ctx, size in
+            let step: CGFloat = 5
+            let light = Color(red: 1.0, green: 1.0, blue: 1.0).opacity(0.45)
+            let dark = Color(red: 0.071, green: 0.204, blue: 0.373).opacity(0.07)
+            var y: CGFloat = 0
+            while y < size.height {
+                var x: CGFloat = 0
+                while x < size.width {
+                    let dot = Path(ellipseIn: CGRect(x: x, y: y, width: 0.9, height: 0.9))
+                    ctx.fill(dot, with: .color(((Int(x) + Int(y)) & 1 == 0) ? dark : light))
+                    x += step
+                }
+                y += step
+            }
+            // a single hairline diagonal to mimic the Web `linear-gradient(105deg,...)`
+            var diag = Path()
+            diag.move(to: CGPoint(x: 0, y: size.height * 0.5))
+            diag.addLine(to: CGPoint(x: size.width, y: size.height * 0.5 - size.width * 0.22))
+            ctx.stroke(
+                diag,
+                with: .color(Color(red: 0.071, green: 0.204, blue: 0.373).opacity(0.04)),
+                style: StrokeStyle(lineWidth: 0.7)
+            )
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
@@ -788,7 +929,7 @@ struct RulesHelpPopup: View {
             .crayonCard(palette: palette, cornerRadius: 12, seed: 88, fill: palette.surface.opacity(0.92))
 
             Button(L10n.t(.rulesClose, locale: locale), action: onDismiss)
-                .buttonStyle(PrimaryButtonStyle(accent: palette.accent, palette: palette))
+                .buttonStyle(PrimaryButtonStyle(role: .submit, height: 48))
                 .frame(maxWidth: .infinity)
         }
         .padding(20)

@@ -38,7 +38,7 @@ struct ContributeView: View {
                         Button(L10n.t(.addGroup, locale: store.locale)) {
                             viewModel.addGroup()
                         }
-                        .buttonStyle(SecondaryButtonStyle(palette: palette))
+                        .buttonStyle(SecondaryButtonStyle(role: .shuffle, height: 48))
                         .frame(maxWidth: .infinity)
                         .pageEntrance(stage: entranceStage, order: 2 + viewModel.groups.count, reduceMotion: reduceMotion)
                     }
@@ -46,7 +46,7 @@ struct ContributeView: View {
                     Button(L10n.t(.savePuzzle, locale: store.locale)) {
                         Task { await viewModel.submit(store: store) }
                     }
-                    .buttonStyle(PrimaryButtonStyle(accent: palette.accent, palette: palette))
+                    .buttonStyle(PrimaryButtonStyle(role: .submit, height: 56))
                     .frame(maxWidth: .infinity)
                     .pageEntrance(stage: entranceStage, order: 3 + viewModel.groups.count, reduceMotion: reduceMotion)
 
