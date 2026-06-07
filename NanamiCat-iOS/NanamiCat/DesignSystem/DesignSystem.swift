@@ -746,6 +746,42 @@ enum DifficultyStyle {
         default: return locale == .zh ? "细节线索" : "Detail clues"
         }
     }
+
+    /// 四色阶梯，barFill 为已解组的 level 集合（高亮），其余淡显。
+    static let barColors: [Color] = [
+        Color(red: 0.969, green: 0.788, blue: 0.282), // yellow  level 1
+        Color(red: 0.482, green: 0.776, blue: 0.482), // green   level 2
+        Color(red: 0.427, green: 0.714, blue: 0.910), // blue    level 3
+        Color(red: 0.664, green: 0.471, blue: 0.820), // purple  level 4
+    ]
+}
+
+/// 难易程度阶梯图示：4 根柱子从低到高，已解组亮显，未解组淡显。
+struct DifficultyStairs: View {
+    /// 已解锁的 group level 集合（1-4）。
+    let solvedLevels: Set<Int>
+    var barWidth: CGFloat = 8
+    var maxHeight: CGFloat = 26
+
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 3) {
+            ForEach(1...4, id: \.self) { level in
+                let h = CGFloat(level) * (maxHeight / 4)
+                let color = DifficultyStyle.barColors[level - 1]
+                let solved = solvedLevels.contains(level)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(color.opacity(solved ? 1 : 0.22))
+                    .frame(width: barWidth, height: h)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2, style: .continuous)
+                            .strokeBorder(Color(red: 0.071, green: 0.204, blue: 0.373), lineWidth: 1.5)
+                    )
+                    .scaleEffect(y: solved ? 1.08 : 1, anchor: .bottom)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.65), value: solved)
+            }
+        }
+        .accessibilityLabel("难易程度：\(solvedLevels.count)/4 组已解")
+    }
 }
 
 struct PrimaryButtonStyle: ButtonStyle {

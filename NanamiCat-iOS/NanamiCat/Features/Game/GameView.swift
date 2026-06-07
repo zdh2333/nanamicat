@@ -106,11 +106,14 @@ struct GameView: View {
                     .font(.title2.weight(.medium))
                     .foregroundStyle(palette.ink)
                     .crayonUnderline(palette: palette)
-                Text(metaLine)
-                    .font(.footnote)
-                    .foregroundStyle(palette.muted)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+                HStack(spacing: 6) {
+                    Text(puzzleMetaPrefix)
+                        .font(.footnote)
+                        .foregroundStyle(palette.muted)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    DifficultyStairs(solvedLevels: solvedLevelSet, barWidth: 7, maxHeight: 20)
+                }
             }
 
             Spacer(minLength: 4)
@@ -145,12 +148,17 @@ struct GameView: View {
         }
     }
 
-    private var metaLine: String {
+    /// 题号 + 主题（去掉文字难度，由阶梯图示替代）
+    private var puzzleMetaPrefix: String {
         [
             PuzzleLocalization.puzzleLabel(viewModel.puzzle, locale: store.locale),
             PuzzleLocalization.puzzleTheme(viewModel.puzzle, locale: store.locale),
-            DifficultyStyle.label(level: viewModel.puzzle.difficulty, locale: store.locale)
         ].joined(separator: " · ")
+    }
+
+    /// 已解组的 level 集合，驱动阶梯高亮。
+    private var solvedLevelSet: Set<Int> {
+        Set(viewModel.solvedGroups.map(\.level))
     }
 
     /// Honor `--demo-complete` / `--demo-solved N` launch args for screenshot QA.

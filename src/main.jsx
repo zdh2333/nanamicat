@@ -899,7 +899,22 @@ function App() {
                 <span>{t.hint}</span>
                 <strong aria-label={`${hintBalance} hints remaining`}>{hintBalance}</strong>
               </section>
-
+              <section className="status status-stairs" aria-label={locale === "zh" ? "难易程度" : "Difficulty"}>
+                <span>{locale === "zh" ? "难度" : "Level"}</span>
+                <div className="diff-stairs" role="img" aria-label={`${solved.length}/4 groups solved`}>
+                  {[1,2,3,4].map((lvl) => {
+                    const barColors = ["#f7c948","#7bc67b","#6db6e8","#a87dc8"];
+                    const isSolved = solved.some((g) => g.level === lvl);
+                    return (
+                      <div
+                        key={lvl}
+                        className={`diff-bar${isSolved ? " diff-bar--solved" : ""}`}
+                        style={{ "--bar-color": barColors[lvl - 1], "--bar-h": `${lvl * 7 + 3}px` }}
+                      />
+                    );
+                  })}
+                </div>
+              </section>
             </aside>
 
             <section className="game-stage">

@@ -405,6 +405,33 @@ select:focus-visible {
   font-size: 1.1rem;
 }
 
+/* ── Difficulty staircase ────────────────────────────────────── */
+.status-stairs { min-height: 58px; }
+
+.diff-stairs {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 32px;
+}
+
+.diff-bar {
+  width: 10px;
+  height: var(--bar-h, 10px);
+  border-radius: 3px 3px 0 0;
+  border: 2px solid var(--ink);
+  background: var(--bar-color, #ccc);
+  opacity: 0.22;
+  transition: opacity 0.3s ease, transform 0.25s ease;
+  transform-origin: bottom center;
+}
+
+.diff-bar--solved {
+  opacity: 1;
+  transform: scaleY(1.08);
+  box-shadow: 1px -1px 0 0 var(--ink);
+}
+
 /* ── Message bar ─────────────────────────────────────────────── */
 .message {
   min-height: 48px;
