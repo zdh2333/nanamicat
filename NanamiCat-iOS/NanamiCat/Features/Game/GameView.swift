@@ -272,24 +272,24 @@ struct GameView: View {
             } else {
                 HStack(alignment: .top, spacing: 10) {
                     Button(L10n.t(.submit, locale: store.locale)) { viewModel.submitGuess() }
-                        .buttonStyle(PrimaryButtonStyle(accent: palette.accent, palette: palette, font: .title2.weight(.bold), height: 112))
+                        .buttonStyle(PrimaryButtonStyle(accent: Color(red: 0.969, green: 0.788, blue: 0.282), palette: palette, font: .title2.weight(.bold), height: 112))
                         .frame(height: 112)
                         .frame(maxWidth: .infinity)
                         .pulseOnTick(solvedPulseTick, reduceMotion: reduceMotion)
 
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
                         Button("\(L10n.t(.hint, locale: store.locale)) (\(store.hintBalance))") { viewModel.useHint() }
-                            .buttonStyle(SecondaryButtonStyle(palette: palette, font: .body.weight(.bold), height: 52))
+                            .buttonStyle(SecondaryButtonStyle(palette: palette, fill: Color(red: 0.427, green: 0.714, blue: 0.910), font: .body.weight(.bold), height: 52))
                             .frame(height: 52)
                             .disabled(store.hintBalance == 0)
                         Button(L10n.t(.shuffle, locale: store.locale)) { viewModel.shuffleBoard() }
-                            .buttonStyle(SecondaryButtonStyle(palette: palette, font: .body.weight(.bold), height: 52))
+                            .buttonStyle(SecondaryButtonStyle(palette: palette, fill: Color(red: 0.482, green: 0.776, blue: 0.482), font: .body.weight(.bold), height: 52))
                             .frame(height: 52)
                         Button(L10n.t(.clear, locale: store.locale)) { viewModel.clearSelection() }
                             .buttonStyle(SecondaryButtonStyle(palette: palette, font: .body.weight(.bold), height: 52))
                             .frame(height: 52)
                         Button(L10n.t(.next, locale: store.locale)) { viewModel.nextPuzzle() }
-                            .buttonStyle(SecondaryButtonStyle(palette: palette, font: .body.weight(.bold), height: 52))
+                            .buttonStyle(SecondaryButtonStyle(palette: palette, fill: palette.crayonInk, foreground: palette.crayonPaper, font: .body.weight(.bold), height: 52))
                             .frame(height: 52)
                     }
                     .frame(maxWidth: .infinity)
@@ -304,14 +304,14 @@ struct GameView: View {
     private func completionFooter(palette: AppPalette) -> some View {
         VStack(spacing: 10) {
             Button(L10n.t(.nextAfterComplete, locale: store.locale)) { viewModel.nextPuzzle() }
-                .buttonStyle(PrimaryButtonStyle(accent: palette.accent, palette: palette, font: .title2.weight(.bold)))
+                .buttonStyle(PrimaryButtonStyle(accent: Color(red: 0.969, green: 0.788, blue: 0.282), palette: palette, font: .title2.weight(.bold)))
                 .frame(maxWidth: .infinity, minHeight: 56)
 
             ShareLink(item: viewModel.shareText()) {
                 Text(L10n.t(.share, locale: store.locale))
                     .frame(maxWidth: .infinity, minHeight: 44)
             }
-            .buttonStyle(SecondaryButtonStyle(palette: palette))
+            .buttonStyle(SecondaryButtonStyle(palette: palette, fill: palette.crayonInk, foreground: palette.crayonPaper))
         }
         .padding(.top, 4)
     }

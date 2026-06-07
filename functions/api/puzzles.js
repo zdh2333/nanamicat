@@ -1,4 +1,19 @@
-import { cleanNickname, deriveSubmissionTitle, json, newId, normalizeEmail, normalizeGroups, readJson, requireDb, sendThankYouEmail } from "../_utils.js";
+import { buildApprovedTextPuzzles, cleanNickname, deriveSubmissionTitle, json, newId, normalizeEmail, normalizeGroups, readJson, requireDb, sendThankYouEmail, serializeSubmission } from "../_utils.js";
+
+export async function onRequestGet({ env }) {
+  try {
+    const db = requireDb(env);
+    const result = await db.prepare(`
+      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      FROM puzzle_submissions
+      ORDER BY updated_at ASC, created_at ASC
+    `).all();
+    const submissions = (result.results ?? []).map(serializeSubmission);
+    return json(buildApprovedTextPuzzles(submissions));
+  } catch (error) {
+    return json({ error: error.message }, 500);
+  }
+}
 
 export async function onRequestPost({ request, env }) {
   try {

@@ -23,12 +23,12 @@
 
   /* 四色分类主题（黄/绿/蓝/紫）+ 装饰用色 */
   --crayon-yellow: #f7c948;
-  --crayon-green: #8dcc8a;
-  --crayon-blue: #7ec3e8;
-  --crayon-purple: #b892d6;
+  --crayon-green: #7bc67b;
+  --crayon-blue: #6db6e8;
+  --crayon-purple: #b788d6;
   --crayon-pink: #d99bb0;
   --crayon-orange: #e8a85c;
-  --crayon-red: #e94b3c;
+  --crayon-red: #ef7c7c;
   --crayon-teal: #6bb1ac;
 
   /* Header — 深海军蓝顶栏 */
@@ -39,8 +39,8 @@
 
   /* States */
   --focus: #7ec3e8;
-  --danger: #e94b3c;
-  --success: #8dcc8a;
+  --danger: #ef7c7c;
+  --success: #7bc67b;
   --shadow-tint: rgb(18 52 95 / 22%);
 
   --z-modal-backdrop: 30;
@@ -363,7 +363,7 @@ select:focus-visible {
 /* ── Game workspace ──────────────────────────────────────────── */
 .game-workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 240px;
+  grid-template-columns: 240px minmax(0, 1fr);
   align-items: start;
   gap: 16px;
 }
@@ -869,10 +869,16 @@ input.invalid, textarea.invalid { border-color: var(--danger); }
   border: 2px solid var(--line);
   border-radius: 10px;
   background: var(--surface);
+  display: grid;
+  gap: 8px;
 }
 
 .admin-group-card strong { display: block; margin-bottom: 4px; font-size: 0.95rem; }
 .admin-group-card p { margin: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+.admin-group-card label { display: grid; gap: 4px; font-size: 0.82rem; color: var(--muted); }
+.admin-group-card input,
+.admin-group-card textarea { width: 100%; font-size: 0.92rem; }
+.admin-group-card textarea { min-height: 58px; resize: vertical; }
 
 .admin-key-field { display: grid; gap: 6px; margin-bottom: 16px; max-width: 360px; }
 .admin-key-field span { font-size: 0.9rem; color: var(--muted); }
@@ -1155,4 +1161,140 @@ input.invalid, textarea.invalid { border-color: var(--danger); }
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* ── Reference art alignment: crayon component system ───────── */
+button,
+.tile,
+.panel,
+.toolbar,
+.status,
+.message,
+.table-wrap,
+fieldset.group-card,
+.admin-item,
+.celebration-card,
+.solved-item {
+  background-image:
+    radial-gradient(rgb(18 52 95 / 5%) 0.7px, transparent 0.8px),
+    linear-gradient(105deg, transparent 48%, rgb(18 52 95 / 3%) 50%, transparent 52%);
+  background-size: 5px 5px, 13px 13px;
+}
+
+button::after,
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px dashed rgb(18 52 95 / 16%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.app-header {
+  background-image:
+    radial-gradient(rgb(255 249 238 / 8%) 0.8px, transparent 0.9px),
+    linear-gradient(105deg, transparent 47%, rgb(255 255 255 / 4%) 50%, transparent 53%);
+  background-size: 6px 6px, 17px 17px;
+}
+
+.topnav button.active {
+  background: var(--crayon-yellow);
+  color: var(--ink);
+}
+
+.theme-picker button {
+  border: 2px dashed var(--line-strong);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.theme-picker button:nth-of-type(1) { border-color: var(--crayon-yellow); background: #fff7d8; }
+.theme-picker button:nth-of-type(2) { border-color: var(--crayon-blue); background: #eaf6fc; }
+.theme-picker button:nth-of-type(3) { border-color: var(--crayon-green); background: #ecf8eb; }
+.theme-picker button:nth-of-type(4) { border-color: var(--crayon-purple); background: #f4ecfa; }
+.theme-picker button.active { border-style: solid; transform: rotate(-1deg); }
+
+.game-rail .status:first-child { background-color: #fff0ea; }
+.game-rail .status:last-child { background-color: #eaf6fc; }
+.game-rail .status:last-child strong {
+  min-width: 30px;
+  min-height: 30px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--crayon-blue);
+  color: var(--ink);
+  letter-spacing: 0;
+}
+
+.message {
+  background-color: #fffaf0;
+  border-style: dashed;
+}
+
+.control-hint { background-color: var(--crayon-blue) !important; }
+.control-shuffle { background-color: var(--crayon-green) !important; }
+.control-clear { background-color: var(--surface) !important; }
+.control-next,
+.control-share {
+  background-color: var(--ink) !important;
+  color: var(--surface) !important;
+}
+.control-next::after,
+.control-share::after { border-color: rgb(255 249 238 / 25%); }
+
+.completion-next {
+  background-color: var(--crayon-yellow) !important;
+  color: var(--ink) !important;
+}
+
+.panel-title-lockup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.panel h2::before {
+  content: "🐾";
+  margin-right: 8px;
+  font-size: 0.82em;
+}
+
+.panel:nth-of-type(4n + 1) { background-color: #fffaf0; }
+.panel:nth-of-type(4n + 2) { background-color: #edf7fd; }
+.panel:nth-of-type(4n + 3) { background-color: #eef8ed; }
+
+input, textarea, select {
+  box-shadow: inset 1px 1px 0 rgb(18 52 95 / 12%);
+  background-image: radial-gradient(rgb(18 52 95 / 5%) 0.7px, transparent 0.8px);
+  background-size: 5px 5px;
+}
+
+fieldset.group-card:nth-of-type(4n + 1) { background-color: #fff7d8; }
+fieldset.group-card:nth-of-type(4n + 2) { background-color: #edf8ec; }
+fieldset.group-card:nth-of-type(4n + 3) { background-color: #eaf6fc; }
+fieldset.group-card:nth-of-type(4n + 4) { background-color: #f4ecfa; }
+
+.group-remove { background: #fff0ea; color: var(--ink); }
+.add-group { background: #edf8ec; border-color: var(--crayon-green); }
+.submission-form > .primary { min-height: 52px; }
+
+th { background: var(--crayon-blue); color: var(--ink); }
+tbody tr:nth-child(even) { background: rgb(109 182 232 / 9%); }
+tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
+
+.mascot-card {
+  width: 76px;
+  height: 76px;
+  background: #fff7d8;
+  transform: rotate(-1.5deg);
+}
+.solved-item .mascot-card { width: 48px; height: 48px; }
+
+@media (max-width: 560px) {
+  .mascot-card { width: 60px; height: 60px; }
+  .controls-grid button { min-height: 54px; }
 }

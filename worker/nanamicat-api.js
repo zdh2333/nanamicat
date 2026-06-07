@@ -153,37 +153,48 @@ function validateScore(body) {
 function buildApprovedTextPuzzles(submissions) {
   const approvedGroups = submissions
     .filter((submission) => submission.status === 'approved' || submission.status === 'included')
-    .flatMap((submission) => submission.groups.map((group) => ({
-      name: String(group.name || '').trim(),
-      words: Array.isArray(group.words) ? group.words.map((word) => String(word).trim()).filter(Boolean) : [],
-      sourceId: submission.id,
-    })))
-    .filter((group) => group.name && group.words.length === 4);
+    .sort((a, b) => String(a.updated_at || a.updatedAt || a.created_at || a.createdAt || '')
+      .localeCompare(String(b.updated_at || b.updatedAt || b.created_at || b.createdAt || '')))
+    .flatMap((submission) => submission.groups
+      .filter((group) => hasCompleteBilingualGroups([group]))
+      .map((group) => ({ ...group, sourceId: submission.id })));
 
   const puzzles = [];
+  const englishPuzzleTerms = {};
+  for (const group of approvedGroups) {
+    englishPuzzleTerms[group.name] = group.englishName;
+    group.words.forEach((word, index) => {
+      englishPuzzleTerms[word] = group.englishWords[index];
+    });
+  }
+
   for (let index = 0; index + 3 < approvedGroups.length; index += 4) {
+    const puzzleNumber = Math.floor(index / 4) + 1;
     const chunk = approvedGroups.slice(index, index + 4);
+    const puzzleId = stableCommunityPuzzleId(chunk);
     const groups = chunk.map((group, groupIndex) => ({
+      id: `${puzzleId}-g${groupIndex + 1}`,
       name: group.name,
-      color: GROUP_COLORS[groupIndex],
-      description: '游客贡献',
-      items: group.words,
+      level: groupIndex + 1,
+      items: group.words.map((word) => ({
+        id: `${puzzleId}-${word}`,
+        label: word,
+      })),
       sourceId: group.sourceId,
     }));
     puzzles.push({
-      id: `community-${index / 4}`,
-      source: 'community',
+      id: puzzleId,
+      label: `社区题 ${puzzleNumber}`,
+      theme: '游客贡献',
+      type: 'text',
+      difficulty: 4,
+      redHerring: '由玩家投稿并经后台审核收录。',
       groups,
-      items: groups.flatMap((group, groupIndex) =>
-        group.items.map((word, wordIndex) => ({
-          id: `community-${index / 4}-${groupIndex}-${wordIndex}`,
-          label: word,
-          groupName: group.name,
-        })),
-      ),
     });
+    englishPuzzleTerms['游客贡献'] = 'Community contribution';
+    englishPuzzleTerms['由玩家投稿并经后台审核收录。'] = 'Submitted by players and approved in review.';
   }
-  return puzzles;
+  return { puzzles, englishPuzzleTerms };
 }
 
 async function requireAdmin(request, env) {
@@ -233,12 +244,40 @@ function normalizeGroups(groups) {
     if (!name) throw new Error(`Group ${index + 1} needs a name`);
     if (words.length !== 4) throw new Error(`Group ${index + 1} must contain exactly 4 words`);
     if (words.some((word) => word.length > 24)) throw new Error('Each word must be 24 characters or fewer');
-    return { name, words };
+    const englishName = String(group?.englishName || group?.enName || '').trim();
+    const rawEnglishWords = Array.isArray(group?.englishWords)
+      ? group.englishWords
+      : Array.isArray(group?.enWords)
+        ? group.enWords
+        : [];
+    const englishWords = rawEnglishWords.map((word) => String(word).trim()).filter(Boolean);
+    return { name, words, englishName, englishWords };
   });
   const filled = normalized.filter(Boolean);
   if (!filled.length) throw new Error('Puzzle submissions must contain at least 1 group');
   if (filled.length > 10) throw new Error('Puzzle submissions can include at most 10 groups');
   return filled;
+}
+
+function hasCompleteBilingualGroups(groups) {
+  return Array.isArray(groups) && groups.length > 0 && groups.every((group) =>
+    String(group?.name || '').trim() &&
+    Array.isArray(group?.words) &&
+    group.words.map((word) => String(word).trim()).filter(Boolean).length === 4 &&
+    String(group?.englishName || '').trim() &&
+    Array.isArray(group?.englishWords) &&
+    group.englishWords.map((word) => String(word).trim()).filter(Boolean).length === 4
+  );
+}
+
+function stableCommunityPuzzleId(groups) {
+  const key = groups.map((group) => group.sourceId).join('|');
+  let hash = 2166136261;
+  for (const char of key) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `community-${(hash >>> 0).toString(36)}`;
 }
 
 function deriveSubmissionTitle({ title, groups, nickname }) {
@@ -597,15 +636,10 @@ async function handleRequest(request, env) {
     const result = await env.DB.prepare(`
       SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
       FROM puzzle_submissions
-      ORDER BY created_at DESC
+      ORDER BY updated_at ASC, created_at ASC
     `).all();
-    const submissions = (result.results ?? []).map((row) => ({
-      id: row.id,
-      nickname: row.nickname,
-      groups: parseSubmissionGroups(row.groups_json),
-      status: row.status,
-    }));
-    return json({ puzzles: buildApprovedTextPuzzles(submissions) });
+    const submissions = (result.results ?? []).map(serializeSubmission);
+    return json(buildApprovedTextPuzzles(submissions));
   }
 
   if (path === '/api/scores' && request.method === 'GET') {
@@ -692,10 +726,34 @@ async function handleRequest(request, env) {
     let status = String(body?.status || '').trim();
     if (status === 'approved') status = 'included';
     if (!REVIEW_STATUSES.has(status)) return json({ error: 'Invalid review status' }, 400);
+    let groups = null;
+    if (Array.isArray(body?.groups)) {
+      try {
+        groups = normalizeGroups(body.groups);
+      } catch (error) {
+        return json({ error: error.message }, 400);
+      }
+    }
+    if (status === 'included' && groups && !hasCompleteBilingualGroups(groups)) {
+      return json({ error: 'Included submissions require English group names and four English words per group' }, 400);
+    }
     const now = new Date().toISOString();
-    const updated = await env.DB.prepare(`
-      UPDATE puzzle_submissions SET status = ?, updated_at = ? WHERE id = ?
-    `).bind(status, now, adminPuzzleMatch[1]).run();
+    if (status === 'included' && !groups) {
+      const current = await env.DB.prepare(`
+        SELECT groups_json FROM puzzle_submissions WHERE id = ?
+      `).bind(adminPuzzleMatch[1]).first();
+      groups = parseSubmissionGroups(current?.groups_json);
+    }
+    if (status === 'included' && !hasCompleteBilingualGroups(groups)) {
+      return json({ error: 'Included submissions require English group names and four English words per group' }, 400);
+    }
+    const updated = groups
+      ? await env.DB.prepare(`
+          UPDATE puzzle_submissions SET status = ?, groups_json = ?, updated_at = ? WHERE id = ?
+        `).bind(status, JSON.stringify(groups), now, adminPuzzleMatch[1]).run()
+      : await env.DB.prepare(`
+          UPDATE puzzle_submissions SET status = ?, updated_at = ? WHERE id = ?
+        `).bind(status, now, adminPuzzleMatch[1]).run();
     if (!updated.meta?.changes) return json({ error: 'Submission not found' }, 404);
     const row = await env.DB.prepare(`
       SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
@@ -733,10 +791,34 @@ async function handleRequest(request, env) {
     let status = String(body?.status || '').trim();
     if (status === 'approved') status = 'included';
     if (!STATUSES.has(status)) return json({ error: '审核状态无效。' }, 400);
+    let groups = null;
+    if (Array.isArray(body?.groups)) {
+      try {
+        groups = normalizeGroups(body.groups);
+      } catch (error) {
+        return json({ error: error.message }, 400);
+      }
+    }
+    if (status === 'included' && groups && !hasCompleteBilingualGroups(groups)) {
+      return json({ error: 'Included submissions require English group names and four English words per group' }, 400);
+    }
     const updatedAt = new Date().toISOString();
-    const updated = await env.DB.prepare(
-      'UPDATE puzzle_submissions SET status = ?, updated_at = ? WHERE id = ?',
-    ).bind(status, updatedAt, match[1]).run();
+    if (status === 'included' && !groups) {
+      const current = await env.DB.prepare(
+        'SELECT groups_json FROM puzzle_submissions WHERE id = ?',
+      ).bind(match[1]).first();
+      groups = parseSubmissionGroups(current?.groups_json);
+    }
+    if (status === 'included' && !hasCompleteBilingualGroups(groups)) {
+      return json({ error: 'Included submissions require English group names and four English words per group' }, 400);
+    }
+    const updated = groups
+      ? await env.DB.prepare(
+          'UPDATE puzzle_submissions SET status = ?, groups_json = ?, updated_at = ? WHERE id = ?',
+        ).bind(status, JSON.stringify(groups), updatedAt, match[1]).run()
+      : await env.DB.prepare(
+          'UPDATE puzzle_submissions SET status = ?, updated_at = ? WHERE id = ?',
+        ).bind(status, updatedAt, match[1]).run();
     if (Number(updated.meta?.changes || 0) === 0) return json({ error: '投稿不存在。' }, 404);
     const row = await env.DB.prepare(`
       SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at

@@ -26,11 +26,36 @@ struct PuzzleDataBundle: Codable {
     let maxMistakes: Int
     let textPuzzleCount: Int
     let textPuzzleManifest: [TextPuzzleManifestEntry]?
+    let communityPuzzles: [Puzzle]?
+
+    func mergingCommunity(_ response: CommunityPuzzleResponse?) -> PuzzleDataBundle {
+        guard let response else { return self }
+        var mergedTerms = englishPuzzleTerms
+        response.englishPuzzleTerms.forEach { key, value in
+            mergedTerms[key] = value
+        }
+        return PuzzleDataBundle(
+            textGroupBank: textGroupBank,
+            puzzleThemes: puzzleThemes,
+            redHerringNotes: redHerringNotes,
+            englishPuzzleTerms: mergedTerms,
+            maxMistakes: maxMistakes,
+            textPuzzleCount: textPuzzleCount,
+            textPuzzleManifest: textPuzzleManifest,
+            communityPuzzles: response.puzzles
+        )
+    }
+}
+
+struct CommunityPuzzleResponse: Codable {
+    let puzzles: [Puzzle]
+    let englishPuzzleTerms: [String: String]
 }
 
 enum PuzzleCatalog {
     private static let cacheFileName = "puzzle-data.json"
     private static let remoteURL = URL(string: "https://nanamicat.com/puzzle-data.json")!
+    private static let communityURL = URL(string: "https://nanamicat.com/api/puzzles")!
 
     private(set) static var shared: PuzzleDataBundle = loadCatalog()
 
@@ -47,24 +72,39 @@ enum PuzzleCatalog {
             guard decoded.textGroupBank.count > 0, decoded.textPuzzleCount > 0 else {
                 return
             }
+            let merged = decoded.mergingCommunity(await fetchCommunityPuzzles())
+            let mergedData = (try? JSONEncoder().encode(merged)) ?? data
             let cachePath = cacheURL()
             let isNewContent: Bool
             if let cached = try? Data(contentsOf: cachePath) {
-                isNewContent = cached != data
+                isNewContent = cached != mergedData
             } else if let bundled = bundleData() {
-                isNewContent = bundled != data
+                isNewContent = bundled != mergedData
             } else {
                 isNewContent = true
             }
             guard isNewContent else { return }
 
-            try data.write(to: cachePath, options: .atomic)
+            try mergedData.write(to: cachePath, options: .atomic)
             await MainActor.run {
-                shared = decoded
+                shared = merged
                 NotificationCenter.default.post(name: .puzzleCatalogDidUpdate, object: nil)
             }
         } catch {
             // 保留包内或沙盒缓存，静默失败
+        }
+    }
+
+    private static func fetchCommunityPuzzles() async -> CommunityPuzzleResponse? {
+        do {
+            let (data, response) = try await URLSession.shared.data(from: communityURL)
+            guard let http = response as? HTTPURLResponse, (200 ... 299).contains(http.statusCode) else {
+                return nil
+            }
+            let decoded = try JSONDecoder().decode(CommunityPuzzleResponse.self, from: data)
+            return decoded
+        } catch {
+            return nil
         }
     }
 
@@ -124,10 +164,13 @@ enum PuzzleEngine {
     }
 
     static func buildTextPuzzles(from data: PuzzleDataBundle) -> [Puzzle] {
+        let builtIn: [Puzzle]
         if let manifest = data.textPuzzleManifest, !manifest.isEmpty {
-            return buildFromManifest(manifest, data: data)
+            builtIn = buildFromManifest(manifest, data: data)
+        } else {
+            builtIn = buildLegacyPuzzles(from: data)
         }
-        return buildLegacyPuzzles(from: data)
+        return builtIn + (data.communityPuzzles ?? [])
     }
 
     private static func buildFromManifest(

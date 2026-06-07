@@ -36,14 +36,14 @@ struct AppPalette {
         return AppPalette(
             canvas: tokens.crayonPaper,
             surface: tokens.surface,
-            ink: Color(red: 0.165, green: 0.165, blue: 0.173),
-            muted: Color(red: 0.478, green: 0.467, blue: 0.439),
+            ink: Color(red: 0.071, green: 0.204, blue: 0.373),
+            muted: Color(red: 0.373, green: 0.443, blue: 0.518),
             primary: tokens.primary,
             secondary: tokens.secondary,
             accent: tokens.accent,
             accentSoft: tokens.accent.opacity(0.12),
             crayonPaper: tokens.crayonPaper,
-            crayonInk: Color(red: 0.227, green: 0.227, blue: 0.235),
+            crayonInk: Color(red: 0.071, green: 0.204, blue: 0.373),
             crayonJitter: 1.5
         )
     }
@@ -68,11 +68,11 @@ private struct MorandiTokens {
         switch theme {
         case .zincMist:
             return MorandiTokens(
-                crayonPaper: Color(red: 0.925, green: 0.902, blue: 0.867),
-                surface: .white,
-                primary: Color(red: 0.42, green: 0.45, blue: 0.50),
-                secondary: Color(red: 0.61, green: 0.64, blue: 0.68),
-                accent: Color(red: 0.36, green: 0.54, blue: 0.60),
+                crayonPaper: Color(red: 0.973, green: 0.945, blue: 0.894),
+                surface: Color(red: 1.0, green: 0.976, blue: 0.933),
+                primary: Color(red: 0.969, green: 0.788, blue: 0.282),
+                secondary: Color(red: 0.482, green: 0.776, blue: 0.482),
+                accent: Color(red: 0.427, green: 0.714, blue: 0.910),
                 primaryDark: Color(red: 0.68, green: 0.71, blue: 0.75),
                 secondaryDark: Color(red: 0.52, green: 0.55, blue: 0.58),
                 accentDark: Color(red: 0.52, green: 0.72, blue: 0.78)
@@ -670,27 +670,32 @@ struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(font)
-            .foregroundStyle(.white)
+            .foregroundStyle(palette?.ink ?? .white)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity)
             .frame(height: height ?? 44)
-            .background(accent, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background(accent, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .shadow(color: (palette?.crayonInk ?? .black).opacity(0.9), radius: 0, x: configuration.isPressed ? 1 : 3, y: configuration.isPressed ? 1 : 4)
             .overlay {
-                CrayonBorder(cornerRadius: 8, seed: 20)
-                    .stroke((palette?.crayonInk ?? Color.black).opacity(0.35), lineWidth: 2)
+                CrayonBorder(cornerRadius: 12, seed: 20)
+                    .stroke((palette?.crayonInk ?? Color.black), lineWidth: 2.5)
             }
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .offset(x: configuration.isPressed ? 2 : 0, y: configuration.isPressed ? 3 : 0)
             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: configuration.isPressed)
     }
 }
 
 struct SecondaryButtonStyle: ButtonStyle {
     let palette: AppPalette
+    let fill: Color?
+    let foreground: Color?
     var font: Font = .body.weight(.medium)
     var height: CGFloat? = nil
 
-    init(palette: AppPalette, font: Font = .body.weight(.medium), height: CGFloat? = nil) {
+    init(palette: AppPalette, fill: Color? = nil, foreground: Color? = nil, font: Font = .body.weight(.medium), height: CGFloat? = nil) {
         self.palette = palette
+        self.fill = fill
+        self.foreground = foreground
         self.font = font
         self.height = height
     }
@@ -698,16 +703,17 @@ struct SecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(font)
-            .foregroundStyle(palette.ink)
+            .foregroundStyle(foreground ?? palette.ink)
             .padding(.horizontal, 14)
             .frame(maxWidth: .infinity)
             .frame(height: height ?? 44)
-            .background(palette.surface.opacity(0.85), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background(fill ?? palette.surface.opacity(0.9), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .shadow(color: palette.crayonInk.opacity(0.9), radius: 0, x: configuration.isPressed ? 1 : 3, y: configuration.isPressed ? 1 : 4)
             .overlay {
-                CrayonBorder(cornerRadius: 8, seed: 21)
-                    .stroke(palette.crayonInk.opacity(0.55), lineWidth: 2.5)
+                CrayonBorder(cornerRadius: 12, seed: 21)
+                    .stroke(palette.crayonInk, lineWidth: 2.5)
             }
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .offset(x: configuration.isPressed ? 2 : 0, y: configuration.isPressed ? 3 : 0)
             .animation(.spring(response: 0.25, dampingFraction: 0.8), value: configuration.isPressed)
     }
 }

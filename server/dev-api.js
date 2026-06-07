@@ -34,7 +34,14 @@ function normalizeGroups(groups) {
     if (!name && !words.length) return null;
     if (!name) throw new Error(`Group ${index + 1} needs a name`);
     if (words.length !== 4) throw new Error(`Group ${index + 1} must contain exactly 4 words`);
-    return { name, words };
+    const englishName = String(group?.englishName || group?.enName || "").trim();
+    const rawEnglishWords = Array.isArray(group?.englishWords)
+      ? group.englishWords
+      : Array.isArray(group?.enWords)
+        ? group.enWords
+        : [];
+    const englishWords = rawEnglishWords.map((word) => String(word).trim()).filter(Boolean);
+    return { name, words, englishName, englishWords };
   });
   const filled = normalized.filter(Boolean);
   if (!filled.length) throw new Error("Puzzle submissions must contain at least 1 group");
@@ -65,41 +72,72 @@ function parseSubmissionGroups(groupsJson) {
   }
 }
 
+function hasCompleteBilingualGroups(groups) {
+  return Array.isArray(groups) && groups.length > 0 && groups.every((group) =>
+    String(group?.name || "").trim() &&
+    Array.isArray(group?.words) &&
+    group.words.map((word) => String(word).trim()).filter(Boolean).length === 4 &&
+    String(group?.englishName || "").trim() &&
+    Array.isArray(group?.englishWords) &&
+    group.englishWords.map((word) => String(word).trim()).filter(Boolean).length === 4
+  );
+}
+
+function stableCommunityPuzzleId(groups) {
+  const key = groups.map((group) => group.sourceId).join("|");
+  let hash = 2166136261;
+  for (const char of key) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `community-${(hash >>> 0).toString(36)}`;
+}
+
 function buildApprovedTextPuzzles(submissions) {
-  const groupColors = ["yellow", "green", "blue", "purple"];
   const approvedGroups = submissions
     .filter((submission) => submission.status === "approved" || submission.status === "included")
-    .flatMap((submission) => submission.groups.map((group) => ({
-      name: String(group.name || "").trim(),
-      words: Array.isArray(group.words) ? group.words.map((word) => String(word).trim()).filter(Boolean) : [],
-      sourceId: submission.id
-    })))
-    .filter((group) => group.name && group.words.length === 4);
+    .sort((a, b) => String(a.updated_at || a.updatedAt || a.created_at || a.createdAt || "")
+      .localeCompare(String(b.updated_at || b.updatedAt || b.created_at || b.createdAt || "")))
+    .flatMap((submission) => submission.groups
+      .filter((group) => hasCompleteBilingualGroups([group]))
+      .map((group) => ({ ...group, sourceId: submission.id })));
 
   const puzzles = [];
+  const englishPuzzleTerms = {};
+  for (const group of approvedGroups) {
+    englishPuzzleTerms[group.name] = group.englishName;
+    group.words.forEach((word, index) => {
+      englishPuzzleTerms[word] = group.englishWords[index];
+    });
+  }
+
   for (let index = 0; index + 3 < approvedGroups.length; index += 4) {
+    const puzzleNumber = Math.floor(index / 4) + 1;
     const chunk = approvedGroups.slice(index, index + 4);
+    const puzzleId = stableCommunityPuzzleId(chunk);
     const groups = chunk.map((group, groupIndex) => ({
+      id: `${puzzleId}-g${groupIndex + 1}`,
       name: group.name,
-      color: groupColors[groupIndex],
-      description: "游客贡献",
-      items: group.words,
+      level: groupIndex + 1,
+      items: group.words.map((word) => ({
+        id: `${puzzleId}-${word}`,
+        label: word
+      })),
       sourceId: group.sourceId
     }));
     puzzles.push({
-      id: `community-${index / 4}`,
-      source: "community",
-      groups,
-      items: groups.flatMap((group, groupIndex) =>
-        group.items.map((word, wordIndex) => ({
-          id: `community-${index / 4}-${groupIndex}-${wordIndex}`,
-          label: word,
-          groupName: group.name
-        }))
-      )
+      id: puzzleId,
+      label: `社区题 ${puzzleNumber}`,
+      theme: "游客贡献",
+      type: "text",
+      difficulty: 4,
+      redHerring: "由玩家投稿并经后台审核收录。",
+      groups
     });
+    englishPuzzleTerms["游客贡献"] = "Community contribution";
+    englishPuzzleTerms["由玩家投稿并经后台审核收录。"] = "Submitted by players and approved in review.";
   }
-  return puzzles;
+  return { puzzles, englishPuzzleTerms };
 }
 
 function serializeSubmission(row) {
@@ -286,7 +324,7 @@ export function mountDevApi(app, dataDir, { adminKey = "", allowOpenAdmin = fals
 
   app.get("/api/puzzles", async (_request, response) => {
     const submissions = await readSubmissions();
-    response.json({ puzzles: buildApprovedTextPuzzles(submissions.map(serializeSubmission)) });
+    response.json(buildApprovedTextPuzzles(submissions.map(serializeSubmission)));
   });
 
   app.get("/api/admin/puzzles", async (request, response) => {
@@ -306,6 +344,14 @@ export function mountDevApi(app, dataDir, { adminKey = "", allowOpenAdmin = fals
     const submission = submissions.find((item) => item.id === request.params.id);
     if (!submission) {
       response.status(404).json({ error: "Submission not found" });
+      return;
+    }
+    if (Array.isArray(request.body.groups)) {
+      submission.groups = normalizeGroups(request.body.groups);
+      submission.groups_json = JSON.stringify(submission.groups);
+    }
+    if (status === "included" && !hasCompleteBilingualGroups(submission.groups)) {
+      response.status(400).json({ error: "Included submissions require English group names and four English words per group" });
       return;
     }
     submission.status = status;

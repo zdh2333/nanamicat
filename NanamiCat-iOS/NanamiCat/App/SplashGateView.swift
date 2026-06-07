@@ -42,6 +42,8 @@ struct SplashScreenView: View {
                 Spacer()
 
                 VStack(spacing: 20) {
+                    PuzzleBrandMark(palette: palette)
+
                     NanamiCatMascot(size: .celebration)
                         .accessibilityHidden(true)
 
@@ -67,6 +69,35 @@ struct SplashScreenView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea()
+    }
+}
+
+private struct PuzzleBrandMark: View {
+    let palette: AppPalette
+    private let colors = [
+        Color(red: 0.969, green: 0.788, blue: 0.282),
+        Color(red: 0.482, green: 0.776, blue: 0.482),
+        Color(red: 0.427, green: 0.714, blue: 0.910),
+        Color(red: 0.718, green: 0.533, blue: 0.839)
+    ]
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.fixed(24), spacing: 3), GridItem(.fixed(24), spacing: 3)], spacing: 3) {
+            ForEach(colors.indices, id: \.self) { index in
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(colors[index])
+                    .frame(width: 24, height: 24)
+                    .overlay {
+                        CrayonBorder(cornerRadius: 5, jitter: 0.7, seed: UInt64(100 + index))
+                            .stroke(palette.crayonInk, lineWidth: 2)
+                    }
+            }
+        }
+        .padding(8)
+        .background(palette.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .shadow(color: palette.crayonInk.opacity(0.9), radius: 0, x: 3, y: 4)
+        .rotationEffect(.degrees(-2))
+        .accessibilityHidden(true)
     }
 }
 

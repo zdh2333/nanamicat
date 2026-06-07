@@ -9,7 +9,8 @@
     "start": "node --env-file-if-exists=.env server.js",
     "test:puzzles": "node scripts/validate-puzzles.mjs",
     "sync:puzzles": "node scripts/sync-puzzle-data.mjs",
-    "validate:puzzles": "node scripts/validate-puzzle-manifest.mjs NanamiCat-iOS/NanamiCat/Resources/puzzle-data.json"
+    "validate:puzzles": "node scripts/validate-puzzle-manifest.mjs NanamiCat-iOS/NanamiCat/Resources/puzzle-data.json",
+    "validate:translations": "node scripts/validate-translations.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.4.1",

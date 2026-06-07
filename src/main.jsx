@@ -179,6 +179,8 @@ const copy = {
     adminScores: "成绩事件",
     adminGroupCount: "%d 组",
     adminGroupWords: "词条",
+    adminEnglishName: "英文组名",
+    adminEnglishWords: "英文词条",
     sponsorLabel: "赞助本题",
     sponsorTitle: "喜欢这个小游戏，可以请我喝杯咖啡。",
     sponsorBody: "微信扫码赞助，支持继续做中文题库、历史题和主题包。",
@@ -249,6 +251,8 @@ const copy = {
     adminScores: "Score events",
     adminGroupCount: "%d groups",
     adminGroupWords: "Words",
+    adminEnglishName: "English group name",
+    adminEnglishWords: "English words",
     sponsorLabel: "Support this puzzle",
     sponsorTitle: "If you like this small game, you can buy me a coffee.",
     sponsorBody: "Use WeChat Pay to support more Chinese puzzles, archives, and theme packs.",
@@ -474,8 +478,10 @@ function App() {
         const data = await loadPuzzleCatalog();
         const built = buildTextPuzzles(data);
         if (!built.length) return;
-        const prevSignature = catalog ? `${catalog.textPuzzleCount}:${catalog.textGroupBank?.length}` : "";
-        const nextSignature = `${data.textPuzzleCount}:${data.textGroupBank?.length}`;
+        const prevSignature = catalog
+          ? `${catalog.textPuzzleCount}:${catalog.textGroupBank?.length}:${(catalog.communityPuzzles ?? []).map((item) => item.id).join(",")}`
+          : "";
+        const nextSignature = `${data.textPuzzleCount}:${data.textGroupBank?.length}:${(data.communityPuzzles ?? []).map((item) => item.id).join(",")}`;
         if (prevSignature && prevSignature !== nextSignature) {
           setCatalog(data);
           setPool(built);
@@ -767,11 +773,25 @@ function App() {
     }
   }
 
+  function updateAdminSubmissionGroup(id, groupIndex, patch) {
+    setAdminPuzzles((current) => current.map((item) => {
+      if (item.id !== id) return item;
+      const groups = submissionGroups(item).map((group, index) =>
+        index === groupIndex ? { ...group, ...patch } : group
+      );
+      return { ...item, groups, groups_json: JSON.stringify(groups) };
+    }));
+  }
+
   async function updateSubmission(id, status) {
     try {
+      const item = adminPuzzles.find((submission) => submission.id === id);
       await api(`/api/admin/puzzles/${id}`, {
         method: "PATCH",
-        body: JSON.stringify({ status })
+        body: JSON.stringify({
+          status,
+          groups: item ? submissionGroups(item) : undefined
+        })
       });
       loadAdmin();
     } catch (error) {
@@ -922,10 +942,10 @@ function App() {
                   <>
                     <button type="button" className="controls-submit primary" onClick={submitGuess} disabled={selected.length !== 4}><Check size={18} /> {t.submit}</button>
                     <div className="controls-grid">
-                      <button type="button" onClick={useHint} disabled={hintBalance <= 0}><HelpCircle size={16} /> {t.hint} ({hintBalance})</button>
-                      <button type="button" onClick={shuffleActiveItems}><Dices size={16} /> {t.shuffle}</button>
-                      <button type="button" onClick={() => { setSelected([]); setMessage(t.clearedSelection); }} disabled={!selected.length}><RotateCcw size={16} /> {t.clear}</button>
-                      <button type="button" onClick={nextPuzzle}>{t.next}</button>
+                      <button type="button" className="control-hint" onClick={useHint} disabled={hintBalance <= 0}><HelpCircle size={16} /> {t.hint} ({hintBalance})</button>
+                      <button type="button" className="control-shuffle" onClick={shuffleActiveItems}><Dices size={16} /> {t.shuffle}</button>
+                      <button type="button" className="control-clear" onClick={() => { setSelected([]); setMessage(t.clearedSelection); }} disabled={!selected.length}><RotateCcw size={16} /> {t.clear}</button>
+                      <button type="button" className="control-next" onClick={nextPuzzle}>{t.next}</button>
                     </div>
                   </>
                 )}
@@ -986,7 +1006,7 @@ function App() {
 
                   <section className="completion-actions" aria-label="Completion actions">
                     <button type="button" className="primary completion-next" onClick={nextPuzzle}>{t.nextAfterComplete}</button>
-                    <button type="button" onClick={shareResult}><Share2 size={16} /> {t.share}</button>
+                    <button type="button" className="control-share" onClick={shareResult}><Share2 size={16} /> {t.share}</button>
                   </section>
                 </>
               )}
@@ -1065,7 +1085,7 @@ function App() {
         <section className="panel">
           <div className="panel-head">
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "4px" }}>
+              <div className="panel-title-lockup">
                 <h2>{t.submitPuzzle}</h2>
                 <NanamiCatMascot size="header" />
               </div>
@@ -1191,8 +1211,38 @@ function App() {
                   <div className="admin-groups">
                     {groups.map((group, index) => (
                       <div key={`${item.id}-${index}`} className="admin-group-card">
-                        <strong>{group.name || `${t.groupName} ${index + 1}`}</strong>
-                        <p>{t.adminGroupWords}：{(group.words || []).join(" · ")}</p>
+                        <label>
+                          {t.groupName}
+                          <input
+                            value={group.name || ""}
+                            onChange={(event) => updateAdminSubmissionGroup(item.id, index, { name: event.target.value })}
+                          />
+                        </label>
+                        <label>
+                          {t.adminGroupWords}
+                          <textarea
+                            value={(group.words || []).join(", ")}
+                            onChange={(event) => updateAdminSubmissionGroup(item.id, index, {
+                              words: event.target.value.split(/[,\n，]/).map((word) => word.trim()).filter(Boolean)
+                            })}
+                          />
+                        </label>
+                        <label>
+                          {t.adminEnglishName}
+                          <input
+                            value={group.englishName || ""}
+                            onChange={(event) => updateAdminSubmissionGroup(item.id, index, { englishName: event.target.value })}
+                          />
+                        </label>
+                        <label>
+                          {t.adminEnglishWords}
+                          <textarea
+                            value={(group.englishWords || []).join(", ")}
+                            onChange={(event) => updateAdminSubmissionGroup(item.id, index, {
+                              englishWords: event.target.value.split(/[,\n，]/).map((word) => word.trim()).filter(Boolean)
+                            })}
+                          />
+                        </label>
                       </div>
                     ))}
                   </div>

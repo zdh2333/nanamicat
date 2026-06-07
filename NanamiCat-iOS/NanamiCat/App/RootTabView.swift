@@ -53,6 +53,8 @@ struct RootTabView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .tint(palette.accent)
+        .toolbarBackground(palette.crayonPaper, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
         .animation(reduceMotion ? nil : .spring(response: 0.35, dampingFraction: 0.88), value: selection)
     }
 }

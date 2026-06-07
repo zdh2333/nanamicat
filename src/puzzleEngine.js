@@ -78,11 +78,15 @@ function buildLegacyPuzzles(catalog) {
 }
 
 export function buildTextPuzzles(catalog) {
-  if (!catalog?.textGroupBank?.length) return [];
-  const built = catalog.textPuzzleManifest?.length
-    ? buildFromManifest(catalog.textPuzzleManifest, catalog.textGroupBank)
-    : buildLegacyPuzzles(catalog);
-  return built.filter((puzzle) => puzzle.groups?.length === 4);
+  const builtIn = catalog?.textGroupBank?.length
+    ? (catalog.textPuzzleManifest?.length
+        ? buildFromManifest(catalog.textPuzzleManifest, catalog.textGroupBank)
+        : buildLegacyPuzzles(catalog))
+    : [];
+  const community = Array.isArray(catalog?.communityPuzzles)
+    ? catalog.communityPuzzles
+    : [];
+  return [...builtIn, ...community].filter((puzzle) => puzzle.groups?.length === 4);
 }
 
 export async function loadPuzzleCatalog() {
@@ -97,6 +101,22 @@ export async function loadPuzzleCatalog() {
       }
       if (!data?.textGroupBank?.length) {
         throw new Error("题库数据不完整。");
+      }
+      try {
+        const communityResponse = await fetch("/api/puzzles", { cache: "no-store" });
+        if (communityResponse.ok) {
+          const community = await communityResponse.json();
+          data = {
+            ...data,
+            communityPuzzles: Array.isArray(community.puzzles) ? community.puzzles : [],
+            englishPuzzleTerms: {
+              ...(data.englishPuzzleTerms ?? {}),
+              ...(community.englishPuzzleTerms ?? {})
+            }
+          };
+        }
+      } catch {
+        // Community puzzles are additive; keep the built-in catalog if the API is unavailable.
       }
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
