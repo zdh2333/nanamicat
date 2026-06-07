@@ -338,7 +338,7 @@ function submissionSummary(item, t) {
   return item?.title || "-";
 }
 
-function humanizeApiError(message, locale = getStored("nanamicat.locale", "zh")) {
+function humanizeApiError(message, locale = getStored("nanamicat.locale", (navigator.language || "en").toLowerCase().startsWith("zh") ? "zh" : "en")) {
   if (message === "Not found") {
     return locale === "zh" ? "服务暂不可用，请稍后再试。" : "Service unavailable. Please try again later.";
   }
@@ -358,7 +358,7 @@ function adminRequestHeaders() {
 }
 
 async function api(path, options = {}) {
-  const locale = getStored("nanamicat.locale", "zh");
+  const locale = getStored("nanamicat.locale", (navigator.language || "en").toLowerCase().startsWith("zh") ? "zh" : "en");
   let response;
   try {
     response = await fetch(path, {
@@ -388,7 +388,13 @@ function App() {
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState("");
   const [playedPuzzleIds, setPlayedPuzzleIds] = useState([]);
-  const [locale, setLocale] = useState(() => getStored("nanamicat.locale", "zh"));
+  const [locale, setLocale] = useState(() => {
+    const stored = localStorage.getItem("nanamicat.locale");
+    if (stored === "zh" || stored === "en") return stored;
+    // 检测浏览器语言，中文系列 → zh，其他 → en
+    const lang = (navigator.language || navigator.languages?.[0] || "en").toLowerCase();
+    return lang.startsWith("zh") ? "zh" : "en";
+  });
   const [theme, setTheme] = useState(() => getStored("nanamicat.theme", "default"));
   const [view, setView] = useState(() => resolveViewFromPath(location.pathname));
   const [puzzleIndex, setPuzzleIndex] = useState(0);
