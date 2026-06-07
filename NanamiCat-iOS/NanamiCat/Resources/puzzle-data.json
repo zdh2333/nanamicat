@@ -368,7 +368,7 @@
       "name": "自身也是地图",
       "words": [
         "目录",
-        "索引",
+        "检索",
         "导航",
         "坐标系"
       ],
@@ -619,7 +619,7 @@
     "索引": "Index",
     "表面隐藏结构": "Structure hidden by a surface",
     "皮肤": "Skin",
-    "界面": "Interface",
+    "界面": "UI Surface",
     "包装": "Packaging",
     "标题": "Title",
     "以限制制造自由": "Freedom through constraints",
@@ -770,7 +770,14 @@
     "开头标记": "Opening markers",
     "过程重复": "Process repetition",
     "结尾回收": "Ending callbacks",
-    "额外彩蛋": "Bonus details"
+    "额外彩蛋": "Bonus details",
+    "检索": "Retrieval",
+    "有些词共享场景，但真正分组看的是用途。": "Some words share a setting — look at function, not context.",
+    "有一组会被近义动作干扰，别只看字面。": "One group will mislead with near-synonyms. Don't go by surface meaning.",
+    "两组都像工具，关键差别在是否承担连接。": "Two groups look like tools. The key difference is whether they connect two sides.",
+    "注意红鲱鱼：一个词看似同类，其实属于更抽象的关系。": "Watch the red herring: one word looks like it belongs, but its real group is more abstract.",
+    "这题故意让日常词和系统词互相靠近。": "Everyday words and system words are deliberately placed close together here.",
+    "不要只按名词分类，试着看动作和结构。": "Don't sort by noun alone — try grouping by action or structure."
   },
   "maxMistakes": 4,
   "textPuzzleCount": 100,

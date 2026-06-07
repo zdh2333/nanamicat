@@ -5,7 +5,6 @@ import {
   Dices,
   Globe2,
   HelpCircle,
-  Maximize2,
   Palette,
   PenLine,
   RotateCcw,
@@ -114,8 +113,8 @@ function NanamiCatMascot({ size = "header", showCelebration = false, className =
 
   if (cardSize) {
     return (
-      <div className="mascot-card">
-        <img src={src} alt="NanamiCat Mascot" className={`mascot-card-img ${className}`.trim()} />
+      <div className={`mascot-card${className ? ` ${className}` : ""}`}>
+        <img src={src} alt="喵格谜" className="mascot-card-img" />
       </div>
     );
   }
@@ -123,7 +122,7 @@ function NanamiCatMascot({ size = "header", showCelebration = false, className =
   return (
     <img
       src={src}
-      alt="NanamiCat Mascot"
+      alt="喵格谜"
       width={dim}
       height={dim}
       className={className}
@@ -386,7 +385,6 @@ function App() {
   const [locale, setLocale] = useState(() => getStored("nanamicat.locale", "zh"));
   const [theme, setTheme] = useState(() => getStored("nanamicat.theme", "default"));
   const [view, setView] = useState(() => resolveViewFromPath(location.pathname));
-  const [sponsorImageOk, setSponsorImageOk] = useState(true);
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [boardShuffleSeed, setBoardShuffleSeed] = useState(0);
   const [selected, setSelected] = useState([]);
@@ -396,7 +394,10 @@ function App() {
   const [hintBalance, setHintBalance] = useState(() => readStoredInt("nanamicat.hintBalance", hintEconomy.initialBalance));
   const [completedPuzzleCount, setCompletedPuzzleCount] = useState(() => readStoredInt("nanamicat.completedPuzzleCount", 0));
   const [message, setMessage] = useState("");
-  const [payOpen, setPayOpen] = useState(false);
+  const [boardShake, setBoardShake] = useState(false);
+  const [mascotBounce, setMascotBounce] = useState(false);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [nickname, setNickname] = useState(() => getStored("nanamicat.nickname", ""));
   const [playerId, setPlayerId] = useState(() => getStored("nanamicat.playerId", ""));
@@ -449,16 +450,13 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!helpOpen && !payOpen) return undefined;
+    if (!helpOpen) return undefined;
     function onKeyDown(event) {
-      if (event.key === "Escape") {
-        setHelpOpen(false);
-        setPayOpen(false);
-      }
+      if (event.key === "Escape") setHelpOpen(false);
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [helpOpen, payOpen]);
+  }, [helpOpen]);
 
   useEffect(() => {
     function onPopState() {
@@ -623,6 +621,8 @@ function App() {
       const nextSolved = [...solved, matched];
       setSolved(nextSolved);
       setSelected([]);
+      setMascotBounce(true);
+      setTimeout(() => setMascotBounce(false), 450);
       if (nextSolved.length === puzzle.groups.length) {
         setMessage(t.complete);
         markPuzzlePlayed(puzzle.id);
@@ -647,6 +647,8 @@ function App() {
     const nextMistakes = mistakes + 1;
     setMistakes(nextMistakes);
     setMessage(nextMistakes >= maxMistakes ? t.out : nearMissMessage());
+    setBoardShake(true);
+    setTimeout(() => setBoardShake(false), 420);
   }
 
   function shuffleActiveItems() {
@@ -698,16 +700,20 @@ function App() {
   }
 
   async function loadLeaderboard({ showError = false } = {}) {
+    setLeaderboardLoading(true);
     try {
       const payload = await api("/api/leaderboard");
       setLeaderboard(payload.leaderboard ?? []);
     } catch (error) {
       if (showError) setApiNotice(error.message);
+    } finally {
+      setLeaderboardLoading(false);
     }
   }
 
   async function submitPuzzleForm(event) {
     event.preventDefault();
+    setSubmitLoading(true);
     try {
       const player = await ensurePlayer();
       const parsedGroups = form.groups.map((group) => ({
@@ -743,6 +749,8 @@ function App() {
       }
     } catch (error) {
       setApiNotice(error.message);
+    } finally {
+      setSubmitLoading(false);
     }
   }
 
@@ -805,10 +813,17 @@ function App() {
       <header className="app-header">
         <section className="hero">
           <div className="brand-lockup">
-            <NanamiCatMascot size="gameHeader" />
+            <NanamiCatMascot size="gameHeader" className={mascotBounce ? "mascot-bouncing" : ""} />
             <div>
               <p className="kicker">{t.kicker}</p>
-              <h1>{t.appName}</h1>
+              <h1>
+                <span className="title-doodle-wrap">
+                  {t.appName}
+                  <svg className="title-doodle" viewBox="0 0 80 36" fill="none" aria-hidden="true">
+                    <ellipse cx="40" cy="18" rx="37" ry="14.5" stroke="var(--primary)" strokeWidth="2.5" strokeOpacity="0.35" strokeLinecap="round" strokeDasharray="3 2" fill="none" pathLength="100" />
+                  </svg>
+                </span>
+              </h1>
               <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale, englishTerms)} / {difficultyLabel(puzzle.difficulty, locale)}</p>
             </div>
           </div>
@@ -852,9 +867,6 @@ function App() {
 
           <section className="game-workspace">
             <aside className="game-rail">
-              <div className="mascot-rail-decor" style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-                <NanamiCatMascot size="gameHeader" />
-              </div>
               <section className="status">
                 <span>{t.mistakes}</span>
                 <strong aria-label={`${remainingMistakes} remaining`}>{"●".repeat(remainingMistakes)}{"○".repeat(maxMistakes - remainingMistakes)}</strong>
@@ -869,20 +881,41 @@ function App() {
             <section className="game-stage">
               <p className="message" role="status" aria-live="polite">{message}</p>
 
-              <section className="board" aria-label="Puzzle board">
-                {activeItems.map((item) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    className={selected.includes(item.id) ? "tile selected" : "tile"}
-                    onClick={() => toggleItem(item)}
-                    aria-pressed={selected.includes(item.id)}
-                    aria-label={itemLabel(item, locale, englishTerms)}
-                  >
-                    {itemLabel(item, locale, englishTerms)}
-                  </button>
-                ))}
-              </section>
+              <div className="board-doodle-wrap">
+                <svg className="board-doodle" viewBox="0 0 400 320" fill="none" aria-hidden="true" preserveAspectRatio="none">
+                  {/* Crayon scribble lines */}
+                  <path d="M18 260 Q60 240 110 255 Q160 270 200 248" stroke="var(--crayon-blue)" strokeWidth="2.5" strokeOpacity="0.14" strokeLinecap="round" fill="none" />
+                  <path d="M320 30 Q350 55 370 90 Q385 120 365 150" stroke="var(--crayon-pink)" strokeWidth="2.5" strokeOpacity="0.14" strokeLinecap="round" fill="none" />
+                  <path d="M30 60 Q55 45 80 62" stroke="var(--crayon-green)" strokeWidth="2.2" strokeOpacity="0.18" strokeLinecap="round" fill="none" />
+                  <path d="M350 280 Q370 265 390 278" stroke="var(--crayon-orange)" strokeWidth="2.2" strokeOpacity="0.18" strokeLinecap="round" fill="none" />
+                  {/* Stars */}
+                  <text x="8" y="28" fontSize="14" fill="var(--crayon-yellow)" opacity="0.5" fontFamily="sans-serif">★</text>
+                  <text x="374" y="310" fontSize="12" fill="var(--crayon-pink)" opacity="0.45" fontFamily="sans-serif">★</text>
+                  <text x="182" y="14" fontSize="10" fill="var(--crayon-blue)" opacity="0.4" fontFamily="sans-serif">✦</text>
+                  {/* Dots */}
+                  <circle cx="395" cy="42" r="4" fill="var(--crayon-green)" opacity="0.3" />
+                  <circle cx="12" cy="298" r="4" fill="var(--crayon-purple)" opacity="0.28" />
+                  <circle cx="200" cy="310" r="3" fill="var(--crayon-orange)" opacity="0.25" />
+                  {/* Zigzag decoration top-right */}
+                  <path d="M340 8 L350 16 L360 8 L370 16 L380 8" stroke="var(--crayon-yellow)" strokeWidth="2" strokeOpacity="0.35" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  {/* Wavy bottom decoration */}
+                  <path d="M60 312 Q80 304 100 312 Q120 320 140 312 Q160 304 180 312" stroke="var(--crayon-pink)" strokeWidth="1.8" strokeOpacity="0.2" strokeLinecap="round" fill="none" />
+                </svg>
+                <section className={`board${boardShake ? " board-shaking" : ""}`} aria-label="Puzzle board">
+                  {activeItems.map((item) => (
+                    <button
+                      type="button"
+                      key={item.id}
+                      className={selected.includes(item.id) ? "tile selected" : "tile"}
+                      onClick={() => toggleItem(item)}
+                      aria-pressed={selected.includes(item.id)}
+                      aria-label={itemLabel(item, locale, englishTerms)}
+                    >
+                      {itemLabel(item, locale, englishTerms)}
+                    </button>
+                  ))}
+                </section>
+              </div>
 
               <section className="controls-split" aria-label="Game controls">
                 {!isComplete && (
@@ -911,13 +944,39 @@ function App() {
                   )}
 
                   <section className="solved" aria-live="polite" aria-label="Solved groups">
-                    {solved.map((group) => {
+                    {solved.map((group, idx) => {
                       const meta = difficultyMeta[group.level] ?? difficultyMeta[4];
+                      const levelColors = {
+                        "level-yellow": "#e0a818",
+                        "level-green": "#5fae5c",
+                        "level-blue": "#4ba2d6",
+                        "level-purple": "#9d6cc4"
+                      };
+                      const underlineColor = levelColors[meta.className] ?? "#888";
                       return (
-                        <article className={`solved-item ${meta.className}`} key={group.name}>
+                        <article
+                          className={`solved-item ${meta.className}`}
+                          key={group.name}
+                          style={{ "--solved-index": idx }}
+                        >
                           <NanamiCatMascot size="mini" />
                           <div>
-                            <h2>{localizePuzzleTerm(group.name, locale, englishTerms)}</h2>
+                            <h2>
+                              {localizePuzzleTerm(group.name, locale, englishTerms)}
+                              <svg className="solved-doodle-underline" viewBox="0 0 80 8" height="6" aria-hidden="true" preserveAspectRatio="none">
+                                <path
+                                  d="M2 5 Q12 1 22 5 Q32 9 42 5 Q52 1 62 5 Q72 9 78 5"
+                                  stroke={underlineColor}
+                                  strokeWidth="2"
+                                  strokeOpacity="0.55"
+                                  strokeLinecap="round"
+                                  fill="none"
+                                  strokeDasharray="100"
+                                  strokeDashoffset="100"
+                                  style={{ animation: `drawLine 500ms ${idx * 80}ms ease-out forwards` }}
+                                />
+                              </svg>
+                            </h2>
                             <p>{group.items.map((item) => itemLabel(item, locale, englishTerms)).join(" / ")}</p>
                           </div>
                         </article>
@@ -948,35 +1007,56 @@ function App() {
               <button type="button" className="primary" onClick={saveNickname}>{t.saveName}</button>
             </div>
           </div>
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>{t.playerName}</th>
-                  <th>{t.scoreText}</th>
-                  <th>{t.totalScore}</th>
-                  <th>{t.recent}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaderboard.map((row, index) => (
-                  <tr key={row.id}>
-                    <td>{index + 1}</td>
-                    <td>{row.nickname}</td>
-                    <td>{row.text_clears}</td>
-                    <td><strong>{row.total_score}</strong></td>
-                    <td>{new Date(row.updated_at).toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {!leaderboard.length && (
-            <div className="empty-state">
-              <NanamiCatMascot size="empty" />
-              <p className="empty">{t.emptyLeaderboard}</p>
+          {leaderboardLoading ? (
+            <div className="skeleton-rows">
+              {[80, 65, 75].map((w, i) => (
+                <div key={i} className="skeleton-row" style={{ width: `${w}%`, animationDelay: `${i * 0.15}s` }} />
+              ))}
             </div>
+          ) : (
+            <>
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>{t.playerName}</th>
+                      <th>{t.scoreText}</th>
+                      <th>{t.totalScore}</th>
+                      <th>{t.recent}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leaderboard.map((row, index) => (
+                      <tr key={row.id} className="leaderboard-row" style={{ "--row-index": index }}>
+                        <td>{index + 1}</td>
+                        <td>{row.nickname}</td>
+                        <td>{row.text_clears}</td>
+                        <td><strong>{row.total_score}</strong></td>
+                        <td>{new Date(row.updated_at).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {!leaderboard.length && (
+                <div className="empty-state">
+                  <NanamiCatMascot size="empty" className="mascot-bob" />
+                  <div className="paw-prints" aria-hidden="true">
+                    {["-8deg", "4deg", "-4deg"].map((rot, i) => (
+                      <svg key={i} width="22" height="22" viewBox="0 0 22 22" fill="none" style={{ transform: `rotate(${rot})` }}>
+                        <ellipse cx="11" cy="14" rx="5.5" ry="4.5" fill="var(--primary)" />
+                        <circle cx="6"  cy="9"  r="2" fill="var(--primary)" />
+                        <circle cx="11" cy="7.5" r="2" fill="var(--primary)" />
+                        <circle cx="16" cy="9"  r="2" fill="var(--primary)" />
+                        <ellipse cx="11" cy="18" rx="2" ry="1.2" fill="var(--primary)" />
+                      </svg>
+                    ))}
+                  </div>
+                  <p className="empty">{t.emptyLeaderboard}</p>
+                </div>
+              )}
+            </>
           )}
         </section>
       )}
@@ -1007,37 +1087,57 @@ function App() {
               />
             </label>
             <div className="group-grid">
-              {form.groups.map((group, index) => (
-                <fieldset key={index} className="group-card">
-                  <legend>{t.groupName} {index + 1}</legend>
-                  {form.groups.length > 1 && (
-                    <button
-                      type="button"
-                      className="group-remove"
-                      onClick={() => setForm({ ...form, groups: form.groups.filter((_, i) => i !== index) })}
-                    >
-                      {t.removeGroup}
-                    </button>
-                  )}
-                  <input
-                    value={group.name}
-                    onChange={(event) => {
-                      const groups = [...form.groups];
-                      groups[index] = { ...groups[index], name: event.target.value };
-                      setForm({ ...form, groups });
-                    }}
-                  />
-                  <textarea
-                    value={group.words}
-                    onChange={(event) => {
-                      const groups = [...form.groups];
-                      groups[index] = { ...groups[index], words: event.target.value };
-                      setForm({ ...form, groups });
-                    }}
-                    placeholder={t.words}
-                  />
-                </fieldset>
-              ))}
+              {form.groups.map((group, index) => {
+                const wordCount = group.words.split(/[,\n，]/).map((w) => w.trim()).filter(Boolean).length;
+                const nameEmpty = group.name.trim() === "";
+                return (
+                  <React.Fragment key={index}>
+                    {index > 0 && index % 2 === 0 && (
+                      <svg className="doodle-divider" viewBox="0 0 300 12" aria-hidden="true" style={{ gridColumn: "1 / -1" }}>
+                        <path d="M0 6 Q15 3 30 6 Q45 9 60 6 Q75 3 90 6 Q105 9 120 6 Q135 3 150 6 Q165 9 180 6 Q195 3 210 6 Q225 9 240 6 Q255 3 270 6 Q285 9 300 6"
+                          stroke="var(--line)" strokeWidth="1.8" strokeOpacity="0.5" strokeLinecap="round" fill="none" />
+                      </svg>
+                    )}
+                    <fieldset className="group-card">
+                      <legend>{t.groupName} {index + 1}</legend>
+                      {form.groups.length > 1 && (
+                        <button
+                          type="button"
+                          className="group-remove"
+                          onClick={() => setForm({ ...form, groups: form.groups.filter((_, i) => i !== index) })}
+                        >
+                          {t.removeGroup}
+                        </button>
+                      )}
+                      <input
+                        className={nameEmpty && group.words ? "invalid" : ""}
+                        value={group.name}
+                        placeholder={t.groupName}
+                        onChange={(event) => {
+                          const groups = [...form.groups];
+                          groups[index] = { ...groups[index], name: event.target.value };
+                          setForm({ ...form, groups });
+                        }}
+                      />
+                      {nameEmpty && group.words && (
+                        <span className="field-error">{locale === "zh" ? "请填写组名" : "Group name required"}</span>
+                      )}
+                      <textarea
+                        value={group.words}
+                        onChange={(event) => {
+                          const groups = [...form.groups];
+                          groups[index] = { ...groups[index], words: event.target.value };
+                          setForm({ ...form, groups });
+                        }}
+                        placeholder={t.words}
+                      />
+                      <span className={`word-count${wordCount === 4 ? " ok" : wordCount > 0 ? " warn" : ""}`}>
+                        {wordCount}/4
+                      </span>
+                    </fieldset>
+                  </React.Fragment>
+                );
+              })}
             </div>
             {form.groups.length < 10 && (
               <button
@@ -1048,7 +1148,10 @@ function App() {
                 {t.addGroup}
               </button>
             )}
-            <button type="submit" className="primary">{t.savePuzzle}</button>
+            <button type="submit" className="primary" disabled={submitLoading}>
+              {submitLoading ? <span className="btn-spinner" /> : null}
+              {t.savePuzzle}
+            </button>
           </form>
         </section>
       )}
@@ -1127,22 +1230,6 @@ function App() {
         </section>
       )}
 
-      {sponsorImageOk && (
-      <aside className="sponsor" aria-label={t.sponsorLabel}>
-        <div className="sponsor-copy">
-          <p className="sponsor-label">{t.sponsorLabel}</p>
-          <h2>{t.sponsorTitle}</h2>
-          <p>{t.sponsorBody}</p>
-        </div>
-        <figure className="pay-code">
-          <button className="pay-zoom" type="button" onClick={() => setPayOpen(true)} aria-label={t.zoomPay}>
-            <img src="/wechat-pay.jpg" alt={t.payCaption} onError={() => setSponsorImageOk(false)} />
-            <span><Maximize2 size={14} /> {t.zoomPay}</span>
-          </button>
-          <figcaption>{t.payCaption}</figcaption>
-        </figure>
-      </aside>
-      )}
 
       {helpOpen && (
         <div className="pay-modal rules-modal" role="dialog" aria-modal="true" aria-label={t.help}>
@@ -1169,17 +1256,6 @@ function App() {
         </div>
       )}
 
-      {payOpen && (
-        <div className="pay-modal" role="dialog" aria-modal="true" aria-label={t.payCaption}>
-          <button className="pay-modal-backdrop" type="button" aria-label="Close payment overlay" onClick={() => setPayOpen(false)} />
-          <div className="pay-modal-panel">
-            <button className="pay-modal-close" type="button" onClick={() => setPayOpen(false)} aria-label="Close">
-              <X size={18} />
-            </button>
-            <img src="/wechat-pay.jpg" alt={t.payCaption} />
-          </div>
-        </div>
-      )}
     </main>
   );
 }

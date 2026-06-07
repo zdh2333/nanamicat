@@ -3,15 +3,25 @@ const REVIEW_STATUSES = new Set(['pending', 'reviewed', 'included', 'rejected'])
 const GROUP_COLORS = ['yellow', 'green', 'blue', 'purple'];
 const SCORE_KEY_PATTERN = /^(text-(\d{3}|built-in-\d+|community-\d+)|image-(yellow|green|blue|purple)-(yellow|green|blue|purple)-\d+)$/;
 
+// Admin routes are served via CF Access or x-admin-key; do not advertise x-admin-key in CORS.
+const ALLOWED_ORIGINS = new Set(['https://nanamicat.com', 'https://www.nanamicat.com']);
+
+function corsHeaders(request) {
+  const origin = request?.headers?.get('origin') ?? '';
+  const allowed = ALLOWED_ORIGINS.has(origin) ? origin : 'https://nanamicat.com';
+  return {
+    'access-control-allow-origin': allowed,
+    'access-control-allow-methods': 'GET,POST,PATCH,DELETE,OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    'access-control-max-age': '86400',
+    'vary': 'Origin',
+  };
+}
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: {
-      'content-type': 'application/json; charset=utf-8',
-      'access-control-allow-origin': '*',
-      'access-control-allow-methods': 'GET,POST,PATCH,DELETE,OPTIONS',
-      'access-control-allow-headers': 'content-type,x-admin-key',
-    },
+    headers: { 'content-type': 'application/json; charset=utf-8' },
   });
 }
 
@@ -176,11 +186,19 @@ function buildApprovedTextPuzzles(submissions) {
   return puzzles;
 }
 
-function requireAdmin(request, env) {
+async function requireAdmin(request, env) {
   const email = request.headers.get('CF-Access-Authenticated-User-Email');
   const jwt = request.headers.get('CF-Access-Jwt-Assertion');
   if (email && jwt) return true;
-  return Boolean(env.ADMIN_KEY && request.headers.get('x-admin-key') === env.ADMIN_KEY);
+  if (!env.ADMIN_KEY) return false;
+  const provided = request.headers.get('x-admin-key') ?? '';
+  const enc = new TextEncoder();
+  const a = enc.encode(provided.padEnd(env.ADMIN_KEY.length, '\0'));
+  const b = enc.encode(env.ADMIN_KEY.padEnd(provided.length, '\0'));
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0 && provided.length === env.ADMIN_KEY.length;
 }
 
 function cleanNickname(value) {
@@ -409,7 +427,7 @@ async function handleRequest(request, env) {
     return Response.redirect(`${url.origin}/control-panel`, 302);
   }
 
-  if (request.method === 'OPTIONS') return json({});
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
 
   if (path === '/api/submissions' && request.method === 'POST') {
     if (!await consumeRateLimit(request, env, 'submissions', 20, 86400)) {
@@ -646,7 +664,7 @@ async function handleRequest(request, env) {
   }
 
   if (path === '/api/admin/puzzles' && request.method === 'GET') {
-    if (!requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
+    if (!await requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
     const result = await env.DB.prepare(`
       SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
       FROM puzzle_submissions
@@ -657,7 +675,7 @@ async function handleRequest(request, env) {
   }
 
   if (path === '/api/admin/scores' && request.method === 'GET') {
-    if (!requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
+    if (!await requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
     const result = await env.DB.prepare(`
       SELECT id, player_id, nickname, mode, puzzle_id, points, created_at
       FROM score_events
@@ -669,7 +687,7 @@ async function handleRequest(request, env) {
 
   const adminPuzzleMatch = path.match(/^\/api\/admin\/puzzles\/([^/]+)$/);
   if (adminPuzzleMatch && request.method === 'PATCH') {
-    if (!requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
+    if (!await requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
     const body = await request.json().catch(() => null);
     let status = String(body?.status || '').trim();
     if (status === 'approved') status = 'included';
@@ -687,13 +705,13 @@ async function handleRequest(request, env) {
   }
 
   if (path === '/api/admin/submissions' && request.method === 'GET') {
-    if (!requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
+    if (!await requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
     const rows = await readPuzzleSubmissionRows(env);
     return json({ submissions: rows.map(serializeSubmission) });
   }
 
   if (path === '/api/admin/scores' && request.method === 'DELETE') {
-    if (!requireAdmin(request, env)) return json({ error: 'Invalid admin key.' }, 401);
+    if (!await requireAdmin(request, env)) return json({ error: 'Invalid admin key.' }, 401);
     const nickname = String(url.searchParams.get('nickname') || '').trim().toLowerCase();
     if (!nickname) return json({ error: 'Missing nickname.' }, 400);
     let deletedCount = 0;
@@ -710,7 +728,7 @@ async function handleRequest(request, env) {
 
   const match = path.match(/^\/api\/admin\/submissions\/([^/]+)$/);
   if (match && request.method === 'PATCH') {
-    if (!requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
+    if (!await requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
     const body = await request.json().catch(() => null);
     let status = String(body?.status || '').trim();
     if (status === 'approved') status = 'included';
@@ -728,7 +746,7 @@ async function handleRequest(request, env) {
   }
 
   if (match && request.method === 'DELETE') {
-    if (!requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
+    if (!await requireAdmin(request, env)) return json({ error: '管理员密钥无效。' }, 401);
     const deleted = await env.DB.prepare('DELETE FROM puzzle_submissions WHERE id = ?').bind(match[1]).run();
     if (Number(deleted.meta?.changes || 0) === 0) return json({ error: '投稿不存在。' }, 404);
     return new Response(null, { status: 204 });
@@ -738,7 +756,15 @@ async function handleRequest(request, env) {
 }
 
 export default {
-  fetch(request, env) {
-    return handleRequest(request, env);
+  async fetch(request, env) {
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders(request) });
+    }
+    const response = await handleRequest(request, env);
+    const headers = new Headers(response.headers);
+    for (const [key, value] of Object.entries(corsHeaders(request))) {
+      headers.set(key, value);
+    }
+    return new Response(response.body, { status: response.status, headers });
   },
 };

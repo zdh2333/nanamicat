@@ -241,6 +241,7 @@ async function sendThankYouEmail(submission) {
 import { mountDevApi } from './server/dev-api.js';
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(express.json({ limit: '100kb' }));
 mountDevApi(app, dataDir, { adminKey, allowOpenAdmin: !isProduction && !adminKey });
 

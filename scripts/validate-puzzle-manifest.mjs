@@ -17,6 +17,7 @@ const errors = [];
 if (bank.length === 0) errors.push("textGroupBank is empty");
 
 const bankIds = new Set();
+const wordToGroup = new Map();
 for (const g of bank) {
   if (!g.id) errors.push("group missing id");
   else if (bankIds.has(g.id)) errors.push(`duplicate group id: ${g.id}`);
@@ -24,6 +25,13 @@ for (const g of bank) {
   if (![1, 2, 3, 4].includes(g.level)) errors.push(`group ${g.id}: level must be 1-4`);
   if (!Array.isArray(g.words) || g.words.length !== 4) errors.push(`group ${g.id}: words must be length 4`);
   if (g.words?.some((w) => /[甲乙丙丁]$/.test(w))) errors.push(`group ${g.id}: word ends with 甲乙丙丁 suffix`);
+  for (const word of g.words ?? []) {
+    if (wordToGroup.has(word)) {
+      errors.push(`duplicate word "${word}" in groups ${wordToGroup.get(word)} and ${g.id}`);
+    } else {
+      wordToGroup.set(word, g.id);
+    }
+  }
 }
 
 if (manifest.length !== count) {

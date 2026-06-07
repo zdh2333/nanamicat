@@ -14,12 +14,14 @@ function buildFromManifest(manifest, textGroupBank) {
   return manifest.map((entry, index) => {
     const puzzleId = `text-${String(index + 1).padStart(3, "0")}`;
     const groups = entry.groupIds
-      .map((groupId) => {
+      .map((groupId, slot) => {
         const source = bankById[groupId];
         if (!source) return null;
         return {
           name: source.name,
-          level: source.level,
+          // 每题恰好 4 组（slot 0–3），按槽位赋四色 1/2/3/4，
+          // 保证图例四色齐全；manifest 已按难度升序，故槽位顺序=难度顺序。
+          level: slot + 1,
           items: source.words.map((word) => textItem(word, puzzleId))
         };
       })
@@ -52,7 +54,8 @@ function buildLegacyPuzzles(catalog) {
     const groups = offsets.map((groupIndex, groupSlot) => {
       const source = candidates[groupIndex];
       if (!source) return null;
-      const level = Math.min(4, Math.max(source.level, groupSlot + 1));
+      // 同上：按槽位赋四色，保证每题 1/2/3/4 四色齐全。
+      const level = groupSlot + 1;
       return {
         name: source.name,
         level,

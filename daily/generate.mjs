@@ -333,15 +333,13 @@ async function gitCommitAndPush(message) {
     });
     (async () => {
       try {
-        await run(['config', 'user.name', authorName]);
-        await run(['config', 'user.email', authorEmail]);
         await run(['add', 'daily/data/image-puzzles.json', 'daily/data/text-puzzles.json', 'public/daily-puzzles/']);
         const status = await run(['status', '--porcelain']);
         if (!status) {
           console.log('  no changes to commit');
           return resolve(false);
         }
-        await run(['commit', '-m', message]);
+        await run(['-c', `user.name=${authorName}`, '-c', `user.email=${authorEmail}`, 'commit', '-m', message]);
         const remote = await run(['remote']).catch(() => '');
         if (remote.trim()) {
           try { await run(['push']); } catch (e) { console.warn(`  push failed (non-fatal): ${e.message}`); }
