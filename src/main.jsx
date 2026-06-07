@@ -104,17 +104,17 @@ function NanamiCatMascot({ size = "header", showCelebration = false, className =
   const dim = dimensions[size] || 28;
   const cardSize = size === "gameHeader" ? 64 : null;
 
-  let src = "/nanamicat_mascot_standard.png";
+  let src = "/nanamicat_mascot_standard.webp?v=2";
   if (size === "empty") {
-    src = "/nanamicat_mascot_empty.png";
+    src = "/nanamicat_mascot_empty.webp?v=2";
   } else if (size === "celebration" || showCelebration) {
-    src = "/nanamicat_mascot_celebration.png";
+    src = "/nanamicat_mascot_celebration.webp?v=2";
   }
 
   if (cardSize) {
     return (
       <div className={`mascot-card${className ? ` ${className}` : ""}`}>
-        <img src={src} alt="喵格谜" className="mascot-card-img" />
+        <img src={src} alt="喵格谜" className="mascot-card-img" width="76" height="76" decoding="async" fetchPriority="high" />
       </div>
     );
   }
@@ -126,6 +126,8 @@ function NanamiCatMascot({ size = "header", showCelebration = false, className =
       width={dim}
       height={dim}
       className={className}
+      decoding="async"
+      loading={size === "celebration" || size === "empty" ? "lazy" : "eager"}
       style={{ display: "block", objectFit: "contain", width: `${dim}px`, height: `${dim}px` }}
     />
   );
