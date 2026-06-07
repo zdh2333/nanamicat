@@ -226,7 +226,7 @@ struct GameView: View {
                         tileContent(item: item, selected: selected, solved: solved, palette: palette)
                     }
                     .buttonStyle(.plain)
-                    .disabled(solved || viewModel.isComplete)
+                    .disabled(solved || viewModel.isComplete || viewModel.isGameOver)
                     .accessibilityLabel(PuzzleLocalization.itemLabel(item, locale: store.locale))
                     .accessibilityAddTraits(selected ? .isSelected : [])
                     .staggeredEntrance(index: index, token: boardRevealToken, reduceMotion: reduceMotion)

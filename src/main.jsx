@@ -563,7 +563,7 @@ function App() {
   }
 
   function toggleItem(item) {
-    if (isComplete || solvedIds.includes(item.id)) return;
+    if (isComplete || isGameOver || solvedIds.includes(item.id)) return;
     setSelected((current) => {
       if (current.includes(item.id)) return current.filter((id) => id !== item.id);
       if (current.length === 4) return current;
@@ -932,6 +932,7 @@ function App() {
                       key={item.id}
                       className={selected.includes(item.id) ? "tile selected" : "tile"}
                       onClick={() => toggleItem(item)}
+                      disabled={isGameOver}
                       aria-pressed={selected.includes(item.id)}
                       aria-label={itemLabel(item, locale, englishTerms)}
                     >
