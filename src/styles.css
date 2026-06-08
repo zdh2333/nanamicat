@@ -1,5 +1,5 @@
-/* ── Google Font: Caveat (hand-written feel) ──────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap');
+/* Caveat is loaded via <link rel="preconnect"> + async stylesheet in index.html.
+   Do NOT re-import it here — @import is render-blocking and tanks LCP. */
 
 /* ── Root: 《四格寻踪》设计语言 — 手绘蜡笔风 · 纸质手账感 ──── */
 :root {
@@ -1325,4 +1325,416 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
 @media (max-width: 560px) {
   .mascot-card { width: 60px; height: 60px; }
   .controls-grid button { min-height: 54px; }
+}
+
+/* ── Compact layout for short viewports (CrazyGames, embeds) ── */
+@media (max-height: 650px) {
+  .app-header { min-height: unset; padding: 8px 16px; }
+  .app-header .logo-img { width: 40px; height: 40px; }
+  .app-header .game-title { font-size: 1.6rem; }
+  .app-header .puzzle-meta { font-size: 0.7rem; }
+  .app-nav { padding: 0 12px 6px; }
+  .theme-row { padding: 4px 12px; }
+  .game-workspace { gap: 10px; }
+  .game-rail { gap: 6px; top: 6px; }
+  .status { min-height: unset; padding: 6px 10px; }
+  .status-stairs { min-height: unset; }
+  .diff-stairs { height: 24px; }
+  .game-stage { gap: 8px; }
+  .board { gap: 6px; }
+  .tile { min-height: 60px; font-size: 0.95rem; padding: 6px 4px; border-radius: 12px; }
+  .board-hint { padding: 6px 12px; min-height: unset; }
+  .controls-split button, .controls-grid button { min-height: 40px; font-size: 0.85rem; }
+}
+
+@media (max-height: 520px) {
+  .app-header { padding: 4px 12px; }
+  .app-header .logo-img { width: 32px; height: 32px; }
+  .app-header .game-title { font-size: 1.3rem; }
+  .app-nav { padding: 0 10px 4px; }
+  .theme-row { display: none; }
+  .status { padding: 4px 8px; font-size: 0.8rem; }
+  .game-workspace { gap: 6px; grid-template-columns: 180px minmax(0, 1fr); }
+  .board { gap: 4px; }
+  .tile { min-height: 48px; font-size: 0.85rem; padding: 4px 3px; border-radius: 10px; border-width: 2px; }
+  .controls-split button, .controls-grid button { min-height: 34px; font-size: 0.8rem; padding: 0 8px; }
+}
+
+/* ── AdSlot ─────────────────────────────────────────────────── */
+.ad-slot {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  background: transparent;
+  border: 0;
+  /* reserve vertical space via minHeight inline; keep layout from jumping */
+  contain: layout paint;
+}
+.ad-slot--placeholder {
+  display: block;
+  /* When ads are off, keep the slot a quiet, bounded box so the user
+     never sees a "missing" rectangle but also never sees a real ad. */
+  background: transparent;
+}
+.ad-slot__label {
+  display: none;
+}
+.ad-slot--live ins {
+  display: block;
+}
+
+/* ── Topnav streak indicator ───────────────────────────────── */
+.topnav-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255 255 255 / 0.08);
+  color: var(--header-ink);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: 2px solid rgba(255 255 255 / 0.18);
+}
+.topnav-streak::before { content: "🔥"; }
+
+/* ── Completion extra actions ──────────────────────────────── */
+.completion-actions .control-archive,
+.completion-actions .control-tomorrow {
+  border-color: var(--ink);
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.completion-actions .control-archive:hover,
+.completion-actions .control-tomorrow:hover {
+  background: var(--crayon-yellow);
+}
+
+/* ── /puzzle/:date back link ────────────────────────────────── */
+.puzzle-back {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+.ghost-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: 2px 2px 0 0 var(--ink);
+  cursor: pointer;
+}
+.ghost-back:hover { background: var(--primary-soft); }
+
+/* ── Archive view ───────────────────────────────────────────── */
+.archive {
+  gap: 14px;
+}
+.archive-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.archive-head h2 { margin: 0 0 4px; font-size: 1.5rem; }
+.archive-head p { margin: 0; color: var(--muted); font-size: 1rem; }
+.archive-streak {
+  display: inline-flex;
+  gap: 14px;
+  align-items: stretch;
+}
+.archive-streak > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 2px 3px 0 0 var(--ink);
+  min-width: 90px;
+}
+.archive-streak__value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.archive-streak__label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.archive-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 2px 2px 0 0 var(--ink);
+  align-self: flex-start;
+}
+.archive-filters button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-weight: 700;
+  color: var(--muted);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.archive-filters button:hover { color: var(--ink); }
+.archive-filters button.active {
+  background: var(--crayon-yellow);
+  color: var(--ink);
+  box-shadow: 2px 2px 0 0 var(--ink);
+}
+
+.archive-table-wrap {
+  overflow-x: auto;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 3px 4px 0 0 var(--ink);
+}
+.archive-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  min-width: 520px;
+}
+.archive-table th,
+.archive-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px dashed rgba(18, 52, 95, 0.18);
+  white-space: nowrap;
+}
+.archive-table th[scope="col"] {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: var(--surface-2);
+}
+.archive-table tbody tr:hover { background: var(--primary-soft); }
+.archive-row th time { font-weight: 700; }
+.archive-today { color: var(--muted); font-size: 0.85em; }
+
+.archive-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 2px solid var(--ink);
+}
+.archive-status--perfect { background: var(--crayon-yellow); }
+.archive-status--completed { background: var(--crayon-green); color: #fff; border-color: var(--ink); }
+.archive-status--none { background: var(--surface-3); color: var(--muted); }
+
+.archive-open {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: var(--primary);
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 0 var(--ink);
+}
+.archive-open:hover { background: var(--primary-hover); }
+
+.archive-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--muted);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ── Site footer ────────────────────────────────────────────── */
+.site-footer {
+  margin-top: 12px;
+  padding: 18px 20px 22px;
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 3px 4px 0 0 var(--ink);
+  color: var(--ink);
+}
+.site-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+}
+.site-footer h4 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.site-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.site-footer a {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 1px;
+}
+.site-footer a:hover { border-bottom-color: var(--ink); }
+.site-footer__recent time { font-weight: 700; }
+.site-footer__empty { color: var(--muted); margin: 0; font-size: 0.9rem; }
+.site-footer__copy {
+  margin: 14px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 540px) {
+  .archive-streak { gap: 8px; }
+  .archive-streak > div { min-width: 76px; padding: 6px 8px; }
+  .topnav-streak { padding: 2px 8px; font-size: 0.85rem; }
+  .archive-head h2 { font-size: 1.3rem; }
+}
+
+/* ── StickyAdBar — bottom-pinned ad bar with collapse triangle ── */
+.sticky-ad-bar {
+  /* Pinned above everything except modal-level UI (z-modal is 40). */
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  background: var(--surface);
+  border-top: 2px solid var(--line);
+  box-shadow: 0 -4px 16px var(--shadow-tint);
+  font-family: 'Caveat', 'PingFang SC', system-ui, sans-serif;
+  color: var(--ink);
+  /* Smooth collapse/expand without affecting CLS: we translate the whole bar
+     off-screen while keeping its hit-test area in place. The inner bar's
+     reserved height (90px) stays put, so toggling never re-flows the page. */
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transform: translateY(0);
+  will-change: transform;
+  /* Respect iOS safe area on the bottom edge. */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.sticky-ad-bar.is-collapsed {
+  transform: translateY(calc(100% - 40px));
+}
+.sticky-ad-bar__inner {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 56px 8px 12px;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.sticky-ad-bar__slot {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+.sticky-ad-bar__adslot {
+  /* The ad lives inside the bar, so we don't need top/bottom margin from
+     the default .ad-slot rule. */
+  margin: 0 !important;
+  width: 100%;
+  max-width: 970px;
+}
+.sticky-ad-bar__toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink);
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.sticky-ad-bar__toggle:hover {
+  background: var(--primary-soft);
+  border-color: var(--line-strong);
+}
+.sticky-ad-bar__toggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.sticky-ad-bar__chevron {
+  width: 16px;
+  height: 16px;
+  display: block;
+  transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.sticky-ad-bar.is-collapsed .sticky-ad-bar__chevron {
+  transform: rotate(180deg);
+}
+
+/* Push page content up when the bar is open so the bar never occludes the
+   final paragraph. The bar reserves ~80px (64 inner + 8 padding + 8 safe).
+   When collapsed, no extra space is needed (bar is just a 40px handle). */
+.sticky-ad-bar-open .page,
+.sticky-ad-bar-open .site-footer {
+  /* Applied at the document level via JS by setting a body class, but
+     defined here defensively in case the helper script is missing. */
+  padding-bottom: 96px;
+}
+@media (max-width: 768px) {
+  .sticky-ad-bar__inner {
+    padding: 6px 48px 6px 8px;
+    min-height: 60px;
+  }
+  .sticky-ad-bar__toggle {
+    width: 36px;
+    height: 36px;
+    right: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sticky-ad-bar,
+  .sticky-ad-bar__chevron {
+    transition: none;
+  }
 }

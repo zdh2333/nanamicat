@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState, useRef, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Check,
@@ -14,12 +14,47 @@ import {
   X
 } from "lucide-react";
 import "./styles.css";
+import StickyAdBar from "./StickyAdBar.jsx";
 import {
   buildTextPuzzles,
   getTodayIndex,
+  getTodayIndexBalanced,
+  pickBalancedNext,
   loadPuzzleCatalog,
   mostAbstractGroup
 } from "./puzzleEngine.js";
+import {
+  getStreak,
+  getRecentCompletions,
+  getProgress,
+  getTodayIsoDate,
+  puzzleIndexForDate,
+  recordCompletion,
+  readResume,
+  writeResume,
+  clearResume,
+  shouldResume
+} from "./progress.js";
+import {
+  trackPageView,
+  trackGameStart,
+  trackGameComplete,
+  trackGameFail,
+  trackShareClick
+} from "./analytics.js";
+import AdSlot from "./AdSlot.jsx";
+
+// Archive is rarely used on first visit; lazy-load it so the home board
+// bundles less code. A small skeleton keeps the layout stable.
+const Archive = lazy(() => import("./Archive.jsx"));
+
+function ArchiveFallback() {
+  return (
+    <section className="panel" aria-busy="true">
+      <p style={{ textAlign: "center", color: "var(--muted)" }}>Loading archive…</p>
+    </section>
+  );
+}
 
 const DEFAULT_MAX_MISTAKES = 4;
 
@@ -346,10 +381,15 @@ function humanizeApiError(message, locale = getStored("nanamicat.locale", (navig
 }
 
 function resolveViewFromPath(pathname) {
-  if (pathname.startsWith("/admin")) return "admin";
-  if (pathname.startsWith("/leaderboard")) return "leaderboard";
-  if (pathname.startsWith("/contribute")) return "contribute";
-  return "game";
+  if (pathname.startsWith("/admin")) return { view: "admin", pinnedDate: null };
+  if (pathname.startsWith("/leaderboard")) return { view: "leaderboard", pinnedDate: null };
+  if (pathname.startsWith("/contribute")) return { view: "contribute", pinnedDate: null };
+  if (pathname.startsWith("/archive")) return { view: "archive", pinnedDate: null };
+  if (pathname.startsWith("/puzzle/")) {
+    const m = pathname.match(/^\/puzzle\/(\d{4}-\d{2}-\d{2})\/?$/);
+    if (m) return { view: "game", pinnedDate: m[1] };
+  }
+  return { view: "game", pinnedDate: null };
 }
 
 function adminRequestHeaders() {
@@ -396,7 +436,9 @@ function App() {
     return lang.startsWith("zh") ? "zh" : "en";
   });
   const [theme, setTheme] = useState(() => getStored("nanamicat.theme", "default"));
-  const [view, setView] = useState(() => resolveViewFromPath(location.pathname));
+  const initialRoute = resolveViewFromPath(location.pathname);
+  const [view, setView] = useState(initialRoute.view);
+  const [pinnedDate, setPinnedDate] = useState(initialRoute.pinnedDate);
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [boardShuffleSeed, setBoardShuffleSeed] = useState(0);
   const [selected, setSelected] = useState([]);
@@ -412,6 +454,9 @@ function App() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [nickname, setNickname] = useState(() => getStored("nanamicat.nickname", ""));
+  const [streak, setStreak] = useState(() => getStreak());
+  const [recentCompletions, setRecentCompletions] = useState(() => getRecentCompletions());
+  const [gameStartTs, setGameStartTs] = useState(() => Date.now());
   const [playerId, setPlayerId] = useState(() => getStored("nanamicat.playerId", ""));
   const [leaderboard, setLeaderboard] = useState([]);
   const [adminPuzzles, setAdminPuzzles] = useState([]);
@@ -422,6 +467,11 @@ function App() {
   }));
   const [apiNotice, setApiNotice] = useState("");
   const [adminKeyInput, setAdminKeyInput] = useState(() => getStored("nanamicat.adminKey", ""));
+  // Tracks the puzzleId we've already applied a resume for. Stops the
+  // "persist" effect from racing with the "restore" effect on first mount
+  // — without this, the persist effect can briefly write a blank board
+  // before the restore effect gets a chance to read from localStorage.
+  const resumeAppliedFor = useRef(null);
 
   const t = copy[locale];
   const englishTerms = catalog?.englishPuzzleTerms ?? {};
@@ -450,7 +500,16 @@ function App() {
         setPool(built);
         const played = readPlayedPuzzleIds(built);
         setPlayedPuzzleIds(played);
-        setPuzzleIndex(pickNextPuzzleIndex(built, played, getTodayIndex(built.length)));
+        // Map played ids -> their actual puzzle objects so the "balanced"
+        // picker can score overlap. We only keep the last 5 to stay light.
+        const recentPuzzles = played
+          .slice(-5)
+          .map((id) => built.find((p) => p.id === id))
+          .filter(Boolean);
+        const initialPuzzleIndex = initialRoute.pinnedDate
+          ? puzzleIndexForDate(initialRoute.pinnedDate, built.length)
+          : getTodayIndexBalanced(built, recentPuzzles, 5, 1);
+        setPuzzleIndex(initialPuzzleIndex);
       } catch (error) {
         if (!cancelled) setCatalogError(error.message);
       } finally {
@@ -473,7 +532,9 @@ function App() {
 
   useEffect(() => {
     function onPopState() {
-      setView(resolveViewFromPath(location.pathname));
+      const next = resolveViewFromPath(location.pathname);
+      setView(next.view);
+      setPinnedDate(next.pinnedDate);
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -537,11 +598,109 @@ function App() {
     });
   }
 
-  useEffect(() => {
-    setMessage(t.intro);
-    resetPuzzleState();
+  // useLayoutEffect (NOT useEffect) so the restore commits BEFORE the
+  // persist effect gets a chance to run in the same commit. This is the
+  // critical part of the resume flow — if both effects run in the same
+  // tick with stale state, the persist effect writes a blank board and
+  // clobbers the resume we just read.
+  useLayoutEffect(() => {
+    if (pool.length && puzzle.id !== "loading") {
+      const resume = readResume(puzzle.id);
+      if (shouldResume(resume, puzzle.id, maxMistakes)) {
+        const restoredSolved = (resume.solvedNames || [])
+          .map((name) => puzzle.groups.find((g) => g.name === name))
+          .filter(Boolean);
+        setSelected(resume.selected || []);
+        setSolved(restoredSolved);
+        setMistakes(resume.mistakes || 0);
+        setHintIndex(0);
+        if (resume.gameStartTs) setGameStartTs(resume.gameStartTs);
+        resumeAppliedFor.current = puzzle.id;
+        if (resume.updatedAt && Date.now() - new Date(resume.updatedAt).getTime() < 30 * 60 * 1000) {
+          setApiNotice(locale === "zh" ? "已恢复上次的进度。" : "Resumed your last game.");
+        }
+        setMessage(locale === "zh" ? "继续上次的进度。" : "Continuing where you left off.");
+      } else {
+        resetPuzzleState();
+        if (resume) clearResume(puzzle.id);
+        setGameStartTs(Date.now());
+        setMessage(t.intro);
+        setApiNotice("");
+        resumeAppliedFor.current = puzzle.id;
+      }
+    } else {
+      resetPuzzleState();
+      setGameStartTs(Date.now());
+      setMessage(t.intro);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [puzzle.id, locale]);
+  }, [puzzle.id, locale, pool.length, maxMistakes]);
+
+  // When the URL points to a specific date (/puzzle/:date), jump the board
+  // to that puzzle. Reset state so we never carry selections across pages.
+  useEffect(() => {
+    if (!pinnedDate || !pool.length) return;
+    const target = puzzleIndexForDate(pinnedDate, pool.length);
+    if (target !== puzzleIndex) {
+      setPuzzleIndex(target);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pinnedDate, pool.length]);
+
+  // Fire page_view + game_start whenever the active puzzle (or pinned date)
+  // changes. Catches both "new daily" and "from archive" navigation.
+  useEffect(() => {
+    if (!pool.length) return;
+    trackPageView(location.pathname);
+    trackGameStart({ puzzleId: puzzle.id, date: pinnedDate || getTodayIsoDate() });
+    setGameStartTs(Date.now());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [puzzle.id, pinnedDate, pool.length]);
+
+  // Persist the in-progress board to localStorage on every meaningful state
+  // change, so a refresh or a "come back tomorrow" tab restore can pick it
+  // up. We skip the first run after a puzzle switch — that's the resume
+  // effect's job, and racing with it would briefly overwrite restored state
+  // with a blank board.
+  useEffect(() => {
+    if (!pool.length || puzzle.id === "loading") return;
+    if (resumeAppliedFor.current !== puzzle.id) {
+      // The restore effect hasn't run yet for this puzzle; let it finish
+      // first so we don't clobber the resume we're about to load.
+      return;
+    }
+    if (isComplete) {
+      clearResume(puzzle.id);
+      return;
+    }
+    writeResume(puzzle.id, {
+      date: pinnedDate || getTodayIsoDate(),
+      selected,
+      solvedNames: solved.map((g) => g.name),
+      mistakes,
+      gameStartTs,
+      completed: false
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [puzzle.id, selected, solved, mistakes, isComplete, gameStartTs, pinnedDate, pool.length]);
+
+  // Update document.title per view so search engines and shared links get a
+  // unique title per page (matches the SEO checklist).
+  useEffect(() => {
+    const titles = {
+      game: pinnedDate
+        ? `${pinnedDate} · Nanami Cat - Daily Word Puzzle`
+        : "Nanami Cat - Daily Word Categories Puzzle",
+      archive: "Puzzle Archive - Nanami Cat",
+      leaderboard: locale === "zh" ? "排行榜 · 喵格谜" : "Leaderboard - Nanami Cat",
+      contribute: locale === "zh" ? "贡献谜题 · 喵格谜" : "Submit a Puzzle - Nanami Cat",
+      admin: "Admin - Nanami Cat"
+    };
+    const next = titles[view] || titles.game;
+    if (typeof document !== "undefined" && document.title !== next) {
+      document.title = next;
+    }
+  }, [view, pinnedDate, locale]);
 
   useEffect(() => {
     loadLeaderboard({ showError: view === "leaderboard" });
@@ -557,15 +716,26 @@ function App() {
     setApiNotice("");
   }
 
-  function setRoute(nextView) {
+  function setRoute(nextView, options = {}) {
     setView(nextView);
+    const nextPinned = options.pinnedDate ?? null;
+    setPinnedDate(nextPinned);
     const paths = {
-      game: "/",
-      leaderboard: "/leaderboard/",
-      contribute: "/contribute/",
-      admin: "/admin/"
+      game: nextPinned ? `/puzzle/${nextPinned}` : "/",
+      archive: "/archive",
+      leaderboard: "/leaderboard",
+      contribute: "/contribute",
+      admin: "/admin"
     };
     history.pushState(null, "", paths[nextView] ?? "/");
+  }
+
+  function openArchivePuzzle(date) {
+    if (!date) {
+      setRoute("game");
+      return;
+    }
+    setRoute("game", { pinnedDate: date });
   }
 
   function toggleItem(item) {
@@ -653,6 +823,15 @@ function App() {
           });
           setApiNotice(t.hintsEarned);
         }
+        // Record per-day progress for archive + streak. The date key falls
+        // back to the current calendar day when the user is on a non-pinned
+        // board (i.e. the daily puzzle).
+        const completionDate = pinnedDate || getTodayIsoDate();
+        const timeSeconds = Math.max(0, Math.floor((Date.now() - gameStartTs) / 1000));
+        recordCompletion({ date: completionDate, puzzleId: puzzle.id, mistakes, timeSeconds });
+        setStreak(getStreak());
+        setRecentCompletions(getRecentCompletions());
+        trackGameComplete({ puzzleId: puzzle.id, date: completionDate, timeSeconds, mistakes, perfect: mistakes === 0 });
         submitScore();
       } else {
         setMessage(locale === "zh" ? `答对一组：${matched.name}` : `Correct group: ${localizePuzzleTerm(matched.name, locale, englishTerms)}`);
@@ -665,6 +844,9 @@ function App() {
     setMessage(nextMistakes >= maxMistakes ? t.out : nearMissMessage());
     setBoardShake(true);
     setTimeout(() => setBoardShake(false), 420);
+    if (nextMistakes >= maxMistakes) {
+      trackGameFail({ puzzleId: puzzle.id, mistakes: nextMistakes });
+    }
   }
 
   function shuffleActiveItems() {
@@ -697,7 +879,17 @@ function App() {
   }
 
   function nextPuzzle() {
-    const nextIndex = pickNextPuzzleIndex(pool, playedPuzzleIds, puzzleIndex + 1);
+    // Build the list of "recent puzzles" (last 5 the player saw) so the
+    // balanced picker can avoid re-using the same groups the player just
+    // played. Pool lookup is O(N) but N=500 — fine.
+    const recentPuzzles = playedPuzzleIds
+      .slice(-5)
+      .map((id) => pool.find((p) => p.id === id))
+      .filter(Boolean);
+    // Wipe the current puzzle's resume — the player is choosing to leave.
+    // (Don't await: this is a sync localStorage write wrapped in try/catch.)
+    if (puzzle.id && puzzle.id !== "loading") clearResume(puzzle.id);
+    const nextIndex = pickBalancedNext(pool, puzzleIndex, recentPuzzles, 5, 1);
     setPuzzleIndex(nextIndex);
     resetPuzzleState();
   }
@@ -809,14 +1001,52 @@ function App() {
     }
   }
 
+  function emojiResult() {
+    // Build a Connections-style emoji grid: each solved group gets a coloured
+    // block, mistakes reduce the streak. Lives in JS to keep server-free.
+    const blocks = solved.map((g) => {
+      const level = Math.max(1, Math.min(4, g.level || 1));
+      return ["🟨", "🟩", "🟦", "🟪"][level - 1] || "⬛";
+    });
+    while (blocks.length < 4) blocks.push("⬜");
+    const miss = Math.max(0, mistakes);
+    return `${blocks.join(" ")}\n${"❌".repeat(Math.min(3, miss))}${"⬛".repeat(Math.max(0, 3 - miss))}`;
+  }
+
   async function shareResult() {
-    const report = `${t.appName} ${puzzleLabel(puzzle, locale)}\n${solved.length}/4\n${t.mistakes}: ${mistakes}\n${t.abstract}: ${abstractGroup ? localizePuzzleTerm(abstractGroup.name, locale, englishTerms) : "-"}\nhttps://nanamicat.com`;
-    if (navigator.share) {
-      await navigator.share({ text: report }).catch(() => {});
-      return;
+    const completionDate = pinnedDate || getTodayIsoDate();
+    const timeSeconds = Math.max(0, Math.floor((Date.now() - gameStartTs) / 1000));
+    const perfect = mistakes === 0;
+    const abstractName = abstractGroup ? localizePuzzleTerm(abstractGroup.name, locale, englishTerms) : "-";
+    const timeStr = `${Math.floor(timeSeconds / 60)}:${String(timeSeconds % 60).padStart(2, "0")}`;
+    const headline = locale === "zh" ? "喵格谜" : "Nanami Cat";
+    const report = [
+      `${headline} · ${completionDate}`,
+      `${puzzleLabel(puzzle, locale)}`,
+      `${solved.length}/4 · ${t.mistakes} ${mistakes}${perfect ? " · ⭐" : ""}`,
+      `${t.abstract}: ${abstractName}`,
+      emojiResult(),
+      `https://nanamicat.com/puzzle/${completionDate}`
+    ].join("\n");
+    let usedMethod = "clipboard";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ text: report, title: headline });
+        usedMethod = "native";
+        return;
+      } catch {
+        // fall through to clipboard
+      }
     }
-    await navigator.clipboard?.writeText(report);
-    setMessage(locale === "zh" ? "结果已复制。" : "Result copied.");
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(report);
+        setMessage(locale === "zh" ? "结果已复制。" : "Result copied.");
+      } catch {
+        setMessage(locale === "zh" ? "分享失败，请手动复制。" : "Share failed, copy manually.");
+      }
+    }
+    trackShareClick({ puzzleId: puzzle.id, platform: usedMethod });
   }
 
   if (catalogLoading) {
@@ -870,6 +1100,7 @@ function App() {
         <nav className="topnav" aria-label="Primary">
           {[
             ["game", t.appName, Sparkles],
+            ["archive", locale === "zh" ? "历史" : "Archive", Sparkles],
             ["leaderboard", t.leaderboard, Trophy],
             ["contribute", t.contribute, PenLine]
           ].map(([id, label, Icon]) => (
@@ -877,6 +1108,11 @@ function App() {
               <Icon size={16} /> {label}
             </button>
           ))}
+          {streak.current > 0 && (
+            <span className="topnav-streak" title={locale === "zh" ? "连续天数" : "Day streak"}>
+              🔥 {streak.current}
+            </span>
+          )}
         </nav>
       </header>
 
@@ -963,6 +1199,53 @@ function App() {
                 </section>
               </div>
 
+              {/* In-progress solved groups: visible while the player still
+                  has groups left to find. Mirrors the post-completion solved
+                  list so a resumed game shows the same level colour and
+                  underline animation the player had when they walked away. */}
+              {solved.length > 0 && !isComplete && (
+                <section className="solved solved--in-progress" aria-live="polite" aria-label="Groups already found">
+                  {solved.map((group, idx) => {
+                    const meta = difficultyMeta[group.level] ?? difficultyMeta[4];
+                    const levelColors = {
+                      "level-yellow": "#e0a818",
+                      "level-green": "#5fae5c",
+                      "level-blue": "#4ba2d6",
+                      "level-purple": "#9d6cc4"
+                    };
+                    const underlineColor = levelColors[meta.className] ?? "#888";
+                    return (
+                      <article
+                        className={`solved-item ${meta.className}`}
+                        key={group.name}
+                        style={{ "--solved-index": idx }}
+                      >
+                        <NanamiCatMascot size="mini" />
+                        <div>
+                          <h2>
+                            {localizePuzzleTerm(group.name, locale, englishTerms)}
+                            <svg className="solved-doodle-underline" viewBox="0 0 80 8" height="6" aria-hidden="true" preserveAspectRatio="none">
+                              <path
+                                d="M2 5 Q12 1 22 5 Q32 9 42 5 Q52 1 62 5 Q72 9 78 5"
+                                stroke={underlineColor}
+                                strokeWidth="2"
+                                strokeOpacity="0.55"
+                                strokeLinecap="round"
+                                fill="none"
+                                strokeDasharray="100"
+                                strokeDashoffset="100"
+                                style={{ animation: `drawLine 500ms ${idx * 80}ms ease-out forwards` }}
+                              />
+                            </svg>
+                          </h2>
+                          <p>{group.items.map((item) => itemLabel(item, locale, englishTerms)).join(" / ")}</p>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </section>
+              )}
+
               <section className="controls-split" aria-label="Game controls">
                 {!isComplete && !isGameOver && (
                   <>
@@ -1038,12 +1321,41 @@ function App() {
                   <section className="completion-actions" aria-label="Completion actions">
                     <button type="button" className="primary completion-next" onClick={nextPuzzle}>{t.nextAfterComplete}</button>
                     <button type="button" className="control-share" onClick={shareResult}><Share2 size={16} /> {t.share}</button>
+                    <button type="button" className="control-archive" onClick={() => setRoute("archive")}>
+                      {locale === "zh" ? "玩历史题" : "Play previous"}
+                    </button>
+                    {!pinnedDate && (
+                      <button type="button" className="control-tomorrow" onClick={() => { resetPuzzleState(); setMessage(locale === "zh" ? "明天见！" : "See you tomorrow!"); }}>
+                        {locale === "zh" ? "明天再来" : "Come back tomorrow"}
+                      </button>
+                    )}
                   </section>
+
+                  <AdSlot slotName="ad-result-bottom" reservedHeight={120} label="Ad" />
                 </>
               )}
             </section>
           </section>
+
+          {/* Back link when this board is pinned to a specific date via /puzzle/:date */}
+          {pinnedDate && (
+            <nav className="puzzle-back" aria-label={locale === "zh" ? "返回" : "Navigation"}>
+              <button type="button" className="ghost-back" onClick={() => setRoute("archive")}>
+                {locale === "zh" ? `← 返回 ${pinnedDate} 的题库` : `← Back to archive (${pinnedDate})`}
+              </button>
+            </nav>
+          )}
+
+          {/* Page-bottom ad slot: only renders on the daily board, not the
+              archive view (which has its own ad-archive-bottom). */}
+          <AdSlot slotName="ad-page-bottom" reservedHeight={120} label="Ad" />
         </>
+      )}
+
+      {view === "archive" && (
+        <Suspense fallback={<ArchiveFallback />}>
+          <Archive pool={pool} locale={locale} onOpenPuzzle={openArchivePuzzle} />
+        </Suspense>
       )}
 
       {view === "leaderboard" && (
@@ -1337,8 +1649,54 @@ function App() {
         </div>
       )}
 
+      <footer className="site-footer" aria-label="Site links">
+        <div className="site-footer__cols">
+          <div>
+            <h4>{locale === "zh" ? "导航" : "Site"}</h4>
+            <ul>
+              <li><a href="/how-to-play">{locale === "zh" ? "玩法" : "How to play"}</a></li>
+              <li><a href="/archive">{locale === "zh" ? "历史题" : "Archive"}</a></li>
+              <li><a href="/about">{locale === "zh" ? "关于" : "About"}</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>{locale === "zh" ? "法律" : "Legal"}</h4>
+            <ul>
+              <li><a href="/privacy">Privacy Policy</a></li>
+              <li><a href="/terms">Terms of Use</a></li>
+              <li><a href="/contact">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>{locale === "zh" ? "最近完成" : "Recent clears"}</h4>
+            {recentCompletions.length ? (
+              <ul className="site-footer__recent">
+                {recentCompletions.map((item) => (
+                  <li key={item.date}>
+                    <a href={`/puzzle/${item.date}`}>
+                      <time dateTime={item.date}>{item.date}</time>
+                      {item.perfect ? " ⭐" : ""}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="site-footer__empty">{locale === "zh" ? "完成一题后会显示在这里。" : "Recent completions will appear here."}</p>
+            )}
+          </div>
+        </div>
+        <p className="site-footer__copy">© {new Date().getFullYear()} Nanami Cat</p>
+      </footer>
+
     </main>
   );
 }
+
+createRoot(document.getElementById("root")).render(
+  <>
+    <App />
+    <StickyAdBar slotName="page-bottom" reservedHeight={90} />
+  </>
+);
 
 createRoot(document.getElementById("root")).render(<App />);

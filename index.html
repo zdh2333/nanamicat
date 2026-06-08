@@ -1,15 +1,99 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="喵格谜，每日中文分类谜题。" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0e2d57" />
+    <meta name="description" content="Nanami Cat - free daily word category puzzle. Sort sixteen words into four hidden groups every day. No sign-up required." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.svg" />
-    <title>喵格谜 MeowGrid | NanamiCat</title>
+    <link rel="canonical" href="https://nanamicat.com/" />
+
+    <!-- Social -->
+    <meta property="og:site_name" content="Nanami Cat" />
+    <meta property="og:title" content="Nanami Cat - Daily Word Categories Puzzle" />
+    <meta property="og:description" content="Sort sixteen words into four hidden groups every day. A free daily brain teaser with a friendly black cat." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://nanamicat.com/" />
+    <meta property="og:image" content="https://nanamicat.com/nanamicat_mascot_celebration.webp" />
+    <meta property="og:image:alt" content="Nanami Cat celebrating a finished puzzle" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Nanami Cat - Daily Word Categories Puzzle" />
+    <meta name="twitter:description" content="Sort sixteen words into four hidden groups every day. A free daily brain teaser with a friendly black cat." />
+    <meta name="twitter:image" content="https://nanamicat.com/nanamicat_mascot_celebration.webp" />
+
+    <!-- LCP optimisation: preload the celebration mascot, the one image most likely
+         to land above the fold (header). It is also the most shareable social card. -->
+    <link rel="preload" as="image" href="/nanamicat_mascot_standard.webp" type="image/webp" fetchpriority="high" />
+
+    <!-- Google Fonts: preconnect first (DNS+TLS), then load stylesheet with
+         display=swap so text is never invisible. We do NOT use @import inside CSS
+         anymore (that path is render-blocking). -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap" />
+    </noscript>
+
+    <title>Nanami Cat - Daily Word Categories Puzzle</title>
+
+    <!-- AdSense config. Toggle `enabled` to false to instantly turn all
+         ads off without redeploying. Slot ids are the numeric AdSense
+         "ad unit" ids from the AdSense console. -->
+    <script>
+      window.NANAMICAT_ADS_CONFIG = {
+        enabled: true,
+        clientId: "ca-pub-4282000221262612",
+        slots: {
+          "page-bottom": "1962176281"
+        }
+      };
+    </script>
+
+    <!-- AdSense bootstrap.
+         Reads window.NANAMICAT_ADS_CONFIG and only loads the real AdSense
+         script when both `enabled` and `clientId` are set. The script is
+         loaded async and never blocks first paint. The actual ad fills
+         happen lazily inside <AdSlot> components. To turn ads off, set
+         `enabled: false` in the config above. -->
+    <script>
+      (function () {
+        try {
+          var cfg = (typeof window !== "undefined" && window.NANAMICAT_ADS_CONFIG) || null;
+          var enabled = !!(cfg && cfg.enabled && cfg.clientId);
+          if (!enabled) return;
+          var s = document.createElement("script");
+          s.async = true;
+          s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(cfg.clientId);
+          s.crossOrigin = "anonymous";
+          s.setAttribute("data-adsbygoogle-env", cfg.test ? "test" : "production");
+          document.head.appendChild(s);
+        } catch (e) {
+          // Never break the page over an ad.
+        }
+      })();
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <noscript>
+      <p style="padding:24px;font-family:system-ui,sans-serif;max-width:640px;margin:0 auto;">
+        Nanami Cat needs JavaScript to run the daily word puzzle. Please enable
+        JavaScript, or read more on the <a href="/about">About</a> page.
+      </p>
+    </noscript>
+    <div id="root">
+      <!-- SSR-ish placeholder: the first thing the user sees while React boots.
+           This block mirrors the H1 so LCP is paintable without waiting for JS. -->
+      <main style="min-height:100dvh;display:grid;place-items:center;font-family:'Caveat','PingFang SC',system-ui,sans-serif;color:#12345f;background:#f8f1e4;">
+        <h1 style="font-size:clamp(2.4rem,5vw,3.4rem);margin:0;">Nanami Cat</h1>
+      </main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
