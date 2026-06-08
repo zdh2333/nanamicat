@@ -118,17 +118,17 @@ function pickNextPuzzleIndex(pool, playedIds, preferredStart = 0, predicate = ()
 }
 
 const difficultyMeta = {
-  1: { zh: "直观分类", en: "Direct sets", className: "level-yellow" },
-  2: { zh: "常识联想", en: "Familiar links", className: "level-green" },
-  3: { zh: "跨域关系", en: "Cross-domain", className: "level-blue" },
-  4: { zh: "细节线索", en: "Detail clues", className: "level-purple" }
+  1: { zh: "直观分类", en: "Direct sets", ja: "わかりやすい分類", className: "level-yellow" },
+  2: { zh: "常识联想", en: "Familiar links", ja: "なじみのある連想", className: "level-green" },
+  3: { zh: "跨域关系", en: "Cross-domain", ja: "分野をまたぐ関係", className: "level-blue" },
+  4: { zh: "细节线索", en: "Detail clues", ja: "細かいヒント", className: "level-purple" }
 };
 
 function difficultyLabel(level, locale) {
   return difficultyMeta[level]?.[locale] ?? difficultyMeta[1][locale];
 }
 
-function NanamiCatMascot({ size = "header", showCelebration = false, className = "" }) {
+function NanamiCatMascot({ size = "header", showCelebration = false, className = "", altText = "喵格谜" }) {
   const dimensions = {
     mini: 28,
     header: 28,
@@ -149,7 +149,7 @@ function NanamiCatMascot({ size = "header", showCelebration = false, className =
   if (cardSize) {
     return (
       <div className={`mascot-card${className ? ` ${className}` : ""}`}>
-        <img src={src} alt="喵格谜" className="mascot-card-img" width="76" height="76" decoding="async" fetchPriority="high" />
+        <img src={src} alt={altText} className="mascot-card-img" width="76" height="76" decoding="async" fetchPriority="high" />
       </div>
     );
   }
@@ -157,7 +157,7 @@ function NanamiCatMascot({ size = "header", showCelebration = false, className =
   return (
     <img
       src={src}
-      alt="喵格谜"
+      alt={altText}
       width={dim}
       height={dim}
       className={className}
@@ -169,17 +169,17 @@ function NanamiCatMascot({ size = "header", showCelebration = false, className =
 }
 
 const themes = [
-  { id: "default", zh: "默认", en: "Default" },
-  { id: "mist", zh: "雾灰", en: "Mist" },
-  { id: "sage", zh: "鼠尾草", en: "Sage" },
-  { id: "clay", zh: "陶土", en: "Clay" }
+  { id: "default", zh: "默认", en: "Default", ja: "デフォルト" },
+  { id: "mist", zh: "雾灰", en: "Mist", ja: "ミスト" },
+  { id: "sage", zh: "鼠尾草", en: "Sage", ja: "セージ" },
+  { id: "clay", zh: "陶土", en: "Clay", ja: "クレイ" }
 ];
 
 const copy = {
   zh: {
     appName: "喵格谜",
     kicker: "每日分类谜题",
-    language: "English",
+    language: "English / 日本語",
     help: "玩法说明",
     rulesBody: "16 个词里找出 4 组，每组 4 个。\n点选 4 个后提交，最多失误 4 次。",
     rulesExampleTitle: "例子",
@@ -251,7 +251,7 @@ const copy = {
   en: {
     appName: "MeowGrid",
     kicker: "Daily category puzzle",
-    language: "中文",
+    language: "中文 / 日本語",
     help: "Rules",
     rulesBody: "Find 4 groups of 4 from 16 words.\nSelect 4, then submit. Four mistakes allowed.",
     rulesExampleTitle: "Example",
@@ -319,8 +319,305 @@ const copy = {
     submissionSavedPending: "Submission saved as pending.",
     thankYouEmailSent: "Submission saved and thank-you email sent.",
     thankYouEmailNotSent: "Submission saved, but thank-you email was not sent yet."
+  },
+  // Japanese UI copy. The puzzle DATA itself (group names, words) lives in
+  // public/puzzle-data-ja.json — a separate file with Japanese-native
+  // word choices. The text below is just chrome (buttons, hints, errors).
+  // Translation choices favor plainspoken daily-life Japanese over
+  // 直訳的 wording that would feel stiff on a casual puzzle site.
+  ja: {
+    appName: "ナナミキャット",
+    kicker: "毎日のことばパズル",
+    language: "中文 / English",
+    help: "遊び方",
+    rulesBody: "16個のことばから4つのグループ(各4語)を見つけよう。\n4つ選んで送信。まちがいは4回まで。",
+    rulesExampleTitle: "例",
+    rulesExampleName: "和食の朝食",
+    rulesExampleWords: "味噌汁 · 焼き魚 · ご飯 · 納豆",
+    rulesExampleNote: "↑ この4つは同じグループ",
+    rulesClose: "わかった",
+    theme: "テーマ",
+    mistakes: "ミス",
+    shuffle: "シャッフル",
+    clear: "クリア",
+    hint: "ヒント",
+    submit: "送信",
+    next: "次の問題",
+    nextAfterComplete: "次の問題へ",
+    share: "結果をシェア",
+    leaderboard: "ランキング",
+    contribute: "問題を投稿",
+    admin: "管理",
+    playerName: "ニックネーム",
+    saveName: "名前を保存",
+    scoreText: "クリア数",
+    totalScore: "スコア",
+    recent: "更新時刻",
+    submitPuzzle: "問題を投稿",
+    puzzleTitle: "問題のタイトル",
+    contactEmail: "連絡先メール(任意)",
+    groupName: "グループ名",
+    words: "4つのことば、カンマ区切り",
+    savePuzzle: "管理者に送信",
+    addGroup: "グループを追加",
+    removeGroup: "このグループを削除",
+    adminPuzzles: "投稿一覧",
+    adminScores: "スコア履歴",
+    adminGroupCount: "%d グループ",
+    adminGroupWords: "ことば",
+    adminEnglishName: "英訳グループ名",
+    adminEnglishWords: "英訳ことば",
+    sponsorLabel: "この問題を応援",
+    sponsorTitle: "このゲームが気に入ったら、ご支援いただけると嬉しいです。",
+    sponsorBody: "WeChat Payで応援していただけると、日本語パズルの追加開発を続けられます。",
+    zoomPay: "拡大",
+    payCaption: "WeChat Pay",
+    intro: "4つの隠れたグループを4つずつ見つけよう。",
+    chooseFour: "4つ選んでから送信してください。",
+    clearedSelection: "選択を解除しました。",
+    wrong: "この4つは同じグループではありません。",
+    out: "ミスを使い切りました。あきらめずに続けてね。",
+    complete: "4つのグループをすべて発見!",
+    savedScore: "スコアをランキングに保存しました。",
+    needsName: "ニックネームを設定するとクリア数が記録されます。",
+    abstract: "もっとも抽象的なグループ",
+    hintsEmpty: "ヒントを使い切りました。3問クリアで1回補充されます。",
+    hintsEarned: "3問クリアで +1 ヒント獲得!",
+    contributionLead: "1〜10グループ。各グループに名前と4つのことばが必要。投稿はレビュー待ちです。",
+    leaderboardLead: "ニックネームを保存すると参加できます。クリア前でも0回で表示されます。",
+    adminLead: "管理画面はCloudflare Accessで保護されています。",
+    emptyLeaderboard: "まだランキングに誰もいません。最初の参加者になろう!",
+    joinedLeaderboard: "%d クリアでランキングに参加しました。",
+    emptySubmissions: "まだ投稿がありません。",
+    statusPending: "審査待ち",
+    statusReviewed: "確認済み",
+    statusIncluded: "採用",
+    statusRejected: "却下",
+    submissionSavedPending: "投稿を保存しました(審査待ち)。",
+    thankYouEmailSent: "投稿を保存し、お礼メールを送信しました。",
+    thankYouEmailNotSent: "投稿は保存しましたが、お礼メールはまだ送信されていません。"
   }
 };
+
+// ──────────────────────────────────────────────────────────────────────────
+//  Per-locale SEO metadata. Used by the <head> meta injection effect and the
+//  /today landing view. Long-tail keyword targets (en/zh/ja) are tuned to
+//  match what users actually search for: "today's puzzle", "free word
+//  puzzle", "no signup word game", "ことばパズル", "文字分类游戏",
+//  "Wordle alternative", "NYT Connections alternative".
+// ──────────────────────────────────────────────────────────────────────────
+const SEO_BY_LOCALE = {
+  en: {
+    ogLocale: "en_US",
+    hreflang: "en",
+    appName: "Nanami Cat",
+    siteUrl: "https://nanamicat.com",
+    home: {
+      title: "Nanami Cat - Today's Daily Word Categories Puzzle",
+      description: "Play today's free daily word category puzzle. Sort sixteen words into four hidden groups. A free Wordle alternative inspired by NYT Connections. No sign-up required."
+    },
+    today: {
+      title: "Today's Word Puzzle - Free Daily Category Game | Nanami Cat",
+      description: "Play today's word puzzle free. Sort 16 words into 4 hidden groups every day. No signup, no download. A daily brain teaser and NYT Connections alternative.",
+      h1: "Today's Word Puzzle - Free Daily Category Game",
+      lead: "Welcome to today's free word puzzle. Sort sixteen words into four hidden groups, share your result, and come back tomorrow for a new one.",
+      cta: "Play Today's Puzzle",
+      featuresTitle: "Why players love today's puzzle",
+      features: [
+        "Free daily word puzzle - no signup, no download, no ads between groups",
+        "Four difficulty levels from easy direct sets to the abstract purple group",
+        "Streak tracking and an archive of the last 30 days",
+        "Available in English, Chinese (中文), and Japanese (日本語)"
+      ],
+      faqTitle: "Today's puzzle - frequently asked questions",
+      faq: [
+        { q: "Is today's puzzle really free?", a: "Yes. Nanami Cat is a free daily word puzzle with no signup, no download, and no paywall. Open the page and play." },
+        { q: "How is today's puzzle different from yesterday's?", a: "A new theme and four new groups unlock at midnight UTC. Yesterday's puzzle stays playable in the archive." },
+        { q: "Can I share today's result?", a: "Yes. Hit the share button on the result screen to copy a Connections-style emoji block to your clipboard, or use the system share sheet on mobile." }
+      ]
+    }
+  },
+  zh: {
+    ogLocale: "zh_CN",
+    hreflang: "zh-CN",
+    appName: "喵格谜",
+    siteUrl: "https://nanamicat.com",
+    home: {
+      title: "喵格谜 - 今日单词分类游戏",
+      description: "今日免费文字分类谜题。每天把 16 个词分成 4 组,免费在线玩,无需注册,支持中英日三语。"
+    },
+    today: {
+      title: "今日单词分类游戏 - 免费每日文字分类谜题 | 喵格谜",
+      description: "今天的免费文字分类游戏:每天 16 个词分成 4 个隐藏组,无需注册,类 NYT Connections 的每日挑战,支持中英日三语。",
+      h1: "今日单词分类游戏 - 免费每日文字分类谜题",
+      lead: "今天的免费文字分类谜题已上线。把十六个词分成四组,失误四次内完成,看能拿到多少分。",
+      cta: "开始今天的题",
+      featuresTitle: "为什么玩家喜欢今日单词分类游戏",
+      features: [
+        "完全免费,无需注册、下载或登录",
+        "四个难度等级,从直观分类到最抽象的紫色组",
+        "连续天数记录 + 最近 30 天历史题",
+        "支持中文 / English / 日本語 三语切换"
+      ],
+      faqTitle: "今日游戏 - 常见问题",
+      faq: [
+        { q: "今天的游戏真的免费吗?", a: "完全免费。打开网页即可玩,无需注册、无需下载,也没有付费墙。" },
+        { q: "今天的题和昨天有什么不同?", a: "每天 0 点(UTC)更新主题与分组,昨天的题可在历史题库中继续玩。" },
+        { q: "可以分享今日成绩吗?", a: "可以。在结算页点击分享即可复制类 Connections 的 emoji 结果,或调用系统的原生分享面板。" }
+      ]
+    }
+  },
+  ja: {
+    ogLocale: "ja_JP",
+    hreflang: "ja",
+    appName: "ナナミキャット",
+    siteUrl: "https://nanamicat.com",
+    home: {
+      title: "ナナミキャット - 今日のことばパズル(無料)",
+      description: "今日の無料ことばパズル。毎日16語を4つの隠れたグループに分けよう。登録不要、NYT Connections 風の毎日の脳トレ。日本語・中文・English 対応。"
+    },
+    today: {
+      title: "今日のことばパズル - 無料の毎日文字分類ゲーム | ナナミキャット",
+      description: "今日の無料ことばパズル:16語を4つの隠れたグループに分類する毎日の脳トレ。登録不要、ダウンロード不要、NYT Connections 風の日本語パズル。",
+      h1: "今日のことばパズル - 無料の毎日文字分類ゲーム",
+      lead: "今日の無料ことばパズルへようこそ。16のことばを4つの隠れたグループに分け、結果をシェアして、明日も新しい問題にチャレンジしましょう。",
+      cta: "今日の問題にチャレンジ",
+      featuresTitle: "プレイヤーに人気の理由",
+      features: [
+        "完全無料・登録不要・ダウンロード不要",
+        "直感的な黄色から抽象的な紫まで4段階の難易度",
+        "連続日数記録 + 過去30日分の履歴",
+        "日本語・中文・English 3言語対応"
+      ],
+      faqTitle: "今日のパズル - よくある質問",
+      faq: [
+        { q: "今日のパズルは本当に無料ですか?", a: "完全無料です。登録・ダウンロード・課金なしでブラウザですぐ遊べます。" },
+        { q: "今日の問題と昨日の問題の違いは?", a: "毎日0時(UTC)にテーマとグループが更新されます。昨日の問題は履歴ページで遊べます。" },
+        { q: "今日の結果をシェアできますか?", a: "はい。クリア画面のシェアボタンで Connections 風の絵文字結果をコピー、またはスマートフォンの共有パネルを呼び出せます。" }
+      ]
+    }
+  }
+};
+
+function getSeo(locale) {
+  return SEO_BY_LOCALE[locale] || SEO_BY_LOCALE.en;
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  <head> meta injection helpers. All of them are idempotent: they update the
+//  existing node if present, otherwise create one. Tag ids (`data-meta`,
+//  `data-link`, `data-jsonld`) are used as lookup keys so we never duplicate.
+// ──────────────────────────────────────────────────────────────────────────
+
+function setMetaContent(name, content, isProperty = false) {
+  if (!name || content == null) return;
+  const attr = isProperty ? "property" : "name";
+  const selector = `meta[${attr}="${CSS.escape(name)}"]`;
+  let node = document.head.querySelector(selector);
+  if (!node) {
+    node = document.createElement("meta");
+    node.setAttribute(attr, name);
+    document.head.appendChild(node);
+  }
+  if (node.getAttribute("content") !== content) {
+    node.setAttribute("content", content);
+  }
+}
+
+function setLinkHref(key, href, rel = "canonical", hreflang) {
+  // `key` is just an internal id we tag onto the node so we can find/remove
+  // it later. Multiple hreflang links can coexist, so we look them up by
+  // rel+hreflang, not by key.
+  if (hreflang) {
+    const selector = `link[rel="${rel}"][hreflang="${hreflang}"]`;
+    let node = document.head.querySelector(selector);
+    if (!node) {
+      node = document.createElement("link");
+      node.setAttribute("rel", rel);
+      node.setAttribute("hreflang", hreflang);
+      document.head.appendChild(node);
+    }
+    if (node.getAttribute("href") !== href) node.setAttribute("href", href);
+    return;
+  }
+  const selector = `link[rel="${rel}"][data-link-key="${key}"]`;
+  let node = document.head.querySelector(selector);
+  if (!node) {
+    // Prefer the static <link rel="canonical"> in index.html if present —
+    // we just rewrite its href rather than appending a second one.
+    if (rel === "canonical") {
+      node = document.head.querySelector('link[rel="canonical"]');
+    }
+    if (!node) {
+      node = document.createElement("link");
+      node.setAttribute("rel", rel);
+      node.setAttribute("data-link-key", key);
+      document.head.appendChild(node);
+    }
+  }
+  if (node.getAttribute("href") !== href) node.setAttribute("href", href);
+}
+
+function injectJsonLd(key, payload) {
+  if (!payload) return;
+  const id = `jsonld-${key}`;
+  let node = document.getElementById(id);
+  if (!node) {
+    node = document.createElement("script");
+    node.type = "application/ld+json";
+    node.id = id;
+    document.head.appendChild(node);
+  }
+  const serialised = JSON.stringify(payload);
+  if (node.textContent !== serialised) node.textContent = serialised;
+}
+
+function removeJsonLd(key) {
+  const node = document.getElementById(`jsonld-${key}`);
+  if (node && node.parentNode) node.parentNode.removeChild(node);
+}
+
+function buildGameSchema(locale) {
+  const seo = getSeo(locale);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Game",
+    "name": seo.appName,
+    "alternateName": ["MeowGrid", "ナナミキャット", "喵格谜", "Nanami Cat"],
+    "url": seo.siteUrl,
+    "description": seo.home.description,
+    "image": `${seo.siteUrl}/nanamicat_mascot_celebration.webp`,
+    "genre": ["Word game", "Puzzle", "Brain teaser"],
+    "gamePlatform": "Web Browser",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Any",
+    "inLanguage": ["en", "zh-CN", "ja"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Nanami Cat",
+      "url": seo.siteUrl
+    }
+  };
+}
+
+function buildBreadcrumbSchema(locale, pathForView) {
+  const seo = getSeo(locale);
+  const labels = {
+    en: { home: "Home", today: "Today's Word Puzzle" },
+    zh: { home: "首页", today: "今日单词分类游戏" },
+    ja: { home: "ホーム", today: "今日のことばパズル" }
+  };
+  const tr = labels[locale] || labels.en;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": tr.home, "item": `${seo.siteUrl}/?lang=${locale}` },
+      { "@type": "ListItem", "position": 2, "name": tr.today, "item": `${seo.siteUrl}${pathForView}?lang=${locale}` }
+    ]
+  };
+}
 
 function localizePuzzleTerm(value, locale, terms = {}) {
   return locale === "en" ? terms[value] ?? value : value;
@@ -329,6 +626,7 @@ function localizePuzzleTerm(value, locale, terms = {}) {
 function puzzleLabel(puzzle, locale) {
   const number = Number(puzzle.id.split("-").at(-1));
   if (locale === "en") return `Text puzzle ${number}`;
+  if (locale === "ja") return `ことばパズル ${number}`;
   return puzzle.label;
 }
 
@@ -338,7 +636,9 @@ function puzzleTheme(puzzle, locale, terms) {
 
 function itemLabel(item, locale, terms) {
   if (item.label) return localizePuzzleTerm(item.label, locale, terms);
-  if (locale === "zh") return item.alt;
+  // ja and zh: item.alt is already in the right language (ja catalog has
+  // Japanese alts, zh catalog has Chinese alts). Only en needs the map.
+  if (locale === "zh" || locale === "ja") return item.alt;
   const match = item.alt.match(/^(.*) (\d+)$/);
   if (!match) return localizePuzzleTerm(item.alt, locale, terms);
   return `${localizePuzzleTerm(match[1], locale, terms)} ${match[2]}`;
@@ -375,7 +675,7 @@ function submissionSummary(item, t) {
 
 function humanizeApiError(message, locale = getStored("nanamicat.locale", (navigator.language || "en").toLowerCase().startsWith("zh") ? "zh" : "en")) {
   if (message === "Not found") {
-    return locale === "zh" ? "服务暂不可用，请稍后再试。" : "Service unavailable. Please try again later.";
+    return (locale === "zh" ? "服务暂不可用，请稍后再试。" : (locale === "ja" ? "サービスに接続できません。しばらくしてからもう一度お試しください。" : "Service unavailable. Please try again later."));
   }
   return message;
 }
@@ -385,6 +685,7 @@ function resolveViewFromPath(pathname) {
   if (pathname.startsWith("/leaderboard")) return { view: "leaderboard", pinnedDate: null };
   if (pathname.startsWith("/contribute")) return { view: "contribute", pinnedDate: null };
   if (pathname.startsWith("/archive")) return { view: "archive", pinnedDate: null };
+  if (pathname.startsWith("/today")) return { view: "today", pinnedDate: null };
   if (pathname.startsWith("/puzzle/")) {
     const m = pathname.match(/^\/puzzle\/(\d{4}-\d{2}-\d{2})\/?$/);
     if (m) return { view: "game", pinnedDate: m[1] };
@@ -410,13 +711,13 @@ async function api(path, options = {}) {
       }
     });
   } catch {
-    throw new Error(locale === "zh" ? "网络连接失败，请检查网络后重试。" : "Network error. Check your connection and try again.");
+    throw new Error((locale === "zh" ? "网络连接失败，请检查网络后重试。" : (locale === "ja" ? "ネットワーク接続に失敗しました。" : "Network error. Check your connection and try again.")));
   }
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     const fallback = response.status >= 500
-      ? (locale === "zh" ? "服务器暂时不可用，请稍后再试。" : "Server unavailable. Please try again later.")
-      : (locale === "zh" ? "请求失败，请稍后重试。" : "Request failed. Please try again.");
+      ? ((locale === "zh" ? "服务器暂时不可用，请稍后再试。" : (locale === "ja" ? "サーバーが応答しません。しばらくしてからもう一度。" : "Server unavailable. Please try again later.")))
+      : ((locale === "zh" ? "请求失败，请稍后重试。" : (locale === "ja" ? "リクエストに失敗しました。" : "Request failed. Please try again.")));
     throw new Error(humanizeApiError(payload.error || fallback, locale));
   }
   return payload;
@@ -429,11 +730,29 @@ function App() {
   const [catalogError, setCatalogError] = useState("");
   const [playedPuzzleIds, setPlayedPuzzleIds] = useState([]);
   const [locale, setLocale] = useState(() => {
+    // 1. `?lang=xx` query parameter wins — that's the signal hreflang uses
+    //    to tell crawlers this is a language-specific URL, and we mirror it
+    //    on the runtime side so a click on the Japanese hreflang actually
+    //    renders in Japanese.
+    if (typeof location !== "undefined") {
+      try {
+        const url = new URL(location.href);
+        const qp = (url.searchParams.get("lang") || "").toLowerCase();
+        if (qp === "en" || qp === "zh" || qp === "ja") return qp;
+        if (qp === "zh-cn" || qp === "zh-hans") return "zh";
+      } catch {
+        // ignore — fall through to stored/navigator detection
+      }
+    }
     const stored = localStorage.getItem("nanamicat.locale");
-    if (stored === "zh" || stored === "en") return stored;
-    // 检测浏览器语言，中文系列 → zh，其他 → en
+    if (stored === "zh" || stored === "en" || stored === "ja") return stored;
+    // Pick the closest supported locale from the browser's accept-language.
+    // Order matters: ja is checked before en so a Japanese locale never
+    // falls through to English by accident.
     const lang = (navigator.language || navigator.languages?.[0] || "en").toLowerCase();
-    return lang.startsWith("zh") ? "zh" : "en";
+    if (lang.startsWith("ja")) return "ja";
+    if (lang.startsWith("zh")) return "zh";
+    return "en";
   });
   const [theme, setTheme] = useState(() => getStored("nanamicat.theme", "default"));
   const initialRoute = resolveViewFromPath(location.pathname);
@@ -493,7 +812,7 @@ function App() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await loadPuzzleCatalog();
+        const data = await loadPuzzleCatalog(locale);
         const built = buildTextPuzzles(data);
         if (cancelled) return;
         setCatalog(data);
@@ -501,14 +820,19 @@ function App() {
         const played = readPlayedPuzzleIds(built);
         setPlayedPuzzleIds(played);
         // Map played ids -> their actual puzzle objects so the "balanced"
-        // picker can score overlap. We only keep the last 5 to stay light.
+        // picker can score overlap against the player's whole recent history
+        // (capped at 50 so we don't burn cycles on a 500-element pool scan).
+        // Combined with maxShared=0, this gives "every puzzle I click is
+        // 4 groups I have not seen in my last 50 plays" — which is the
+        // closest we can get to "every puzzle feels brand new" without
+        // exhaustively excluding the entire playedPuzzleIds list.
         const recentPuzzles = played
-          .slice(-5)
+          .slice(-50)
           .map((id) => built.find((p) => p.id === id))
           .filter(Boolean);
         const initialPuzzleIndex = initialRoute.pinnedDate
           ? puzzleIndexForDate(initialRoute.pinnedDate, built.length)
-          : getTodayIndexBalanced(built, recentPuzzles, 5, 1);
+          : getTodayIndexBalanced(built, recentPuzzles, 50, 0);
         setPuzzleIndex(initialPuzzleIndex);
       } catch (error) {
         if (!cancelled) setCatalogError(error.message);
@@ -519,7 +843,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     if (!helpOpen) return undefined;
@@ -545,7 +869,7 @@ function App() {
     async function refreshCatalog() {
       if (document.hidden) return;
       try {
-        const data = await loadPuzzleCatalog();
+        const data = await loadPuzzleCatalog(locale);
         const built = buildTextPuzzles(data);
         if (!built.length) return;
         const prevSignature = catalog
@@ -555,7 +879,7 @@ function App() {
         if (prevSignature && prevSignature !== nextSignature) {
           setCatalog(data);
           setPool(built);
-          setApiNotice(locale === "zh" ? "题库已更新，下一题将使用新题目。" : "Puzzle catalog updated. New puzzles apply on the next round.");
+          setApiNotice((locale === "zh" ? "题库已更新，下一题将使用新题目。" : (locale === "ja" ? "問題が更新されました。次の問題から反映されます。" : "Puzzle catalog updated. New puzzles apply on the next round.")));
         }
       } catch {
         // keep current catalog
@@ -575,6 +899,7 @@ function App() {
 
   useEffect(() => {
     setStored("nanamicat.locale", locale);
+    document.documentElement.lang = locale === "zh" ? "zh-CN" : locale === "ja" ? "ja" : "en";
   }, [locale]);
 
   useEffect(() => {
@@ -617,9 +942,9 @@ function App() {
         if (resume.gameStartTs) setGameStartTs(resume.gameStartTs);
         resumeAppliedFor.current = puzzle.id;
         if (resume.updatedAt && Date.now() - new Date(resume.updatedAt).getTime() < 30 * 60 * 1000) {
-          setApiNotice(locale === "zh" ? "已恢复上次的进度。" : "Resumed your last game.");
+          setApiNotice((locale === "zh" ? "已恢复上次的进度。" : (locale === "ja" ? "前回の続きから再開します。" : "Resumed your last game.")));
         }
-        setMessage(locale === "zh" ? "继续上次的进度。" : "Continuing where you left off.");
+        setMessage((locale === "zh" ? "继续上次的进度。" : (locale === "ja" ? "前回の続きから。" : "Continuing where you left off.")));
       } else {
         resetPuzzleState();
         if (resume) clearResume(puzzle.id);
@@ -684,21 +1009,106 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [puzzle.id, selected, solved, mistakes, isComplete, gameStartTs, pinnedDate, pool.length]);
 
-  // Update document.title per view so search engines and shared links get a
-  // unique title per page (matches the SEO checklist).
+  // Update <head> meta tags per view AND per locale. Covers:
+  //   - document.title
+  //   - <meta name="description">
+  //   - <meta property="og:title">, og:description, og:url, og:locale
+  //   - <link rel="canonical"> (per-locale-aware URL)
+  //   - <link rel="alternate" hreflang="…"> (refreshed per view+locale)
+  //
+  // This is the runtime mirror of the static tags in index.html. The static
+  // tags win for crawlers that don't run JS; these win for everyone else
+  // (sharing, social previews, in-page navigation).
   useEffect(() => {
+    if (typeof document === "undefined") return;
+    const seo = getSeo(locale);
+    const baseAppName = seo.appName;
+    const today = getTodayIsoDate();
+
     const titles = {
       game: pinnedDate
-        ? `${pinnedDate} · Nanami Cat - Daily Word Puzzle`
-        : "Nanami Cat - Daily Word Categories Puzzle",
-      archive: "Puzzle Archive - Nanami Cat",
-      leaderboard: locale === "zh" ? "排行榜 · 喵格谜" : "Leaderboard - Nanami Cat",
-      contribute: locale === "zh" ? "贡献谜题 · 喵格谜" : "Submit a Puzzle - Nanami Cat",
+        ? `${pinnedDate} · ${baseAppName} - ${locale === "zh" ? "每日文字分类谜题" : (locale === "ja" ? "毎日のことばパズル" : "Daily Word Puzzle")}`
+        : seo.home.title,
+      today: seo.today.title,
+      archive: locale === "zh"
+        ? `题库历史 - ${baseAppName}`
+        : (locale === "ja" ? `履歴 - ${baseAppName}` : `Puzzle Archive - ${baseAppName}`),
+      leaderboard: locale === "zh"
+        ? `排行榜 - ${baseAppName}`
+        : (locale === "ja" ? `ランキング - ${baseAppName}` : `Leaderboard - ${baseAppName}`),
+      contribute: locale === "zh"
+        ? `投稿谜题 - ${baseAppName}`
+        : (locale === "ja" ? `問題を投稿 - ${baseAppName}` : `Submit a Puzzle - ${baseAppName}`),
       admin: "Admin - Nanami Cat"
     };
-    const next = titles[view] || titles.game;
-    if (typeof document !== "undefined" && document.title !== next) {
-      document.title = next;
+
+    const descriptions = {
+      game: pinnedDate
+        ? (locale === "zh"
+            ? `${pinnedDate} 的 ${baseAppName} 文字分类谜题:把 16 个词分成 4 组,免费,无需注册。`
+            : (locale === "ja"
+                ? `${pinnedDate} の ${baseAppName} ことばパズル:16語を4つのグループに分けよう。無料・登録不要。`
+                : `${pinnedDate} · ${baseAppName} - free daily word puzzle. Sort 16 words into 4 groups. No signup.`))
+        : seo.home.description,
+      today: seo.today.description,
+      archive: locale === "zh"
+        ? `回放过去 30 天的每日文字分类谜题,本地记录完成状态。`
+        : (locale === "ja" ? `過去30日分のみことばパズルを遊べます。ローカルで進捗記録。` : `Play previous daily word puzzles. Local progress tracking.`),
+      leaderboard: locale === "zh"
+        ? `${baseAppName} 文字分类谜题排行榜,保存昵称即可上榜。`
+        : (locale === "ja" ? `${baseAppName} ことばパズル ランキング。ニックネームで参加。` : `${baseAppName} leaderboard - save a nickname to join.`),
+      contribute: locale === "zh"
+        ? `向 ${baseAppName} 投稿原创文字分类谜题。1-10 组,审核通过后即编入题库。`
+        : (locale === "ja" ? `${baseAppName} へ問題投稿。1〜10グループ、レビュー後に収録。` : `Submit original word puzzles to ${baseAppName}. 1-10 groups, reviewed before inclusion.`),
+      admin: "Admin panel"
+    };
+
+    const currentView = view;
+    const nextTitle = titles[currentView] || titles.game;
+    const nextDescription = descriptions[currentView] || descriptions.game;
+    const pathForView = currentView === "today" ? "/today" : "/";
+    const nextUrl = `${seo.siteUrl}${pathForView}?lang=${locale}`;
+
+    if (document.title !== nextTitle) document.title = nextTitle;
+    setMetaContent("description", nextDescription);
+
+    // Open Graph
+    setMetaContent("og:title", nextTitle, true);
+    setMetaContent("og:description", nextDescription, true);
+    setMetaContent("og:url", nextUrl, true);
+    setMetaContent("og:locale", seo.ogLocale, true);
+    setMetaContent("og:site_name", baseAppName, true);
+
+    // Twitter
+    setMetaContent("twitter:title", nextTitle);
+    setMetaContent("twitter:description", nextDescription);
+
+    // Canonical — always points to the in-language homepage with ?lang=
+    // marker. The static <link rel="canonical"> in index.html is overridden
+    // here when we know better (per-view).
+    setLinkHref("canonical", `${seo.siteUrl}${pathForView}`);
+
+    // Hreflang alternates — emit all four (en, zh-CN, ja, x-default).
+    // The hreflang URLs intentionally carry ?lang= so crawlers see them
+    // as distinct variants even though they all serve the same SPA shell.
+    const variants = [
+      { hreflang: "en", href: `${seo.siteUrl}${pathForView}?lang=en` },
+      { hreflang: "zh-CN", href: `${seo.siteUrl}${pathForView}?lang=zh` },
+      { hreflang: "ja", href: `${seo.siteUrl}${pathForView}?lang=ja` },
+      { hreflang: "x-default", href: `${seo.siteUrl}${pathForView}` }
+    ];
+    variants.forEach((variant) => {
+      setLinkHref(`hreflang-${variant.hreflang}`, variant.href, "alternate", variant.hreflang);
+    });
+
+    // Per-view JSON-LD schemas. Game schema is always present (it's the
+    // site's identity); /today additionally gets a BreadcrumbList that
+    // points to Home + Today.
+    injectJsonLd("schema-game", buildGameSchema(locale));
+    if (currentView === "today") {
+      injectJsonLd("schema-breadcrumb", buildBreadcrumbSchema(locale, pathForView));
+    } else {
+      removeJsonLd("schema-breadcrumb");
     }
   }, [view, pinnedDate, locale]);
 
@@ -716,12 +1126,276 @@ function App() {
     setApiNotice("");
   }
 
+  // The puzzle board markup. Kept inline (not extracted) so React DevTools
+  // shows the JSX tree correctly and the error overlay can point at the
+  // exact line if something breaks. Also kept as a function (not a JSX
+  // variable) so any per-render mutation order is explicit.
+  function renderGameBoardInline() {
+    return (
+      <section className="game-workspace">
+        <aside className="game-rail">
+          <section className="status">
+            <span>{t.mistakes}</span>
+            <strong aria-label={`${remainingMistakes} remaining`}>
+              {"●".repeat(remainingMistakes)}{"○".repeat(maxMistakes - remainingMistakes)}
+            </strong>
+          </section>
+          <section className="status">
+            <span>{t.hint}</span>
+            <strong aria-label={`${hintBalance} hints remaining`}>{hintBalance}</strong>
+          </section>
+          <section className="status status-stairs" aria-label={locale === "zh" ? "难易程度" : "Difficulty"}>
+            <span>{locale === "zh" ? "难度" : "Level"}</span>
+            <div className="diff-stairs" role="img" aria-label={`${solved.length}/4 groups solved`}>
+              {[1, 2, 3, 4].map((lvl) => {
+                const barColors = ["#f7c948", "#7bc67b", "#6db6e8", "#a87dc8"];
+                const isSolved = lvl === 1 || solved.some((g) => g.level === lvl);
+                return (
+                  <div
+                    key={lvl}
+                    className={`diff-bar${isSolved ? " diff-bar--solved" : ""}`}
+                    style={{ "--bar-color": barColors[lvl - 1], "--bar-h": `${lvl * 7 + 3}px` }}
+                  />
+                );
+              })}
+            </div>
+          </section>
+        </aside>
+
+        <section className="game-stage">
+          <p className="message" role="status" aria-live="polite">{message}</p>
+
+          <details className="puzzle-seo">
+            <summary>
+              {pinnedDate
+                ? (locale === "zh" ? `查看 ${pinnedDate} 的题目说明` : (locale === "ja" ? `${pinnedDate} の問題説明を見る` : `About the ${pinnedDate} puzzle`))
+                : (locale === "zh" ? `查看今日题目说明` : (locale === "ja" ? `今日の問題説明を見る` : "About today's puzzle"))}
+            </summary>
+            <div className="puzzle-seo__body">
+              <h2 className="puzzle-seo__heading">
+                {pinnedDate
+                  ? (locale === "zh" ? `${pinnedDate} 喵格谜每日文字分类谜题` : (locale === "ja" ? `${pinnedDate} のナナミキャット ことばパズル` : `Nanami Cat Daily Word Puzzle - ${pinnedDate}`))
+                  : (locale === "zh" ? `今日喵格谜每日文字分类谜题` : (locale === "ja" ? `今日のナナミキャット ことばパズル` : `Nanami Cat Daily Word Puzzle - Today`))}
+              </h2>
+              <p className="puzzle-seo__lead">
+                {locale === "zh"
+                  ? `这是 ${pinnedDate || "今天"} 的每日文字分类谜题。桌面上有 16 个词, 找出 4 组, 每组 4 个词。失误最多 4 次。主题: ${puzzleTheme(puzzle, locale, englishTerms)}。`
+                  : (locale === "ja"
+                    ? `${pinnedDate || "今日"}のことばパズルです。16個のことばから4つのグループ(各4語)を見つけましょう。ミスは4回まで。今日のテーマ: ${puzzleTheme(puzzle, locale, englishTerms)}。`
+                    : `Today's Nanami Cat word puzzle for ${pinnedDate || "today"}. Sixteen words on the board — find four groups of four. Up to four mistakes allowed. Theme: ${puzzleTheme(puzzle, locale, englishTerms)}.`)}
+              </p>
+              <ul className="puzzle-seo__groups">
+                {puzzle.groups.map((g, idx) => (
+                  <li key={g.name}>
+                    <strong>
+                      {locale === "zh" ? `第 ${idx + 1} 组` : (locale === "ja" ? `グループ ${idx + 1}` : `Group ${idx + 1}`)}
+                      {": "}
+                      {localizePuzzleTerm(g.name, locale, englishTerms)}
+                    </strong>
+                    {" — "}
+                    {g.items.map((it) => itemLabel(it, locale, englishTerms)).join("、")}
+                  </li>
+                ))}
+              </ul>
+              <p className="puzzle-seo__cta">
+                {locale === "zh"
+                  ? `免费玩, 无需注册。错过的日子可以从历史题库重玩。`
+                  : (locale === "ja"
+                    ? `登録不要、無料で遊べます。過去の挑戦は履歴から再挑戦できます。`
+                    : `Free to play, no sign-up. Missed days can be replayed from the archive.`)}
+              </p>
+            </div>
+          </details>
+
+          <div className="board-doodle-wrap">
+            <svg className="board-doodle" viewBox="0 0 400 320" fill="none" aria-hidden="true" preserveAspectRatio="none">
+              <path d="M18 260 Q60 240 110 255 Q160 270 200 248" stroke="var(--crayon-blue)" strokeWidth="2.5" strokeOpacity="0.14" strokeLinecap="round" fill="none" />
+              <path d="M320 30 Q350 55 370 90 Q385 120 365 150" stroke="var(--crayon-pink)" strokeWidth="2.5" strokeOpacity="0.14" strokeLinecap="round" fill="none" />
+              <path d="M30 60 Q55 45 80 62" stroke="var(--crayon-green)" strokeWidth="2.2" strokeOpacity="0.18" strokeLinecap="round" fill="none" />
+              <path d="M350 280 Q370 265 390 278" stroke="var(--crayon-orange)" strokeWidth="2.2" strokeOpacity="0.18" strokeLinecap="round" fill="none" />
+            </svg>
+            <section className={`board${boardShake ? " board-shaking" : ""}`} aria-label="Puzzle board">
+              {activeItems.map((item) => (
+                <button
+                  type="button"
+                  key={item.id}
+                  className={selected.includes(item.id) ? "tile selected" : "tile"}
+                  onClick={() => toggleItem(item)}
+                  disabled={isGameOver}
+                  aria-pressed={selected.includes(item.id)}
+                  aria-label={itemLabel(item, locale, englishTerms)}
+                >
+                  {itemLabel(item, locale, englishTerms)}
+                </button>
+              ))}
+            </section>
+          </div>
+
+          {/* In-progress solved groups */}
+          {solved.length > 0 && !isComplete && (
+            <section className="solved solved--in-progress" aria-live="polite" aria-label="Groups already found">
+              {solved.map((group, idx) => {
+                const meta = difficultyMeta[group.level] ?? difficultyMeta[4];
+                const levelColors = {
+                  "level-yellow": "#e0a818",
+                  "level-green": "#5fae5c",
+                  "level-blue": "#4ba2d6",
+                  "level-purple": "#9d6cc4"
+                };
+                const underlineColor = levelColors[meta.className] ?? "#888";
+                return (
+                  <article
+                    className={`solved-item ${meta.className}`}
+                    key={group.name}
+                    style={{ "--solved-index": idx }}
+                  >
+                    <NanamiCatMascot size="mini" altText={t.appName} />
+                    <div>
+                      <h2>
+                        {localizePuzzleTerm(group.name, locale, englishTerms)}
+                        <svg className="solved-doodle-underline" viewBox="0 0 80 8" height="6" aria-hidden="true" preserveAspectRatio="none">
+                          <path
+                            d="M2 5 Q12 1 22 5 Q32 9 42 5 Q52 1 62 5 Q72 9 78 5"
+                            stroke={underlineColor}
+                            strokeWidth="2"
+                            strokeOpacity="0.55"
+                            strokeLinecap="round"
+                            fill="none"
+                            strokeDasharray="100"
+                            strokeDashoffset="100"
+                            style={{ animation: `drawLine 500ms ${idx * 80}ms ease-out forwards` }}
+                          />
+                        </svg>
+                      </h2>
+                      <p>{group.items.map((item) => itemLabel(item, locale, englishTerms)).join(" / ")}</p>
+                    </div>
+                  </article>
+                );
+              })}
+            </section>
+          )}
+
+          <section className="controls-split" aria-label="Game controls">
+            {!isComplete && !isGameOver && (
+              <>
+                <button type="button" className="controls-submit primary" onClick={submitGuess} disabled={selected.length !== 4}>
+                  <Check size={18} /> {t.submit}
+                </button>
+                <div className="controls-grid">
+                  <button type="button" className="control-hint" onClick={useHint} disabled={hintBalance <= 0}>
+                    <HelpCircle size={16} /> {t.hint} ({hintBalance})
+                  </button>
+                  <button type="button" className="control-shuffle" onClick={shuffleActiveItems}>
+                    <Dices size={16} /> {t.shuffle}
+                  </button>
+                  <button type="button" className="control-clear" onClick={() => { setSelected([]); setMessage(t.clearedSelection); }} disabled={!selected.length}>
+                    <RotateCcw size={16} /> {t.clear}
+                  </button>
+                  <button type="button" className="control-next" onClick={nextPuzzle}>
+                    {t.next}
+                  </button>
+                </div>
+              </>
+            )}
+            {isGameOver && (
+              <div className="controls-grid">
+                <button type="button" className="control-next" onClick={nextPuzzle}>
+                  {t.next}
+                </button>
+              </div>
+            )}
+          </section>
+
+          {isComplete && (
+            <>
+              {abstractGroup && (
+                <section
+                  className={`celebration-card level-${abstractGroup.level === 4 ? "purple" : abstractGroup.level === 3 ? "blue" : abstractGroup.level === 2 ? "green" : "yellow"}`}
+                  aria-label={t.abstract}
+                >
+                  <NanamiCatMascot size="celebration" showCelebration={true} altText={t.appName} />
+                  <div className="celebration-text">
+                    <h3>{t.abstract}</h3>
+                    <h2>{localizePuzzleTerm(abstractGroup.name, locale, englishTerms)}</h2>
+                  </div>
+                </section>
+              )}
+
+              <section className="solved" aria-live="polite" aria-label="Solved groups">
+                {solved.map((group, idx) => {
+                  const meta = difficultyMeta[group.level] ?? difficultyMeta[4];
+                  const levelColors = {
+                    "level-yellow": "#e0a818",
+                    "level-green": "#5fae5c",
+                    "level-blue": "#4ba2d6",
+                    "level-purple": "#9d6cc4"
+                  };
+                  const underlineColor = levelColors[meta.className] ?? "#888";
+                  return (
+                    <article
+                      className={`solved-item ${meta.className}`}
+                      key={group.name}
+                      style={{ "--solved-index": idx }}
+                    >
+                      <NanamiCatMascot size="mini" altText={t.appName} />
+                      <div>
+                        <h2>
+                          {localizePuzzleTerm(group.name, locale, englishTerms)}
+                          <svg className="solved-doodle-underline" viewBox="0 0 80 8" height="6" aria-hidden="true" preserveAspectRatio="none">
+                            <path
+                              d="M2 5 Q12 1 22 5 Q32 9 42 5 Q52 1 62 5 Q72 9 78 5"
+                              stroke={underlineColor}
+                              strokeWidth="2"
+                              strokeOpacity="0.55"
+                              strokeLinecap="round"
+                              fill="none"
+                              strokeDasharray="100"
+                              strokeDashoffset="100"
+                              style={{ animation: `drawLine 500ms ${idx * 80}ms ease-out forwards` }}
+                            />
+                          </svg>
+                        </h2>
+                        <p>{group.items.map((item) => itemLabel(item, locale, englishTerms)).join(" / ")}</p>
+                      </div>
+                    </article>
+                  );
+                })}
+              </section>
+
+              <section className="completion-actions" aria-label="Completion actions">
+                <button type="button" className="primary completion-next" onClick={nextPuzzle}>{t.nextAfterComplete}</button>
+                <button type="button" className="control-share" onClick={shareResult}>
+                  <Share2 size={16} /> {t.share}
+                </button>
+                <button type="button" className="control-archive" onClick={() => setRoute("archive")}>
+                  {locale === "zh" ? "玩历史题" : (locale === "ja" ? "過去の挑戦" : "Play previous")}
+                </button>
+                {!pinnedDate && (
+                  <button
+                    type="button"
+                    className="control-tomorrow"
+                    onClick={() => { resetPuzzleState(); setMessage(locale === "zh" ? "明天见！" : (locale === "ja" ? "また明日！" : "See you tomorrow!")); }}
+                  >
+                    {locale === "zh" ? "明天再来" : (locale === "ja" ? "また明日ね" : "Come back tomorrow")}
+                  </button>
+                )}
+              </section>
+
+              <AdSlot slotName="ad-result-bottom" reservedHeight={120} label="Ad" />
+            </>
+          )}
+        </section>
+      </section>
+    );
+  }
+
   function setRoute(nextView, options = {}) {
     setView(nextView);
     const nextPinned = options.pinnedDate ?? null;
     setPinnedDate(nextPinned);
     const paths = {
       game: nextPinned ? `/puzzle/${nextPinned}` : "/",
+      today: "/today",
       archive: "/archive",
       leaderboard: "/leaderboard",
       contribute: "/contribute",
@@ -755,9 +1429,9 @@ function App() {
       }))
       .sort((a, b) => b.count - a.count);
     if (counts[0]?.count === 3) {
-      return locale === "zh"
-        ? `红鲱鱼出现：你摸到了「${counts[0].name}」的边，但有一个项目在误导你。`
-        : `Red herring: you are close to "${counts[0].name}", but one item is pulling you away.`;
+      if (locale === "zh") return `红鲱鱼出现：你摸到了「${counts[0].name}」的边，但有一个项目在误导你。`;
+      if (locale === "ja") return `惜しい：「${counts[0].name}」に近づいていますが、1つのことばに惑わされています。`;
+      return `Red herring: you are close to "${counts[0].name}", but one item is pulling you away.`;
     }
     return t.wrong;
   }
@@ -834,7 +1508,13 @@ function App() {
         trackGameComplete({ puzzleId: puzzle.id, date: completionDate, timeSeconds, mistakes, perfect: mistakes === 0 });
         submitScore();
       } else {
-        setMessage(locale === "zh" ? `答对一组：${matched.name}` : `Correct group: ${localizePuzzleTerm(matched.name, locale, englishTerms)}`);
+        const groupName = localizePuzzleTerm(matched.name, locale, englishTerms);
+        const correctMsg = locale === "zh"
+          ? `正确！找到了「${groupName}」`
+          : locale === "ja"
+          ? `正解！「${groupName}」グループ発見`
+          : `Correct group: ${groupName}`;
+        setMessage(correctMsg);
       }
       return;
     }
@@ -853,7 +1533,7 @@ function App() {
     const activeIds = new Set(activeItems.map((item) => item.id));
     setSelected((current) => current.filter((id) => activeIds.has(id)));
     setBoardShuffleSeed((current) => current + 1);
-    setMessage(locale === "zh" ? "已打乱未解锁项目。" : "Unsolved items shuffled.");
+    setMessage((locale === "zh" ? "已打乱未解锁项目。" : (locale === "ja" ? "未解答の項目をシャッフルしました。" : "Unsolved items shuffled.")));
   }
 
   function useHint() {
@@ -879,17 +1559,17 @@ function App() {
   }
 
   function nextPuzzle() {
-    // Build the list of "recent puzzles" (last 5 the player saw) so the
-    // balanced picker can avoid re-using the same groups the player just
-    // played. Pool lookup is O(N) but N=500 — fine.
+    // Build the list of "recent puzzles" (the player's last 50 plays) so
+    // the balanced picker can avoid re-using the same groups the player
+    // just saw. With maxShared=0, every click gives the player a puzzle
+    // whose 4 groups are all new.
     const recentPuzzles = playedPuzzleIds
-      .slice(-5)
+      .slice(-50)
       .map((id) => pool.find((p) => p.id === id))
       .filter(Boolean);
     // Wipe the current puzzle's resume — the player is choosing to leave.
-    // (Don't await: this is a sync localStorage write wrapped in try/catch.)
     if (puzzle.id && puzzle.id !== "loading") clearResume(puzzle.id);
-    const nextIndex = pickBalancedNext(pool, puzzleIndex, recentPuzzles, 5, 1);
+    const nextIndex = pickBalancedNext(pool, puzzleIndex, recentPuzzles, 50, 0);
     setPuzzleIndex(nextIndex);
     resetPuzzleState();
   }
@@ -930,13 +1610,13 @@ function App() {
       }));
       const filledGroups = parsedGroups.filter((group) => group.name || group.words.length > 0);
       if (!filledGroups.length) {
-        throw new Error(locale === "zh" ? "最少填写 1 组，每组 4 个词。" : "Add at least one group with exactly four words.");
+        throw new Error((locale === "zh" ? "最少填写 1 组，每组 4 个词。" : (locale === "ja" ? "1〜10グループ、各4語が必要です。" : "Add at least one group with exactly four words.")));
       }
       if (filledGroups.length > 10) {
-        throw new Error(locale === "zh" ? "一次最多提交 10 组。" : "You can submit at most 10 groups at a time.");
+        throw new Error((locale === "zh" ? "一次最多提交 10 组。" : (locale === "ja" ? "一度に最大10グループまで投稿できます。" : "You can submit at most 10 groups at a time.")));
       }
       if (filledGroups.some((group) => !group.name || group.words.length !== 4)) {
-        throw new Error(locale === "zh" ? "每个已填写分组必须有组名且恰好 4 个词。" : "Each filled group needs a name and exactly four words.");
+        throw new Error((locale === "zh" ? "每个已填写分组必须有组名且恰好 4 个词。" : (locale === "ja" ? "各グループに名前と4語が必要です。" : "Each filled group needs a name and exactly four words.")));
       }
       const payload = await api("/api/puzzles", {
         method: "POST",
@@ -1019,7 +1699,7 @@ function App() {
     const perfect = mistakes === 0;
     const abstractName = abstractGroup ? localizePuzzleTerm(abstractGroup.name, locale, englishTerms) : "-";
     const timeStr = `${Math.floor(timeSeconds / 60)}:${String(timeSeconds % 60).padStart(2, "0")}`;
-    const headline = locale === "zh" ? "喵格谜" : "Nanami Cat";
+    const headline = (locale === "zh" ? "喵格谜" : (locale === "ja" ? "ナナミキャット" : "Nanami Cat"));
     const report = [
       `${headline} · ${completionDate}`,
       `${puzzleLabel(puzzle, locale)}`,
@@ -1041,9 +1721,9 @@ function App() {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(report);
-        setMessage(locale === "zh" ? "结果已复制。" : "Result copied.");
+        setMessage((locale === "zh" ? "结果已复制。" : (locale === "ja" ? "結果をコピーしました。" : "Result copied.")));
       } catch {
-        setMessage(locale === "zh" ? "分享失败，请手动复制。" : "Share failed, copy manually.");
+        setMessage((locale === "zh" ? "分享失败，请手动复制。" : (locale === "ja" ? "シェアに失敗しました。手動でコピーしてください。" : "Share failed, copy manually.")));
       }
     }
     trackShareClick({ puzzleId: puzzle.id, platform: usedMethod });
@@ -1052,7 +1732,7 @@ function App() {
   if (catalogLoading) {
     return (
       <main className="page page-loading" role="status" aria-live="polite">
-        <p>{locale === "zh" ? "正在加载题库…" : "Loading puzzles…"}</p>
+        <p>{(locale === "zh" ? "正在加载题库…" : (locale === "ja" ? "問題を読み込み中…" : "Loading puzzles…"))}</p>
       </main>
     );
   }
@@ -1060,9 +1740,9 @@ function App() {
   if (catalogError || !pool.length) {
     return (
       <main className="page page-loading" role="alert">
-        <p>{catalogError || (locale === "zh" ? "题库加载失败。" : "Failed to load puzzles.")}</p>
+        <p>{catalogError || ((locale === "zh" ? "题库加载失败。" : (locale === "ja" ? "問題の読み込みに失敗しました。" : "Failed to load puzzles.")))}</p>
         <button type="button" className="primary" onClick={() => window.location.reload()}>
-          {locale === "zh" ? "重试" : "Retry"}
+          {(locale === "zh" ? "重试" : (locale === "ja" ? "再試行" : "Retry"))}
         </button>
       </main>
     );
@@ -1073,7 +1753,7 @@ function App() {
       <header className="app-header">
         <section className="hero">
           <div className="brand-lockup">
-            <NanamiCatMascot size="gameHeader" className={mascotBounce ? "mascot-bouncing" : ""} />
+            <NanamiCatMascot size="gameHeader" className={mascotBounce ? "mascot-bouncing" : ""} altText={t.appName} />
             <div>
               <p className="kicker">{t.kicker}</p>
               <h1>
@@ -1088,9 +1768,46 @@ function App() {
             </div>
           </div>
           <div className="hero-tools">
-            <button className="ghost" type="button" onClick={() => setLocale(locale === "zh" ? "en" : "zh")}>
-              <Globe2 size={15} /> {t.language}
-            </button>
+            <div
+              className="lang-switch"
+              role="group"
+              aria-label={
+                locale === "zh" ? "语言" : locale === "ja" ? "言語" : "Language"
+              }
+            >
+              <Globe2 size={14} className="lang-switch__icon" aria-hidden="true" />
+              <div className="lang-switch__track">
+                {/* Sliding thumb: absolute-positioned highlight that travels
+                    between the three slots. transform translateX uses the
+                    slot width as the unit (set in CSS via custom property),
+                    so the thumb lines up exactly with the active label. */}
+                <span
+                  className="lang-switch__thumb"
+                  data-active={locale}
+                  aria-hidden="true"
+                />
+                {[
+                  { id: "zh", label: "中文" },
+                  { id: "en", label: "EN" },
+                  { id: "ja", label: "日本語" }
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className="lang-switch__btn"
+                    onClick={() => setLocale(opt.id)}
+                    aria-pressed={locale === opt.id}
+                    aria-label={
+                      locale === "zh" ? `切换到 ${opt.label}`
+                        : locale === "ja" ? `${opt.label} に切り替え`
+                        : `Switch to ${opt.label}`
+                    }
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <button className="ghost" type="button" onClick={() => setHelpOpen(true)}>
               <HelpCircle size={15} /> {t.help}
             </button>
@@ -1099,8 +1816,8 @@ function App() {
 
         <nav className="topnav" aria-label="Primary">
           {[
-            ["game", t.appName, Sparkles],
-            ["archive", locale === "zh" ? "历史" : "Archive", Sparkles],
+            ["today", locale === "zh" ? "今日" : (locale === "ja" ? "今日" : "Today"), Sparkles],
+            ["archive", locale === "zh" ? "历史" : (locale === "ja" ? "履歴" : "Archive"), Sparkles],
             ["leaderboard", t.leaderboard, Trophy],
             ["contribute", t.contribute, PenLine]
           ].map(([id, label, Icon]) => (
@@ -1109,7 +1826,7 @@ function App() {
             </button>
           ))}
           {streak.current > 0 && (
-            <span className="topnav-streak" title={locale === "zh" ? "连续天数" : "Day streak"}>
+            <span className="topnav-streak" title={locale === "zh" ? "连续天数" : (locale === "ja" ? "連続日数" : "Day streak")}>
               🔥 {streak.current}
             </span>
           )}
@@ -1131,211 +1848,10 @@ function App() {
             </div>
           </section>
 
-          <section className="game-workspace">
-            <aside className="game-rail">
-              <section className="status">
-                <span>{t.mistakes}</span>
-                <strong aria-label={`${remainingMistakes} remaining`}>{"●".repeat(remainingMistakes)}{"○".repeat(maxMistakes - remainingMistakes)}</strong>
-              </section>
-              <section className="status">
-                <span>{t.hint}</span>
-                <strong aria-label={`${hintBalance} hints remaining`}>{hintBalance}</strong>
-              </section>
-              <section className="status status-stairs" aria-label={locale === "zh" ? "难易程度" : "Difficulty"}>
-                <span>{locale === "zh" ? "难度" : "Level"}</span>
-                <div className="diff-stairs" role="img" aria-label={`${solved.length}/4 groups solved`}>
-                  {[1,2,3,4].map((lvl) => {
-                    const barColors = ["#f7c948","#7bc67b","#6db6e8","#a87dc8"];
-                    const isSolved = lvl === 1 || solved.some((g) => g.level === lvl);
-                    return (
-                      <div
-                        key={lvl}
-                        className={`diff-bar${isSolved ? " diff-bar--solved" : ""}`}
-                        style={{ "--bar-color": barColors[lvl - 1], "--bar-h": `${lvl * 7 + 3}px` }}
-                      />
-                    );
-                  })}
-                </div>
-              </section>
-            </aside>
-
-            <section className="game-stage">
-              <p className="message" role="status" aria-live="polite">{message}</p>
-
-              <div className="board-doodle-wrap">
-                <svg className="board-doodle" viewBox="0 0 400 320" fill="none" aria-hidden="true" preserveAspectRatio="none">
-                  {/* Crayon scribble lines */}
-                  <path d="M18 260 Q60 240 110 255 Q160 270 200 248" stroke="var(--crayon-blue)" strokeWidth="2.5" strokeOpacity="0.14" strokeLinecap="round" fill="none" />
-                  <path d="M320 30 Q350 55 370 90 Q385 120 365 150" stroke="var(--crayon-pink)" strokeWidth="2.5" strokeOpacity="0.14" strokeLinecap="round" fill="none" />
-                  <path d="M30 60 Q55 45 80 62" stroke="var(--crayon-green)" strokeWidth="2.2" strokeOpacity="0.18" strokeLinecap="round" fill="none" />
-                  <path d="M350 280 Q370 265 390 278" stroke="var(--crayon-orange)" strokeWidth="2.2" strokeOpacity="0.18" strokeLinecap="round" fill="none" />
-                  {/* Stars */}
-                  <text x="8" y="28" fontSize="14" fill="var(--crayon-yellow)" opacity="0.5" fontFamily="sans-serif">★</text>
-                  <text x="374" y="310" fontSize="12" fill="var(--crayon-pink)" opacity="0.45" fontFamily="sans-serif">★</text>
-                  <text x="182" y="14" fontSize="10" fill="var(--crayon-blue)" opacity="0.4" fontFamily="sans-serif">✦</text>
-                  {/* Dots */}
-                  <circle cx="395" cy="42" r="4" fill="var(--crayon-green)" opacity="0.3" />
-                  <circle cx="12" cy="298" r="4" fill="var(--crayon-purple)" opacity="0.28" />
-                  <circle cx="200" cy="310" r="3" fill="var(--crayon-orange)" opacity="0.25" />
-                  {/* Zigzag decoration top-right */}
-                  <path d="M340 8 L350 16 L360 8 L370 16 L380 8" stroke="var(--crayon-yellow)" strokeWidth="2" strokeOpacity="0.35" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                  {/* Wavy bottom decoration */}
-                  <path d="M60 312 Q80 304 100 312 Q120 320 140 312 Q160 304 180 312" stroke="var(--crayon-pink)" strokeWidth="1.8" strokeOpacity="0.2" strokeLinecap="round" fill="none" />
-                </svg>
-                <section className={`board${boardShake ? " board-shaking" : ""}`} aria-label="Puzzle board">
-                  {activeItems.map((item) => (
-                    <button
-                      type="button"
-                      key={item.id}
-                      className={selected.includes(item.id) ? "tile selected" : "tile"}
-                      onClick={() => toggleItem(item)}
-                      disabled={isGameOver}
-                      aria-pressed={selected.includes(item.id)}
-                      aria-label={itemLabel(item, locale, englishTerms)}
-                    >
-                      {itemLabel(item, locale, englishTerms)}
-                    </button>
-                  ))}
-                </section>
-              </div>
-
-              {/* In-progress solved groups: visible while the player still
-                  has groups left to find. Mirrors the post-completion solved
-                  list so a resumed game shows the same level colour and
-                  underline animation the player had when they walked away. */}
-              {solved.length > 0 && !isComplete && (
-                <section className="solved solved--in-progress" aria-live="polite" aria-label="Groups already found">
-                  {solved.map((group, idx) => {
-                    const meta = difficultyMeta[group.level] ?? difficultyMeta[4];
-                    const levelColors = {
-                      "level-yellow": "#e0a818",
-                      "level-green": "#5fae5c",
-                      "level-blue": "#4ba2d6",
-                      "level-purple": "#9d6cc4"
-                    };
-                    const underlineColor = levelColors[meta.className] ?? "#888";
-                    return (
-                      <article
-                        className={`solved-item ${meta.className}`}
-                        key={group.name}
-                        style={{ "--solved-index": idx }}
-                      >
-                        <NanamiCatMascot size="mini" />
-                        <div>
-                          <h2>
-                            {localizePuzzleTerm(group.name, locale, englishTerms)}
-                            <svg className="solved-doodle-underline" viewBox="0 0 80 8" height="6" aria-hidden="true" preserveAspectRatio="none">
-                              <path
-                                d="M2 5 Q12 1 22 5 Q32 9 42 5 Q52 1 62 5 Q72 9 78 5"
-                                stroke={underlineColor}
-                                strokeWidth="2"
-                                strokeOpacity="0.55"
-                                strokeLinecap="round"
-                                fill="none"
-                                strokeDasharray="100"
-                                strokeDashoffset="100"
-                                style={{ animation: `drawLine 500ms ${idx * 80}ms ease-out forwards` }}
-                              />
-                            </svg>
-                          </h2>
-                          <p>{group.items.map((item) => itemLabel(item, locale, englishTerms)).join(" / ")}</p>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </section>
-              )}
-
-              <section className="controls-split" aria-label="Game controls">
-                {!isComplete && !isGameOver && (
-                  <>
-                    <button type="button" className="controls-submit primary" onClick={submitGuess} disabled={selected.length !== 4}><Check size={18} /> {t.submit}</button>
-                    <div className="controls-grid">
-                      <button type="button" className="control-hint" onClick={useHint} disabled={hintBalance <= 0}><HelpCircle size={16} /> {t.hint} ({hintBalance})</button>
-                      <button type="button" className="control-shuffle" onClick={shuffleActiveItems}><Dices size={16} /> {t.shuffle}</button>
-                      <button type="button" className="control-clear" onClick={() => { setSelected([]); setMessage(t.clearedSelection); }} disabled={!selected.length}><RotateCcw size={16} /> {t.clear}</button>
-                      <button type="button" className="control-next" onClick={nextPuzzle}>{t.next}</button>
-                    </div>
-                  </>
-                )}
-                {isGameOver && (
-                  <div className="controls-grid">
-                    <button type="button" className="control-next" onClick={nextPuzzle}>{t.next}</button>
-                  </div>
-                )}
-              </section>
-
-              {isComplete && (
-                <>
-                  {abstractGroup && (
-                    <section className={`celebration-card level-${abstractGroup.level === 4 ? "purple" : abstractGroup.level === 3 ? "blue" : abstractGroup.level === 2 ? "green" : "yellow"}`} aria-label={t.abstract}>
-                      <NanamiCatMascot size="celebration" showCelebration={true} />
-                      <div className="celebration-text">
-                        <h3>{t.abstract}</h3>
-                        <h2>{localizePuzzleTerm(abstractGroup.name, locale, englishTerms)}</h2>
-                      </div>
-                    </section>
-                  )}
-
-                  <section className="solved" aria-live="polite" aria-label="Solved groups">
-                    {solved.map((group, idx) => {
-                      const meta = difficultyMeta[group.level] ?? difficultyMeta[4];
-                      const levelColors = {
-                        "level-yellow": "#e0a818",
-                        "level-green": "#5fae5c",
-                        "level-blue": "#4ba2d6",
-                        "level-purple": "#9d6cc4"
-                      };
-                      const underlineColor = levelColors[meta.className] ?? "#888";
-                      return (
-                        <article
-                          className={`solved-item ${meta.className}`}
-                          key={group.name}
-                          style={{ "--solved-index": idx }}
-                        >
-                          <NanamiCatMascot size="mini" />
-                          <div>
-                            <h2>
-                              {localizePuzzleTerm(group.name, locale, englishTerms)}
-                              <svg className="solved-doodle-underline" viewBox="0 0 80 8" height="6" aria-hidden="true" preserveAspectRatio="none">
-                                <path
-                                  d="M2 5 Q12 1 22 5 Q32 9 42 5 Q52 1 62 5 Q72 9 78 5"
-                                  stroke={underlineColor}
-                                  strokeWidth="2"
-                                  strokeOpacity="0.55"
-                                  strokeLinecap="round"
-                                  fill="none"
-                                  strokeDasharray="100"
-                                  strokeDashoffset="100"
-                                  style={{ animation: `drawLine 500ms ${idx * 80}ms ease-out forwards` }}
-                                />
-                              </svg>
-                            </h2>
-                            <p>{group.items.map((item) => itemLabel(item, locale, englishTerms)).join(" / ")}</p>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </section>
-
-                  <section className="completion-actions" aria-label="Completion actions">
-                    <button type="button" className="primary completion-next" onClick={nextPuzzle}>{t.nextAfterComplete}</button>
-                    <button type="button" className="control-share" onClick={shareResult}><Share2 size={16} /> {t.share}</button>
-                    <button type="button" className="control-archive" onClick={() => setRoute("archive")}>
-                      {locale === "zh" ? "玩历史题" : "Play previous"}
-                    </button>
-                    {!pinnedDate && (
-                      <button type="button" className="control-tomorrow" onClick={() => { resetPuzzleState(); setMessage(locale === "zh" ? "明天见！" : "See you tomorrow!"); }}>
-                        {locale === "zh" ? "明天再来" : "Come back tomorrow"}
-                      </button>
-                    )}
-                  </section>
-
-                  <AdSlot slotName="ad-result-bottom" reservedHeight={120} label="Ad" />
-                </>
-              )}
-            </section>
-          </section>
+          {/* The actual play board. We keep the markup inline here (not in a
+              helper function) so React DevTools and the error stack can
+              point at the right component boundary. */}
+          {renderGameBoardInline()}
 
           {/* Back link when this board is pinned to a specific date via /puzzle/:date */}
           {pinnedDate && (
@@ -1351,6 +1867,13 @@ function App() {
           <AdSlot slotName="ad-page-bottom" reservedHeight={120} label="Ad" />
         </>
       )}
+
+      {/* /today SEO landing. Renders the same playable board inside a
+          wrapper of H1 + lead + features + FAQ so crawlers (and humans who
+          scroll up after a round) see a proper "today's puzzle" landing
+          with long-tail keyword coverage. JSON-LD is injected at runtime by
+          the head-meta effect above. */}
+      {view === "today" && renderTodayLanding()}
 
       {view === "archive" && (
         <Suspense fallback={<ArchiveFallback />}>
@@ -1404,7 +1927,7 @@ function App() {
               </div>
               {!leaderboard.length && (
                 <div className="empty-state">
-                  <NanamiCatMascot size="empty" className="mascot-bob" />
+                  <NanamiCatMascot size="empty" className="mascot-bob" altText={t.appName} />
                   <div className="paw-prints" aria-hidden="true">
                     {["-8deg", "4deg", "-4deg"].map((rot, i) => (
                       <svg key={i} width="22" height="22" viewBox="0 0 22 22" fill="none" style={{ transform: `rotate(${rot})` }}>
@@ -1430,7 +1953,7 @@ function App() {
             <div>
               <div className="panel-title-lockup">
                 <h2>{t.submitPuzzle}</h2>
-                <NanamiCatMascot size="header" />
+                <NanamiCatMascot size="header" altText={t.appName} />
               </div>
               <p>{t.contributionLead}</p>
             </div>
@@ -1632,7 +2155,7 @@ function App() {
               <X size={18} />
             </button>
             <div className="rules-modal-head">
-              <NanamiCatMascot size="mini" />
+              <NanamiCatMascot size="mini" altText={t.appName} />
               <h2>{t.help}</h2>
             </div>
             <p className="rules-modal-body">{t.rulesBody}</p>
@@ -1698,5 +2221,3 @@ createRoot(document.getElementById("root")).render(
     <StickyAdBar slotName="page-bottom" reservedHeight={90} />
   </>
 );
-
-createRoot(document.getElementById("root")).render(<App />);

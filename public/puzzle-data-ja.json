@@ -1,0 +1,7555 @@
+{
+  "textGroupBank": [
+    {
+      "level": 1,
+      "id": "japanese-breakfast",
+      "name": "和食の朝食",
+      "words": [
+        "味噌汁",
+        "焼き魚",
+        "ご飯",
+        "納豆"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-ramen-toppings",
+      "name": "ラーメンの具",
+      "words": [
+        "チャーシュー",
+        "煮卵",
+        "ネギ",
+        "メンマ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-sushi-types",
+      "name": "寿司の種類",
+      "words": [
+        "マグロ",
+        "サーモン",
+        "エビ",
+        "タコ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-fruits",
+      "name": "日本の果物",
+      "words": [
+        "りんご",
+        "みかん",
+        "梨",
+        "桃"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-vegetables",
+      "name": "日本の野菜",
+      "words": [
+        "大根",
+        "人参",
+        "白菜",
+        "ほうれん草"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-mushrooms",
+      "name": "日本のきのこ",
+      "words": [
+        "しいたけ",
+        "しめじ",
+        "舞茸",
+        "えのき"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-fish",
+      "name": "日本の魚",
+      "words": [
+        "鯛",
+        "鮭",
+        "鯖",
+        "鰤"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-animals-pets",
+      "name": "ペット",
+      "words": [
+        "犬",
+        "猫",
+        "うさぎ",
+        "ハムスター"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-wild-animals",
+      "name": "日本の野生動物",
+      "words": [
+        "鹿",
+        "猿",
+        "狸",
+        "狐"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-birds",
+      "name": "日本の鳥",
+      "words": [
+        "雀",
+        "鶴",
+        "鷹",
+        "鴛鴦"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-insects",
+      "name": "昆虫",
+      "words": [
+        "蝶",
+        "トンボ",
+        "鈴虫",
+        "カブト虫"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-cities",
+      "name": "日本の都市",
+      "words": [
+        "東京",
+        "大阪",
+        "京都",
+        "札幌"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-prefectures",
+      "name": "都道府県(例)",
+      "words": [
+        "北海道",
+        "沖縄",
+        "福岡",
+        "愛知"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-landmarks",
+      "name": "日本の名所",
+      "words": [
+        "富士山",
+        "金閣寺",
+        "清水寺",
+        "厳島神社"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-rivers",
+      "name": "日本の川",
+      "words": [
+        "信濃川",
+        "利根川",
+        "淀川",
+        "石狩川"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-mountains",
+      "name": "日本の山",
+      "words": [
+        "槍ヶ岳",
+        "白山",
+        "八甲田山",
+        "大雪山"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-transportation",
+      "name": "交通手段",
+      "words": [
+        "電車",
+        "バス",
+        "新幹線",
+        "飛行機"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-stationery",
+      "name": "文房具",
+      "words": [
+        "鉛筆",
+        "消しゴム",
+        "定規",
+        "ノート"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-kitchen-tools",
+      "name": "台所用品",
+      "words": [
+        "まな板",
+        "包丁",
+        "鍋",
+        "ざる"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-cleaning-tools",
+      "name": "掃除用品",
+      "words": [
+        "ほうき",
+        "ちりとり",
+        "雑巾",
+        "モップ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-clothing",
+      "name": "衣服",
+      "words": [
+        "シャツ",
+        "ズボン",
+        "靴下",
+        "セーター"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-shoes",
+      "name": "靴",
+      "words": [
+        "スニーカー",
+        "革靴",
+        "サンダル",
+        "長靴"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-hats",
+      "name": "帽子",
+      "words": [
+        "キャップ",
+        "麦わら帽子",
+        "ヘルメット",
+        "ニット帽"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-umbrellas",
+      "name": "傘",
+      "words": [
+        "日傘",
+        "ビニール傘",
+        "和傘",
+        "パラソル"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-bags",
+      "name": "鞄",
+      "words": [
+        "リュック",
+        "トート",
+        "手提げ",
+        "クラッチ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-jewelry",
+      "name": "装身具",
+      "words": [
+        "指輪",
+        "ネックレス",
+        "ブレスレット",
+        "ピアス"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-cosmetics",
+      "name": "化粧品",
+      "words": [
+        "口紅",
+        "ファンデーション",
+        "マスカラ",
+        "アイシャドウ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-furniture",
+      "name": "家具",
+      "words": [
+        "ソファー",
+        "テーブル",
+        "ベッド",
+        "本棚"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-electronics",
+      "name": "家電",
+      "words": [
+        "冷蔵庫",
+        "洗濯機",
+        "電子レンジ",
+        "炊飯器"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-flower-names",
+      "name": "花",
+      "words": [
+        "桜",
+        "藤",
+        "菊",
+        "椿"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-trees",
+      "name": "木",
+      "words": [
+        "杉",
+        "松",
+        "梅",
+        "楓"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-rooms",
+      "name": "部屋",
+      "words": [
+        "居間",
+        "寝室",
+        "台所",
+        "洗面所"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-drinks",
+      "name": "飲み物",
+      "words": [
+        "緑茶",
+        "コーヒー",
+        "牛乳",
+        "ジュース"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-sweets",
+      "name": "和菓子",
+      "words": [
+        "饅頭",
+        "大福",
+        "羊羹",
+        "団子"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-snacks",
+      "name": "お菓子",
+      "words": [
+        "せんべい",
+        "あめ",
+        "チョコ",
+        "クッキー"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-fast-food",
+      "name": "ファストフード",
+      "words": [
+        "ハンバーガー",
+        "フライドポテト",
+        "ピザ",
+        "ホットドッグ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-sports",
+      "name": "スポーツ",
+      "words": [
+        "野球",
+        "サッカー",
+        "テニス",
+        "卓球"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-martial-arts",
+      "name": "武道",
+      "words": [
+        "柔道",
+        "剣道",
+        "空手",
+        "弓道"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-musical-instruments",
+      "name": "楽器",
+      "words": [
+        "ピアノ",
+        "ギター",
+        "バイオリン",
+        "ドラム"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "japanese-tools",
+      "name": "工具",
+      "words": [
+        "ハンマー",
+        "ドライバー",
+        "ペンチ",
+        "スパナ"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-school",
+      "name": "学校にあるもの",
+      "words": [
+        "黒板",
+        "下駄箱",
+        "通知表",
+        "名簿"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-hospital",
+      "name": "病院にあるもの",
+      "words": [
+        "聴診器",
+        "注射器",
+        "車椅子",
+        "点滴台"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-station",
+      "name": "駅にあるもの",
+      "words": [
+        "改札",
+        "ホーム",
+        "券売機",
+        "時刻表"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-conbini",
+      "name": "コンビニで買えるもの",
+      "words": [
+        "おにぎり",
+        "弁当",
+        "お茶",
+        "アイス"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-supermarket",
+      "name": "スーパーの売り場",
+      "words": [
+        "精肉",
+        "鮮魚",
+        "野菜",
+        "惣菜"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-izakaya",
+      "name": "居酒屋のメニュー",
+      "words": [
+        "枝豆",
+        "唐揚げ",
+        "刺身",
+        "焼き鳥"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-coffee-shop",
+      "name": "喫茶店で頼むもの",
+      "words": [
+        "ブレンド",
+        "モカ",
+        "カフェオレ",
+        "ケーキ"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-bento",
+      "name": "弁当のおかず",
+      "words": [
+        "卵焼き",
+        "ハンバーグ",
+        "ウインナー",
+        "筑前煮"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-camping",
+      "name": "キャンプ用品",
+      "words": [
+        "テント",
+        "寝袋",
+        "ランタン",
+        "バーナー"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-beach",
+      "name": "海で遊ぶもの",
+      "words": [
+        "浮き輪",
+        "ビーチボール",
+        "シュノーケル",
+        "砂遊びセット"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-snow",
+      "name": "冬の遊び",
+      "words": [
+        "スキー",
+        "スノボ",
+        "かまくら",
+        "そり"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-rainy-day",
+      "name": "雨の日の持ち物",
+      "words": [
+        "傘",
+        "ブーツカバー",
+        "レインブーツ",
+        "合羽"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-festival",
+      "name": "お祭りの屋台",
+      "words": [
+        "たこ焼き",
+        "りんご飴",
+        "ヨーヨー釣り",
+        "射的"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-onsen",
+      "name": "温泉にあるもの",
+      "words": [
+        "脱衣カゴ",
+        "タオル",
+        "温泉卵",
+        "かけ湯"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-tatami-room",
+      "name": "和室にあるもの",
+      "words": [
+        "畳",
+        "障子",
+        "襖",
+        "床の間"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-public-bath",
+      "name": "銭湯にあるもの",
+      "words": [
+        "桶",
+        "鏡",
+        "体重計",
+        "貴重品"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-kadomatsu",
+      "name": "お正月の飾り",
+      "words": [
+        "門松",
+        "しめ飾り",
+        "鏡餅",
+        "羽根つき"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-cooking-methods",
+      "name": "調理法",
+      "words": [
+        "焼く",
+        "煮る",
+        "蒸す",
+        "揚げる"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-knife-types",
+      "name": "包丁の種類",
+      "words": [
+        "三徳",
+        "出刃",
+        "薄刃",
+        "菜切り"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-tableware",
+      "name": "和食食器",
+      "words": [
+        "茶碗",
+        "湯呑み",
+        "皿",
+        "箸"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-tea-set",
+      "name": "茶道の道具",
+      "words": [
+        "茶筅",
+        "茶杓",
+        "棗",
+        "茶釜"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-rain-coat",
+      "name": "雨具",
+      "words": [
+        "防水スプレー",
+        "ポンチョ",
+        "雨靴",
+        "防水バッグ"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-station",
+      "name": "電車の利用",
+      "words": [
+        "切符",
+        "定期券",
+        "ICカード",
+        "指定席"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-photo-poses",
+      "name": "写真のポーズ",
+      "words": [
+        "ピース",
+        "笑顔",
+        "指ハート",
+        "変顔"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-summer-fun",
+      "name": "夏の風物詩",
+      "words": [
+        "花火",
+        "スイカ割り",
+        "風鈴",
+        "金魚すくい"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-winter-food",
+      "name": "冬の味覚",
+      "words": [
+        "おでん",
+        "湯豆腐",
+        "焼き芋",
+        "お汁粉"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-school-subjects",
+      "name": "学校の科目",
+      "words": [
+        "国語",
+        "算数",
+        "理科",
+        "社会"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-seasons",
+      "name": "四季",
+      "words": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-weekdays",
+      "name": "曜日",
+      "words": [
+        "月曜日",
+        "水曜日",
+        "金曜日",
+        "日曜日"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-kanji-radicals",
+      "name": "部首の例",
+      "words": [
+        "氵(さんずい)",
+        "木(き)",
+        "火(ひ)",
+        "心(りっしんべん)"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "japanese-onomatopoeia",
+      "name": "オノマトペ(擬音語)",
+      "words": [
+        "ドキドキ",
+        "ワクワク",
+        "キラキラ",
+        "ふわふわ"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-tanin-cover",
+      "name": "関係の形(モノ)",
+      "words": [
+        "招待状",
+        "契約書",
+        "名刺",
+        "証明書"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-ankers",
+      "name": "基準点(物)",
+      "words": [
+        "道標",
+        "栞",
+        "マイルストーン",
+        "基準"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-shared-resources",
+      "name": "共有の資源",
+      "words": [
+        "井戸水",
+        "共有林",
+        "電波帯",
+        "牧草地"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-bottlenecks",
+      "name": "通りにくい所",
+      "words": [
+        "狭い門",
+        "関所",
+        "踏切",
+        "難所"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-boundary-actions",
+      "name": "境目で起きること",
+      "words": [
+        "翻訳",
+        "通訳",
+        "両替",
+        "乗り換え"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-switches",
+      "name": "切り替え",
+      "words": [
+        "電源ボタン",
+        "栓(せん)",
+        "元栓",
+        "レバー"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-buffers",
+      "name": "ゆとり",
+      "words": [
+        "貯金",
+        "備蓄",
+        "予備",
+        "保険"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-anchors",
+      "name": "目印",
+      "words": [
+        "旗",
+        "看板",
+        "道しるべ",
+        "目標物"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-traces",
+      "name": "残された痕跡",
+      "words": [
+        "足跡",
+        "水跡",
+        "傷",
+        "焼き跡"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-repetition-as-ritual",
+      "name": "繰り返される行事",
+      "words": [
+        "朝礼",
+        "月次点検",
+        "年賀状",
+        "朝顔"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-order-formation",
+      "name": "順番作り",
+      "words": [
+        "番号札",
+        "整理券",
+        "列",
+        "並び順"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-feedback-loops",
+      "name": "循環する仕組み",
+      "words": [
+        "再診",
+        "再注文",
+        "再投票",
+        "再読込"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-identity-credentials",
+      "name": "身分を証明するもの",
+      "words": [
+        "社員証",
+        "学生証",
+        "保険証",
+        "印鑑"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-compressed-info",
+      "name": "短くされた情報",
+      "words": [
+        "要約",
+        "地図記号",
+        "略語",
+        "目次"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "japanese-decay",
+      "name": "時間とともに減る",
+      "words": [
+        "色あせ",
+        "錆",
+        "忘れ物",
+        "古紙"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "japanese-process-over-result",
+      "name": "過程は結果より重い",
+      "words": [
+        "下書き",
+        "リハーサル",
+        "草案",
+        "試算"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "japanese-boundary-defines-inside",
+      "name": "境界が内側を作る",
+      "words": [
+        "国境",
+        "塀",
+        "表紙",
+        "タイトル画面"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "japanese-repetition-creates-difference",
+      "name": "反復は差を生む",
+      "words": [
+        "練習",
+        "改訂",
+        "重ね刷り",
+        "反復練習"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "japanese-failure-as-data",
+      "name": "失敗はデータ",
+      "words": [
+        "失敗事例集",
+        "再提出メモ",
+        "差し戻し",
+        "フィードバック票"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "japanese-freedom-through-constraint",
+      "name": "制約が自由を生む",
+      "words": [
+        "俳句の五七五",
+        "将棋の盤",
+        "将棋の駒",
+        "正方形の額"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "japanese-map-before-territory",
+      "name": "地図は本物より先",
+      "words": [
+        "設計図",
+        "間取り図",
+        "プロトタイプ",
+        "ロードマップ"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "japanese-constraint-as-style",
+      "name": "制限は作風になる",
+      "words": [
+        "俳句",
+        "短歌",
+        "川柳",
+        "落語"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "japanese-copy-becomes-original",
+      "name": "複製が新作になる",
+      "words": [
+        "写本",
+        "復刻版",
+        "リメイク版",
+        "派生作品"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-ramen-broth",
+      "name": "ラーメンのスープ",
+      "words": [
+        "醤油ラーメン",
+        "味噌ラーメン",
+        "塩ラーメン",
+        "豚骨ラーメン"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-sushi-neta",
+      "name": "寿司のネタ",
+      "words": [
+        "マグロ",
+        "サーモン",
+        "タコ",
+        "エビ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-sushi-style",
+      "name": "寿司のスタイル",
+      "words": [
+        "握り",
+        "巻き寿司",
+        "軍艦",
+        "押し寿司"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-wagashi-classic",
+      "name": "和菓子(定番)",
+      "words": [
+        "大福",
+        "饅頭",
+        "羊羹",
+        "団子"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-western-sweets",
+      "name": "洋菓子",
+      "words": [
+        "ショートケーキ",
+        "プリン",
+        "シュークリーム",
+        "マカロン"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-yakiniku-parts",
+      "name": "焼肉の部位",
+      "words": [
+        "カルビ",
+        "ハラミ",
+        "タン",
+        "ロース"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-bento-classic",
+      "name": "定番弁当",
+      "words": [
+        "幕の内",
+        "のり弁当",
+        "鮭弁当",
+        "唐揚げ弁当"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-donburi",
+      "name": "丼もの",
+      "words": [
+        "牛丼",
+        "親子丼",
+        "天丼",
+        "カツ丼"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-noodles",
+      "name": "麺料理",
+      "words": [
+        "うどん",
+        "そば",
+        "ラーメン",
+        "そうめん"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-sashimi-fish",
+      "name": "刺身に向く魚",
+      "words": [
+        "鯛",
+        "マグロ",
+        "カンパチ",
+        "ヒラメ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-flower-spring",
+      "name": "春の花",
+      "words": [
+        "桜",
+        "梅",
+        "椿",
+        "チューリップ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-flower-summer",
+      "name": "夏の花",
+      "words": [
+        "ひまわり",
+        "あじさい",
+        "百合",
+        "蓮"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-flower-autumn",
+      "name": "秋の花",
+      "words": [
+        "コスモス",
+        "菊",
+        "桔梗",
+        "紅葉"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-flower-winter",
+      "name": "冬の花",
+      "words": [
+        "水仙",
+        "梅",
+        "椿",
+        "山茶花"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-fruit-tree",
+      "name": "果樹",
+      "words": [
+        "柿",
+        "栗",
+        "梅",
+        "柚子"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-insects-summer",
+      "name": "夏の虫",
+      "words": [
+        "蝉",
+        "鈴虫",
+        "蛍",
+        "トンボ"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-birds-urban",
+      "name": "街の鳥",
+      "words": [
+        "雀",
+        "鳩",
+        "烏",
+        "燕"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-weather-rainy",
+      "name": "雨の呼び名",
+      "words": [
+        "梅雨",
+        "時雨",
+        "夕立",
+        "霧雨"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-weather-snow",
+      "name": "雪の呼び名",
+      "words": [
+        "粉雪",
+        "吹雪",
+        "霰",
+        "雹"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-landform",
+      "name": "地形",
+      "words": [
+        "山",
+        "谷",
+        "峠",
+        "岬"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-festival-summer",
+      "name": "夏祭り",
+      "words": [
+        "花火",
+        "盆踊り",
+        "神輿",
+        "山車"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-festival-spring",
+      "name": "春節句",
+      "words": [
+        "ひな祭り",
+        "桃の節句",
+        "端午の節句",
+        "菖蒲湯"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-craft-traditional",
+      "name": "伝統工芸",
+      "words": [
+        "陶器",
+        "漆器",
+        "染物",
+        "竹細工"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-martial-arts",
+      "name": "武道",
+      "words": [
+        "柔道",
+        "剣道",
+        "空手",
+        "弓道"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-traditional-arts",
+      "name": "芸道",
+      "words": [
+        "茶道",
+        "華道",
+        "書道",
+        "香道"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-performance",
+      "name": "伝統芸能",
+      "words": [
+        "能",
+        "狂言",
+        "歌舞伎",
+        "文楽"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-instrument-trad",
+      "name": "和楽器",
+      "words": [
+        "琴",
+        "三味線",
+        "尺八",
+        "太鼓"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-toy-traditional",
+      "name": "昔遊び",
+      "words": [
+        "こま",
+        "けん玉",
+        "折り紙",
+        "羽子板"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-architecture",
+      "name": "古い建物",
+      "words": [
+        "鳥居",
+        "神社",
+        "お寺",
+        "城"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-clothing-trad",
+      "name": "和服",
+      "words": [
+        "着物",
+        "浴衣",
+        "帯",
+        "草履"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-region-kanto",
+      "name": "関東の県",
+      "words": [
+        "東京",
+        "神奈川",
+        "千葉",
+        "埼玉"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-region-kansai",
+      "name": "関西の府県",
+      "words": [
+        "大阪",
+        "京都",
+        "兵庫",
+        "奈良"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-region-tohoku",
+      "name": "東北の県",
+      "words": [
+        "青森",
+        "岩手",
+        "秋田",
+        "宮城"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-region-kyushu",
+      "name": "九州の県",
+      "words": [
+        "福岡",
+        "熊本",
+        "鹿児島",
+        "長崎"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-region-hokkaido",
+      "name": "北海道の都市",
+      "words": [
+        "札幌",
+        "函館",
+        "小樽",
+        "旭川"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-island",
+      "name": "日本の島",
+      "words": [
+        "本州",
+        "北海道",
+        "九州",
+        "四国"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-lake",
+      "name": "日本の湖",
+      "words": [
+        "琵琶湖",
+        "霞ヶ浦",
+        "中禅寺湖",
+        "猪苗代湖"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-volcano",
+      "name": "火山",
+      "words": [
+        "富士山",
+        "桜島",
+        "阿蘇山",
+        "浅間山"
+      ]
+    },
+    {
+      "level": 1,
+      "id": "ja-waterfall",
+      "name": "滝",
+      "words": [
+        "華厳の滝",
+        "那智の滝",
+        "袋田の滝",
+        "白糸の滝"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-counter-tsugi",
+      "name": "助数詞(つ)",
+      "words": [
+        "一つ",
+        "二つ",
+        "三つ",
+        "四つ"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-counter-people",
+      "name": "助数詞(人)",
+      "words": [
+        "一人",
+        "二人",
+        "三人",
+        "四人"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-counter-mai",
+      "name": "助数詞(枚)",
+      "words": [
+        "一枚",
+        "二枚",
+        "三枚",
+        "四枚"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-adj-i",
+      "name": "形容詞(い形容詞)",
+      "words": [
+        "美しい",
+        "楽しい",
+        "嬉しい",
+        "優しい"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-adj-na",
+      "name": "形容詞(な形容詞)",
+      "words": [
+        "静か",
+        "綺麗",
+        "丁寧",
+        "親切"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-verb-ichidan",
+      "name": "上一段動詞",
+      "words": [
+        "食べる",
+        "見る",
+        "寝る",
+        "起きる"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-verb-godan",
+      "name": "五段動詞",
+      "words": [
+        "行く",
+        "飲む",
+        "話す",
+        "読む"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-particle-basic",
+      "name": "基本助詞",
+      "words": [
+        "は",
+        "が",
+        "を",
+        "に"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-conjunction",
+      "name": "接続詞",
+      "words": [
+        "そして",
+        "しかし",
+        "だから",
+        "けれど"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-smartphone",
+      "name": "スマホ用語",
+      "words": [
+        "アプリ",
+        "アイコン",
+        "ホーム画面",
+        "通知"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-it-abbrev",
+      "name": "IT略語",
+      "words": [
+        "AI",
+        "IT",
+        "IoT",
+        "VR"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-it-action",
+      "name": "ITの動作",
+      "words": [
+        "アップロード",
+        "ダウンロード",
+        "ログイン",
+        "ログアウト"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-emoji",
+      "name": "絵文字系",
+      "words": [
+        "スタンプ",
+        "ハート",
+        "顔文字",
+        "絵文字"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-web-service",
+      "name": "ウェブサービス",
+      "words": [
+        "メール",
+        "チャット",
+        "SNS",
+        "ブログ"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-anime-genre",
+      "name": "アニメのジャンル",
+      "words": [
+        "少年漫画",
+        "少女漫画",
+        "バトル",
+        "ロボット"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-game-genre",
+      "name": "ゲームのジャンル",
+      "words": [
+        "RPG",
+        "FPS",
+        "アクション",
+        "パズル"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-manga-magazine",
+      "name": "漫画雑誌",
+      "words": [
+        "少年ジャンプ",
+        "マガジン",
+        "サンデー",
+        "りぼん"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-manga-term",
+      "name": "漫画用語",
+      "words": [
+        "主人公",
+        "悪役",
+        "ライバル",
+        "モブ"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-game-mechanic",
+      "name": "ゲーム用語",
+      "words": [
+        "レベル",
+        "スキル",
+        "アイテム",
+        "セーブ"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-anime-term",
+      "name": "アニメ用語",
+      "words": [
+        "アニメ",
+        "声優",
+        "キャラクター",
+        "オープニング"
+      ]
+    },
+    {
+      "level": 2,
+      "id": "ja-game-platform",
+      "name": "ゲーム機",
+      "words": [
+        "スマホ",
+        "プレステ",
+        "スイッチ",
+        "パソコン"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-emotion-positive",
+      "name": "肯定的感情",
+      "words": [
+        "喜び",
+        "感謝",
+        "愛情",
+        "希望"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-emotion-negative",
+      "name": "否定的感情",
+      "words": [
+        "悲しみ",
+        "怒り",
+        "恐怖",
+        "憎しみ"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-personality-good",
+      "name": "良い性格",
+      "words": [
+        "誠実",
+        "勇敢",
+        "寛大",
+        "勤勉"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-personality-bad",
+      "name": "悪い性格",
+      "words": [
+        "臆病",
+        "短気",
+        "意地悪",
+        "不誠実"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-virtue",
+      "name": "美德",
+      "words": [
+        "義理",
+        "礼儀",
+        "忠誠",
+        "慈悲"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-vice",
+      "name": "悪習",
+      "words": [
+        "嫉妬",
+        "怠惰",
+        "貪欲",
+        "虚栄心"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-thinking",
+      "name": "思考の型",
+      "words": [
+        "推理",
+        "直感",
+        "瞑想",
+        "分析"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-mental-state",
+      "name": "心の状態",
+      "words": [
+        "集中",
+        "緊張",
+        "興奮",
+        "冷静"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-time-concept",
+      "name": "時間の単位",
+      "words": [
+        "瞬間",
+        "片刻",
+        "永遠",
+        "刹那"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-quantity-shape",
+      "name": "量と形",
+      "words": [
+        "膨大",
+        "微小",
+        "無形",
+        "無限"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-truth-deception",
+      "name": "真偽",
+      "words": [
+        "真実",
+        "虚偽",
+        "誤解",
+        "証明"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-power-control",
+      "name": "力と支配",
+      "words": [
+        "影響",
+        "服従",
+        "抵抗",
+        "服従"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-memory-record",
+      "name": "記憶と記録",
+      "words": [
+        "記憶",
+        "記念",
+        "履歴",
+        "日記"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-ritual-pattern",
+      "name": "儀式と型",
+      "words": [
+        "礼儀作法",
+        "手順",
+        "型",
+        "伝統"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-exception-default",
+      "name": "例外と常",
+      "words": [
+        "特例",
+        "規則",
+        "例外",
+        "原則"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-flow-stillness",
+      "name": "流れと静止",
+      "words": [
+        "流動",
+        "停滞",
+        "循環",
+        "停止"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-cause-result",
+      "name": "原因と結果",
+      "words": [
+        "原因",
+        "結果",
+        "影響",
+        "副作用"
+      ]
+    },
+    {
+      "level": 3,
+      "id": "ja-similarity-diff",
+      "name": "類似と相違",
+      "words": [
+        "類似",
+        "相違",
+        "共通点",
+        "独自性"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-origin",
+      "name": "起源の問い",
+      "words": [
+        "起源",
+        "本質",
+        "由来",
+        "根源"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-emptiness",
+      "name": "空と無",
+      "words": [
+        "空虚",
+        "無限",
+        "無",
+        "ゼロ"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-paradox",
+      "name": "逆説",
+      "words": [
+        "矛盾",
+        "二律背反",
+        "逆説",
+        "裏表"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-perspective",
+      "name": "視点",
+      "words": [
+        "俯瞰",
+        "主観",
+        "客観",
+        "相対"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-meaning",
+      "name": "意味の重み",
+      "words": [
+        "意味",
+        "価値",
+        "重み",
+        "意義"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-transformation",
+      "name": "変容",
+      "words": [
+        "変容",
+        "革新",
+        "生成",
+        "崩壊"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-harmony",
+      "name": "調和",
+      "words": [
+        "調和",
+        "均衡",
+        "統一",
+        "緊張"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-self",
+      "name": "自己と他者",
+      "words": [
+        "自己",
+        "他者",
+        "内省",
+        "対話"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-time",
+      "name": "時間の本質",
+      "words": [
+        "持続",
+        "反復",
+        "断絶",
+        "連続"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-language",
+      "name": "言語の限界",
+      "words": [
+        "沈黙",
+        "暗黙知",
+        "沈語",
+        "言外"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-truth",
+      "name": "真理と仮象",
+      "words": [
+        "真理",
+        "仮象",
+        "本質",
+        "表層"
+      ]
+    },
+    {
+      "level": 4,
+      "id": "ja-meta-concept-freedom",
+      "name": "自由と制約",
+      "words": [
+        "自由",
+        "制約",
+        "自律",
+        "解放"
+      ]
+    }
+  ],
+  "puzzleThemes": [
+    "暮らしの中",
+    "街の風景",
+    "台所のヒント",
+    "山の記憶",
+    "季節の手帳",
+    "古都の午後",
+    "雨上がりの庭",
+    "祭りの夜",
+    "学校の窓",
+    "家族の時間",
+    "海辺の休日",
+    "旅のしおり"
+  ],
+  "redHerringNotes": [
+    "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+    "近しい意味の言葉に惑わされないでください。",
+    "日常語と専門語が交差して見えるよう、わざと散らしています。",
+    "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+    "似た仲間が二組あり、決定的な差がひとつだけあります。",
+    "どの組もそれなりに正しく見えますが、定義の差がカギです。"
+  ],
+  "englishPuzzleTerms": {},
+  "maxMistakes": 4,
+  "textPuzzleCount": 500,
+  "textPuzzleManifest": [
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-repetition-creates-difference",
+        "japanese-izakaya",
+        "ja-wagashi-classic",
+        "japanese-ankers"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-waterfall",
+        "ja-game-platform",
+        "japanese-constraint-as-style",
+        "japanese-bottlenecks"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-jewelry",
+        "japanese-school-subjects",
+        "japanese-buffers",
+        "japanese-copy-becomes-original"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-truth",
+        "japanese-summer-fun",
+        "ja-ritual-pattern",
+        "japanese-bags"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-flower-autumn",
+        "ja-meta-concept-self",
+        "japanese-supermarket",
+        "japanese-tanin-cover"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-memory-record",
+        "japanese-furniture",
+        "japanese-weekdays",
+        "japanese-map-before-territory"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-insects-summer",
+        "japanese-camping",
+        "ja-vice",
+        "ja-meta-concept-emptiness"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-meaning",
+        "japanese-compressed-info",
+        "ja-manga-magazine",
+        "japanese-fish"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-truth-deception",
+        "japanese-beach",
+        "japanese-rivers",
+        "ja-meta-concept-freedom"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-perspective",
+        "japanese-coffee-shop",
+        "japanese-switches",
+        "ja-donburi"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-language",
+        "ja-thinking",
+        "japanese-onsen",
+        "japanese-drinks"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-island",
+        "ja-adj-i",
+        "japanese-failure-as-data",
+        "japanese-boundary-actions"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-sushi-style",
+        "japanese-tea-set",
+        "ja-exception-default",
+        "japanese-process-over-result"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-lake",
+        "japanese-boundary-defines-inside",
+        "ja-it-abbrev",
+        "ja-cause-result"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-emotion-negative",
+        "japanese-freedom-through-constraint",
+        "ja-region-kyushu",
+        "japanese-onomatopoeia"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-mountains",
+        "ja-traditional-arts",
+        "ja-similarity-diff",
+        "ja-meta-concept-time"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-origin",
+        "japanese-feedback-loops",
+        "japanese-rainy-day",
+        "ja-western-sweets"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-time-concept",
+        "ja-meta-concept-self",
+        "japanese-clothing",
+        "ja-counter-tsugi"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-kadomatsu",
+        "ja-noodles",
+        "ja-meta-concept-language",
+        "ja-personality-good"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-power-control",
+        "japanese-process-over-result",
+        "ja-instrument-trad",
+        "ja-flower-spring"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-web-service",
+        "japanese-decay",
+        "ja-bento-classic",
+        "ja-meta-concept-transformation"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-map-before-territory",
+        "japanese-order-formation",
+        "japanese-cooking-methods",
+        "japanese-musical-instruments"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-photo-poses",
+        "japanese-trees",
+        "ja-meta-concept-harmony",
+        "japanese-shared-resources"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-fruit-tree",
+        "ja-martial-arts",
+        "ja-personality-bad",
+        "ja-meta-concept-freedom"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-yakiniku-parts",
+        "japanese-knife-types",
+        "ja-quantity-shape",
+        "ja-meta-concept-paradox"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-weather-snow",
+        "ja-virtue",
+        "ja-meta-concept-origin",
+        "japanese-tatami-room"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-snow",
+        "ja-mental-state",
+        "japanese-vegetables",
+        "ja-meta-concept-perspective"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-boundary-defines-inside",
+        "ja-flow-stillness",
+        "ja-anime-term",
+        "japanese-cosmetics"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-volcano",
+        "japanese-constraint-as-style",
+        "japanese-rain-coat",
+        "japanese-repetition-as-ritual"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-transportation",
+        "japanese-anchors",
+        "ja-meta-concept-harmony",
+        "ja-game-mechanic"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-emotion-positive",
+        "japanese-failure-as-data",
+        "ja-manga-term",
+        "japanese-wild-animals"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-verb-ichidan",
+        "japanese-traces",
+        "ja-meta-concept-time",
+        "japanese-fast-food"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-repetition-creates-difference",
+        "japanese-decay",
+        "ja-counter-people",
+        "japanese-stationery"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-adj-na",
+        "ja-sashimi-fish",
+        "ja-vice",
+        "ja-meta-concept-transformation"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-landform",
+        "japanese-seasons",
+        "japanese-copy-becomes-original",
+        "ja-personality-good"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-freedom-through-constraint",
+        "japanese-winter-food",
+        "japanese-rooms",
+        "ja-cause-result"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-boundary-actions",
+        "ja-anime-genre",
+        "ja-region-hokkaido",
+        "ja-meta-concept-origin"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-particle-basic",
+        "ja-emotion-negative",
+        "ja-meta-concept-language",
+        "japanese-prefectures"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-sushi-types",
+        "ja-it-action",
+        "ja-virtue",
+        "japanese-failure-as-data"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-tanin-cover",
+        "japanese-tools",
+        "ja-festival-spring",
+        "ja-meta-concept-paradox"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-truth",
+        "ja-emoji",
+        "ja-ritual-pattern",
+        "japanese-umbrellas"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-repetition-as-ritual",
+        "japanese-hats",
+        "japanese-constraint-as-style",
+        "ja-counter-mai"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-cleaning-tools",
+        "ja-conjunction",
+        "japanese-order-formation",
+        "ja-meta-concept-emptiness"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-meaning",
+        "japanese-bottlenecks",
+        "japanese-martial-arts",
+        "japanese-station"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-insects",
+        "ja-meta-concept-time",
+        "japanese-hospital",
+        "japanese-switches"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-toy-traditional",
+        "japanese-flower-names",
+        "ja-thinking",
+        "japanese-repetition-creates-difference"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-cities",
+        "ja-clothing-trad",
+        "ja-mental-state",
+        "ja-meta-concept-perspective"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-quantity-shape",
+        "japanese-kanji-radicals",
+        "ja-meta-concept-harmony",
+        "ja-weather-rainy"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-exception-default",
+        "ja-verb-godan",
+        "ja-meta-concept-freedom",
+        "ja-region-kansai"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-identity-credentials",
+        "ja-meta-concept-emptiness",
+        "ja-game-genre",
+        "japanese-kitchen-tools"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-personality-bad",
+        "japanese-process-over-result",
+        "japanese-conbini",
+        "japanese-ramen-toppings"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-birds",
+        "ja-architecture",
+        "ja-memory-record",
+        "ja-meta-concept-truth"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-boundary-defines-inside",
+        "ja-sushi-neta",
+        "japanese-festival",
+        "ja-power-control"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-map-before-territory",
+        "japanese-traces",
+        "ja-craft-traditional",
+        "japanese-electronics"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-meta-concept-transformation",
+        "ja-similarity-diff",
+        "japanese-tableware",
+        "japanese-mushrooms"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-meaning",
+        "japanese-public-bath",
+        "ja-flower-winter",
+        "japanese-compressed-info"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-buffers",
+        "japanese-breakfast",
+        "ja-meta-concept-origin",
+        "ja-festival-summer"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-copy-becomes-original",
+        "japanese-identity-credentials",
+        "ja-performance",
+        "japanese-shoes"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-ankers",
+        "japanese-camping",
+        "ja-meta-concept-self",
+        "ja-ramen-broth"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-snacks",
+        "ja-meta-concept-paradox",
+        "japanese-anchors",
+        "japanese-school"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-similarity-diff",
+        "japanese-boundary-defines-inside",
+        "japanese-bento",
+        "ja-flower-summer"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-feedback-loops",
+        "japanese-constraint-as-style",
+        "japanese-knife-types",
+        "japanese-vegetables"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-time-concept",
+        "ja-smartphone",
+        "ja-meta-concept-freedom",
+        "ja-region-tohoku"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-time",
+        "ja-exception-default",
+        "japanese-hospital",
+        "japanese-fruits"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-flow-stillness",
+        "ja-meta-concept-language",
+        "ja-verb-ichidan",
+        "japanese-sweets"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-animals-pets",
+        "japanese-freedom-through-constraint",
+        "ja-counter-people",
+        "japanese-shared-resources"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-cosmetics",
+        "japanese-copy-becomes-original",
+        "japanese-cooking-methods",
+        "japanese-buffers"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-perspective",
+        "japanese-tea-set",
+        "ja-power-control",
+        "japanese-landmarks"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-meta-concept-harmony",
+        "ja-performance",
+        "japanese-decay",
+        "japanese-bags"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-sports",
+        "japanese-tatami-room",
+        "japanese-bottlenecks",
+        "ja-meta-concept-truth"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-emptiness",
+        "ja-birds-urban",
+        "japanese-kanji-radicals",
+        "ja-mental-state"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-weather-rainy",
+        "ja-traditional-arts",
+        "ja-emotion-negative",
+        "ja-meta-concept-transformation"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-thinking",
+        "ja-adj-na",
+        "japanese-trees",
+        "japanese-repetition-creates-difference"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-time-concept",
+        "ja-insects-summer",
+        "japanese-process-over-result",
+        "ja-toy-traditional"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-clothing",
+        "ja-it-action",
+        "japanese-ankers",
+        "ja-meta-concept-meaning"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-failure-as-data",
+        "japanese-identity-credentials",
+        "ja-smartphone",
+        "ja-yakiniku-parts"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-map-before-territory",
+        "japanese-sweets",
+        "ja-game-mechanic",
+        "ja-truth-deception"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-izakaya",
+        "ja-meta-concept-self",
+        "japanese-sports",
+        "japanese-repetition-as-ritual"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-tanin-cover",
+        "japanese-copy-becomes-original",
+        "japanese-photo-poses",
+        "japanese-electronics"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-cause-result",
+        "ja-game-platform",
+        "japanese-freedom-through-constraint",
+        "ja-region-hokkaido"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-personality-bad",
+        "ja-meta-concept-perspective",
+        "japanese-festival",
+        "ja-region-kanto"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-meaning",
+        "japanese-order-formation",
+        "ja-craft-traditional",
+        "ja-volcano"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-freedom",
+        "japanese-summer-fun",
+        "japanese-compressed-info",
+        "ja-ramen-broth"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-bento-classic",
+        "ja-anime-term",
+        "japanese-boundary-actions",
+        "ja-meta-concept-origin"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-fruit-tree",
+        "japanese-public-bath",
+        "ja-meta-concept-paradox",
+        "ja-memory-record"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-region-kansai",
+        "ja-truth-deception",
+        "japanese-freedom-through-constraint",
+        "ja-festival-summer"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-constraint-as-style",
+        "ja-emotion-positive",
+        "ja-lake",
+        "japanese-rainy-day"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-vice",
+        "japanese-winter-food",
+        "ja-meta-concept-transformation",
+        "japanese-shoes"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-failure-as-data",
+        "japanese-cleaning-tools",
+        "japanese-anchors",
+        "ja-emoji"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-flower-autumn",
+        "japanese-switches",
+        "japanese-seasons",
+        "ja-meta-concept-language"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-stationery",
+        "japanese-rain-coat",
+        "japanese-traces",
+        "ja-meta-concept-emptiness"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-quantity-shape",
+        "japanese-map-before-territory",
+        "japanese-onsen",
+        "ja-flower-summer"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-meta-concept-paradox",
+        "ja-virtue",
+        "japanese-beach",
+        "ja-donburi"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-fruits",
+        "japanese-school-subjects",
+        "ja-meta-concept-self",
+        "ja-ritual-pattern"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-bento",
+        "japanese-fish",
+        "japanese-boundary-actions",
+        "japanese-repetition-creates-difference"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-boundary-defines-inside",
+        "japanese-rivers",
+        "ja-clothing-trad",
+        "ja-flow-stillness"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-wagashi-classic",
+        "japanese-school",
+        "japanese-feedback-loops",
+        "ja-meta-concept-truth"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-umbrellas",
+        "ja-manga-magazine",
+        "ja-personality-good",
+        "ja-meta-concept-time"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-sushi-types",
+        "ja-festival-spring",
+        "japanese-order-formation",
+        "ja-meta-concept-paradox"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-drinks",
+        "ja-verb-godan",
+        "ja-thinking",
+        "japanese-map-before-territory"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-jewelry",
+        "ja-conjunction",
+        "ja-emotion-positive",
+        "ja-meta-concept-transformation"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-sashimi-fish",
+        "ja-truth-deception",
+        "ja-meta-concept-language",
+        "japanese-onomatopoeia"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-ramen-toppings",
+        "ja-exception-default",
+        "ja-instrument-trad",
+        "japanese-process-over-result"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-mushrooms",
+        "ja-meta-concept-harmony",
+        "japanese-coffee-shop",
+        "japanese-switches"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-martial-arts",
+        "ja-western-sweets",
+        "ja-meta-concept-meaning",
+        "ja-mental-state"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-virtue",
+        "ja-meta-concept-freedom",
+        "ja-adj-i",
+        "japanese-prefectures"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-counter-tsugi",
+        "ja-waterfall",
+        "japanese-identity-credentials",
+        "japanese-repetition-creates-difference"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-constraint-as-style",
+        "ja-manga-term",
+        "japanese-musical-instruments",
+        "japanese-bottlenecks"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-shared-resources",
+        "japanese-station",
+        "ja-meta-concept-origin",
+        "ja-sushi-style"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-birds-urban",
+        "ja-game-genre",
+        "ja-flow-stillness",
+        "japanese-failure-as-data"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-memory-record",
+        "japanese-conbini",
+        "ja-meta-concept-emptiness",
+        "japanese-wild-animals"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-personality-good",
+        "japanese-fast-food",
+        "ja-meta-concept-self",
+        "japanese-weekdays"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-emotion-negative",
+        "japanese-tableware",
+        "ja-meta-concept-harmony",
+        "japanese-snacks"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-landform",
+        "japanese-feedback-loops",
+        "ja-it-abbrev",
+        "japanese-freedom-through-constraint"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-noodles",
+        "japanese-copy-becomes-original",
+        "ja-counter-mai",
+        "japanese-decay"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-flower-spring",
+        "japanese-kadomatsu",
+        "ja-quantity-shape",
+        "japanese-repetition-creates-difference"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-sushi-neta",
+        "japanese-snow",
+        "ja-emotion-positive",
+        "japanese-process-over-result"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-power-control",
+        "japanese-transportation",
+        "japanese-boundary-defines-inside",
+        "ja-web-service"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-architecture",
+        "japanese-breakfast",
+        "ja-meta-concept-perspective",
+        "japanese-ankers"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-animals-pets",
+        "japanese-tableware",
+        "japanese-traces",
+        "ja-meta-concept-truth"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-island",
+        "ja-meta-concept-paradox",
+        "ja-particle-basic",
+        "japanese-anchors"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-hats",
+        "ja-meta-concept-time",
+        "ja-festival-summer",
+        "ja-personality-bad"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-meta-concept-language",
+        "japanese-tanin-cover",
+        "ja-manga-term",
+        "japanese-birds"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-repetition-as-ritual",
+        "japanese-rooms",
+        "japanese-public-bath",
+        "japanese-process-over-result"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-tools",
+        "ja-adj-na",
+        "japanese-switches",
+        "ja-meta-concept-harmony"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-anime-genre",
+        "japanese-insects",
+        "japanese-copy-becomes-original",
+        "japanese-shared-resources"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-mountains",
+        "japanese-tatami-room",
+        "japanese-identity-credentials",
+        "ja-meta-concept-origin"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-supermarket",
+        "japanese-buffers",
+        "ja-meta-concept-freedom",
+        "japanese-kitchen-tools"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-landmarks",
+        "japanese-map-before-territory",
+        "japanese-conbini",
+        "ja-similarity-diff"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-flower-names",
+        "ja-adj-i",
+        "ja-meta-concept-emptiness",
+        "ja-time-concept"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-traditional-arts",
+        "ja-meta-concept-transformation",
+        "japanese-furniture",
+        "ja-ritual-pattern"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-bento",
+        "japanese-constraint-as-style",
+        "ja-region-tohoku",
+        "japanese-compressed-info"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-meta-concept-perspective",
+        "ja-vice",
+        "japanese-izakaya",
+        "ja-region-kanto"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-time",
+        "ja-counter-people",
+        "japanese-cities",
+        "ja-cause-result"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-decay",
+        "japanese-station",
+        "ja-weather-snow",
+        "ja-meta-concept-self"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-meaning",
+        "japanese-tools",
+        "japanese-kanji-radicals",
+        "japanese-buffers"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-region-kyushu",
+        "ja-similarity-diff",
+        "ja-instrument-trad",
+        "japanese-failure-as-data"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-meta-concept-truth",
+        "ja-birds-urban",
+        "ja-web-service",
+        "japanese-boundary-actions"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-repetition-creates-difference",
+        "japanese-festival",
+        "japanese-repetition-as-ritual",
+        "japanese-mountains"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-ritual-pattern",
+        "ja-particle-basic",
+        "japanese-freedom-through-constraint",
+        "japanese-martial-arts"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-umbrellas",
+        "ja-toy-traditional",
+        "ja-emotion-negative",
+        "japanese-map-before-territory"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-it-action",
+        "japanese-anchors",
+        "japanese-stationery",
+        "ja-meta-concept-time"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-sushi-neta",
+        "ja-performance",
+        "ja-flow-stillness",
+        "ja-meta-concept-transformation"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-meta-concept-truth",
+        "ja-flower-autumn",
+        "ja-manga-magazine",
+        "ja-cause-result"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-rain-coat",
+        "japanese-boundary-defines-inside",
+        "ja-region-hokkaido",
+        "japanese-traces"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-flower-winter",
+        "japanese-camping",
+        "ja-meta-concept-emptiness",
+        "ja-personality-bad"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-vice",
+        "ja-martial-arts",
+        "ja-weather-snow",
+        "japanese-failure-as-data"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-cities",
+        "japanese-photo-poses",
+        "ja-meta-concept-perspective",
+        "japanese-order-formation"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-region-kyushu",
+        "japanese-winter-food",
+        "ja-truth-deception",
+        "japanese-copy-becomes-original"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-hats",
+        "japanese-shared-resources",
+        "ja-meta-concept-meaning",
+        "japanese-school-subjects"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-trees",
+        "japanese-onsen",
+        "ja-exception-default",
+        "ja-meta-concept-harmony"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-landform",
+        "ja-time-concept",
+        "japanese-rainy-day",
+        "ja-meta-concept-origin"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-constraint-as-style",
+        "japanese-ankers",
+        "ja-clothing-trad",
+        "japanese-martial-arts"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-process-over-result",
+        "ja-quantity-shape",
+        "ja-game-mechanic",
+        "japanese-birds"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-paradox",
+        "ja-power-control",
+        "japanese-onomatopoeia",
+        "japanese-electronics"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-meta-concept-freedom",
+        "ja-counter-tsugi",
+        "japanese-rivers",
+        "ja-emotion-positive"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-school",
+        "ja-meta-concept-language",
+        "japanese-bottlenecks",
+        "ja-western-sweets"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-boundary-defines-inside",
+        "japanese-compressed-info",
+        "japanese-beach",
+        "ja-region-kanto"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-memory-record",
+        "ja-meta-concept-self",
+        "ja-anime-term",
+        "ja-bento-classic"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-origin",
+        "ja-volcano",
+        "ja-architecture",
+        "japanese-tanin-cover"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-fruits",
+        "japanese-summer-fun",
+        "ja-mental-state",
+        "japanese-freedom-through-constraint"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-insects",
+        "japanese-kadomatsu",
+        "ja-flow-stillness",
+        "japanese-repetition-creates-difference"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-lake",
+        "japanese-weekdays",
+        "japanese-feedback-loops",
+        "ja-meta-concept-language"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-transportation",
+        "japanese-coffee-shop",
+        "japanese-map-before-territory",
+        "japanese-buffers"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-meta-concept-transformation",
+        "ja-quantity-shape",
+        "ja-it-abbrev",
+        "ja-fruit-tree"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-cosmetics",
+        "japanese-failure-as-data",
+        "japanese-knife-types",
+        "japanese-tanin-cover"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-constraint-as-style",
+        "ja-emoji",
+        "japanese-mushrooms",
+        "ja-truth-deception"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-cleaning-tools",
+        "japanese-snow",
+        "ja-virtue",
+        "ja-meta-concept-paradox"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-snacks",
+        "japanese-boundary-defines-inside",
+        "ja-smartphone",
+        "japanese-boundary-actions"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-emptiness",
+        "japanese-shared-resources",
+        "japanese-supermarket",
+        "japanese-kitchen-tools"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-meta-concept-self",
+        "ja-similarity-diff",
+        "ja-counter-mai",
+        "ja-weather-rainy"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-ramen-broth",
+        "ja-anime-genre",
+        "japanese-ankers",
+        "ja-meta-concept-perspective"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-freedom",
+        "ja-personality-good",
+        "ja-game-platform",
+        "japanese-shoes"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-fast-food",
+        "ja-verb-ichidan",
+        "japanese-anchors",
+        "ja-meta-concept-harmony"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-ramen-toppings",
+        "ja-game-genre",
+        "japanese-traces",
+        "japanese-process-over-result"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-region-tohoku",
+        "japanese-tea-set",
+        "japanese-compressed-info",
+        "ja-meta-concept-truth"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-cause-result",
+        "ja-conjunction",
+        "japanese-freedom-through-constraint",
+        "japanese-vegetables"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-cooking-methods",
+        "ja-sashimi-fish",
+        "ja-power-control",
+        "ja-meta-concept-perspective"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-memory-record",
+        "ja-meta-concept-transformation",
+        "ja-verb-godan",
+        "japanese-flower-names"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-thinking",
+        "japanese-hospital",
+        "ja-sushi-style",
+        "ja-meta-concept-time"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-school-subjects",
+        "japanese-rooms",
+        "japanese-process-over-result",
+        "ja-exception-default"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-repetition-as-ritual",
+        "ja-meta-concept-freedom",
+        "japanese-seasons",
+        "japanese-fish"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-copy-becomes-original",
+        "ja-insects-summer",
+        "japanese-bottlenecks",
+        "ja-craft-traditional"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-sushi-types",
+        "japanese-order-formation",
+        "ja-game-platform",
+        "ja-meta-concept-paradox"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-supermarket",
+        "ja-meta-concept-harmony",
+        "japanese-prefectures",
+        "ja-personality-good"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-boundary-defines-inside",
+        "ja-virtue",
+        "japanese-station",
+        "ja-flower-summer"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-wild-animals",
+        "japanese-onomatopoeia",
+        "ja-emotion-negative",
+        "japanese-failure-as-data"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-self",
+        "japanese-feedback-loops",
+        "japanese-snow",
+        "japanese-animals-pets"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-identity-credentials",
+        "japanese-copy-becomes-original",
+        "japanese-beach",
+        "ja-flower-winter"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-clothing",
+        "ja-anime-genre",
+        "ja-meta-concept-emptiness",
+        "ja-personality-bad"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-manga-magazine",
+        "ja-yakiniku-parts",
+        "japanese-tanin-cover",
+        "ja-meta-concept-meaning"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-meta-concept-language",
+        "japanese-furniture",
+        "japanese-onsen",
+        "japanese-decay"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-island",
+        "japanese-rain-coat",
+        "ja-meta-concept-time",
+        "ja-cause-result"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-game-mechanic",
+        "ja-meta-concept-truth",
+        "ja-noodles",
+        "ja-vice"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-region-kansai",
+        "ja-meta-concept-paradox",
+        "ja-martial-arts",
+        "ja-mental-state"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-waterfall",
+        "japanese-freedom-through-constraint",
+        "ja-particle-basic",
+        "ja-time-concept"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-meaning",
+        "ja-donburi",
+        "ja-game-genre",
+        "ja-virtue"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-wagashi-classic",
+        "ja-instrument-trad",
+        "japanese-feedback-loops",
+        "ja-meta-concept-freedom"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-sweets",
+        "japanese-photo-poses",
+        "ja-thinking",
+        "ja-meta-concept-perspective"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-language",
+        "japanese-breakfast",
+        "ja-craft-traditional",
+        "ja-emotion-positive"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-festival-spring",
+        "japanese-wild-animals",
+        "ja-meta-concept-origin",
+        "ja-exception-default"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-personality-good",
+        "japanese-repetition-creates-difference",
+        "japanese-summer-fun",
+        "japanese-sports"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-flower-spring",
+        "japanese-coffee-shop",
+        "ja-meta-concept-time",
+        "japanese-switches"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-copy-becomes-original",
+        "ja-ritual-pattern",
+        "japanese-izakaya",
+        "japanese-drinks"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-weekdays",
+        "japanese-buffers",
+        "japanese-process-over-result",
+        "japanese-tools"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-map-before-territory",
+        "ja-quantity-shape",
+        "ja-it-abbrev",
+        "japanese-landmarks"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-time-concept",
+        "ja-meta-concept-truth",
+        "japanese-jewelry",
+        "ja-emoji"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-anime-term",
+        "japanese-freedom-through-constraint",
+        "ja-emotion-positive",
+        "japanese-clothing"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-harmony",
+        "ja-flow-stillness",
+        "ja-web-service",
+        "japanese-musical-instruments"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-repetition-creates-difference",
+        "ja-ritual-pattern",
+        "ja-clothing-trad",
+        "japanese-sports"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-shoes",
+        "japanese-camping",
+        "ja-meta-concept-transformation",
+        "ja-similarity-diff"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-umbrellas",
+        "japanese-boundary-actions",
+        "japanese-failure-as-data",
+        "japanese-seasons"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-cooking-methods",
+        "japanese-fast-food",
+        "japanese-switches",
+        "japanese-boundary-defines-inside"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-festival-summer",
+        "ja-weather-snow",
+        "japanese-constraint-as-style",
+        "japanese-ankers"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-emptiness",
+        "japanese-shared-resources",
+        "ja-verb-ichidan",
+        "ja-flower-autumn"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-mountains",
+        "japanese-tableware",
+        "japanese-decay",
+        "ja-meta-concept-origin"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-school",
+        "ja-emotion-negative",
+        "japanese-map-before-territory",
+        "japanese-rooms"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-bottlenecks",
+        "ja-conjunction",
+        "japanese-bags",
+        "ja-meta-concept-meaning"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-traditional-arts",
+        "japanese-anchors",
+        "japanese-musical-instruments",
+        "ja-meta-concept-perspective"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-region-kyushu",
+        "japanese-kanji-radicals",
+        "ja-truth-deception",
+        "japanese-constraint-as-style"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-rainy-day",
+        "ja-mental-state",
+        "japanese-trees",
+        "japanese-repetition-creates-difference"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-meta-concept-harmony",
+        "ja-insects-summer",
+        "ja-counter-people",
+        "ja-memory-record"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-compressed-info",
+        "ja-performance",
+        "ja-flower-winter",
+        "japanese-process-over-result"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-public-bath",
+        "ja-meta-concept-language",
+        "japanese-animals-pets",
+        "japanese-traces"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-birds-urban",
+        "ja-counter-mai",
+        "japanese-freedom-through-constraint",
+        "ja-personality-bad"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-cleaning-tools",
+        "ja-meta-concept-truth",
+        "japanese-tatami-room",
+        "ja-vice"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-origin",
+        "ja-power-control",
+        "ja-it-action",
+        "ja-wagashi-classic"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-hospital",
+        "japanese-kitchen-tools",
+        "ja-meta-concept-freedom",
+        "japanese-bottlenecks"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-cause-result",
+        "japanese-sushi-types",
+        "japanese-tea-set",
+        "ja-meta-concept-emptiness"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-map-before-territory",
+        "japanese-order-formation",
+        "ja-manga-term",
+        "japanese-sweets"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-copy-becomes-original",
+        "ja-quantity-shape",
+        "ja-architecture",
+        "ja-region-tohoku"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-cities",
+        "ja-meta-concept-transformation",
+        "japanese-winter-food",
+        "ja-personality-bad"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-time",
+        "japanese-boundary-actions",
+        "japanese-bento",
+        "japanese-cosmetics"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-failure-as-data",
+        "japanese-repetition-as-ritual",
+        "japanese-festival",
+        "japanese-bags"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-flower-summer",
+        "ja-counter-tsugi",
+        "ja-meta-concept-origin",
+        "ja-flow-stillness"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-fish",
+        "ja-adj-i",
+        "ja-time-concept",
+        "ja-meta-concept-paradox"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-ramen-toppings",
+        "japanese-identity-credentials",
+        "ja-verb-godan",
+        "ja-meta-concept-self"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-yakiniku-parts",
+        "ja-toy-traditional",
+        "japanese-boundary-defines-inside",
+        "ja-emotion-negative"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-region-kansai",
+        "ja-smartphone",
+        "japanese-constraint-as-style",
+        "japanese-tanin-cover"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-meta-concept-transformation",
+        "japanese-anchors",
+        "japanese-school-subjects",
+        "ja-sashimi-fish"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-emotion-positive",
+        "japanese-freedom-through-constraint",
+        "ja-festival-spring",
+        "japanese-drinks"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-insects",
+        "japanese-knife-types",
+        "ja-thinking",
+        "japanese-copy-becomes-original"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-breakfast",
+        "japanese-compressed-info",
+        "ja-adj-na",
+        "ja-meta-concept-self"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-stationery",
+        "japanese-seasons",
+        "japanese-shared-resources",
+        "ja-meta-concept-language"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-flower-spring",
+        "japanese-kadomatsu",
+        "japanese-order-formation",
+        "ja-meta-concept-truth"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-meta-concept-time",
+        "ja-similarity-diff",
+        "japanese-conbini",
+        "japanese-prefectures"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-meta-concept-meaning",
+        "japanese-landmarks",
+        "japanese-rainy-day",
+        "ja-memory-record"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-vice",
+        "ja-meta-concept-freedom",
+        "japanese-coffee-shop",
+        "japanese-vegetables"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-electronics",
+        "ja-clothing-trad",
+        "ja-power-control",
+        "japanese-boundary-defines-inside"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-perspective",
+        "japanese-decay",
+        "ja-anime-term",
+        "ja-lake"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-island",
+        "japanese-camping",
+        "japanese-identity-credentials",
+        "japanese-process-over-result"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-sushi-style",
+        "ja-it-action",
+        "ja-meta-concept-harmony",
+        "japanese-ankers"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-adj-na",
+        "ja-fruit-tree",
+        "japanese-map-before-territory",
+        "japanese-repetition-as-ritual"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-self",
+        "ja-smartphone",
+        "ja-landform",
+        "japanese-feedback-loops"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-martial-arts",
+        "ja-meta-concept-meaning",
+        "ja-performance",
+        "ja-virtue"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-furniture",
+        "japanese-izakaya",
+        "japanese-switches",
+        "japanese-constraint-as-style"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-jewelry",
+        "japanese-knife-types",
+        "ja-exception-default",
+        "japanese-repetition-creates-difference"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-buffers",
+        "ja-meta-concept-paradox",
+        "japanese-bento",
+        "japanese-snacks"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-meta-concept-perspective",
+        "ja-thinking",
+        "japanese-rain-coat",
+        "ja-bento-classic"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-emptiness",
+        "ja-truth-deception",
+        "ja-manga-magazine",
+        "ja-western-sweets"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-station",
+        "ja-region-hokkaido",
+        "japanese-boundary-defines-inside",
+        "japanese-feedback-loops"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-freedom",
+        "japanese-summer-fun",
+        "japanese-birds",
+        "ja-mental-state"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-sushi-neta",
+        "ja-craft-traditional",
+        "ja-ritual-pattern",
+        "ja-meta-concept-language"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-bottlenecks",
+        "japanese-winter-food",
+        "ja-meta-concept-harmony",
+        "ja-volcano"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-constraint-as-style",
+        "japanese-traces",
+        "ja-game-genre",
+        "japanese-flower-names"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-noodles",
+        "japanese-process-over-result",
+        "ja-counter-people",
+        "ja-personality-bad"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-freedom-through-constraint",
+        "ja-memory-record",
+        "japanese-tableware",
+        "japanese-fruits"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-boundary-actions",
+        "ja-ramen-broth",
+        "ja-meta-concept-origin",
+        "ja-martial-arts"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-transportation",
+        "japanese-beach",
+        "japanese-failure-as-data",
+        "japanese-switches"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-quantity-shape",
+        "ja-anime-genre",
+        "ja-meta-concept-paradox",
+        "japanese-rivers"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-personality-good",
+        "japanese-onomatopoeia",
+        "japanese-repetition-creates-difference",
+        "japanese-breakfast"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-donburi",
+        "japanese-supermarket",
+        "japanese-order-formation",
+        "ja-meta-concept-emptiness"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-meta-concept-self",
+        "japanese-traces",
+        "japanese-onsen",
+        "ja-region-tohoku"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-time",
+        "japanese-hats",
+        "ja-festival-summer",
+        "ja-emotion-negative"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-meta-concept-truth",
+        "ja-western-sweets",
+        "ja-conjunction",
+        "ja-similarity-diff"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-game-mechanic",
+        "ja-weather-rainy",
+        "ja-meta-concept-meaning",
+        "ja-exception-default"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-anchors",
+        "ja-waterfall",
+        "japanese-kadomatsu",
+        "japanese-map-before-territory"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-meta-concept-transformation",
+        "ja-power-control",
+        "japanese-sushi-types",
+        "ja-web-service"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-shoes",
+        "ja-festival-spring",
+        "ja-emotion-positive",
+        "japanese-failure-as-data"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-meta-concept-perspective",
+        "ja-counter-tsugi",
+        "ja-region-kanto",
+        "ja-truth-deception"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-mushrooms",
+        "japanese-conbini",
+        "ja-meta-concept-language",
+        "ja-time-concept"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-snow",
+        "ja-meta-concept-freedom",
+        "japanese-decay",
+        "ja-flower-summer"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-fruits",
+        "ja-toy-traditional",
+        "ja-meta-concept-truth",
+        "japanese-ankers"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-copy-becomes-original",
+        "ja-ritual-pattern",
+        "ja-it-abbrev",
+        "japanese-musical-instruments"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-wagashi-classic",
+        "ja-instrument-trad",
+        "japanese-constraint-as-style",
+        "japanese-identity-credentials"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-process-over-result",
+        "japanese-buffers",
+        "ja-manga-term",
+        "japanese-fast-food"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-compressed-info",
+        "ja-game-platform",
+        "ja-sushi-neta",
+        "japanese-freedom-through-constraint"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-cities",
+        "ja-counter-mai",
+        "japanese-repetition-as-ritual",
+        "ja-meta-concept-self"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-repetition-creates-difference",
+        "japanese-cleaning-tools",
+        "japanese-festival",
+        "ja-thinking"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-personality-good",
+        "japanese-photo-poses",
+        "ja-island",
+        "japanese-map-before-territory"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-landform",
+        "japanese-tatami-room",
+        "ja-meta-concept-transformation",
+        "ja-cause-result"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-umbrellas",
+        "ja-emoji",
+        "ja-emotion-negative",
+        "ja-meta-concept-paradox"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-boundary-defines-inside",
+        "ja-quantity-shape",
+        "japanese-hospital",
+        "japanese-rooms"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-meta-concept-meaning",
+        "ja-flow-stillness",
+        "ja-verb-godan",
+        "ja-weather-snow"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-virtue",
+        "ja-meta-concept-time",
+        "ja-verb-ichidan",
+        "ja-lake"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-tanin-cover",
+        "ja-architecture",
+        "ja-meta-concept-emptiness",
+        "ja-waterfall"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-meta-concept-harmony",
+        "japanese-compressed-info",
+        "japanese-kanji-radicals",
+        "japanese-kitchen-tools"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-conjunction",
+        "japanese-shared-resources",
+        "japanese-copy-becomes-original",
+        "japanese-ramen-toppings"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-order-formation",
+        "ja-meta-concept-origin",
+        "ja-particle-basic",
+        "japanese-trees"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-cosmetics",
+        "japanese-public-bath",
+        "ja-power-control",
+        "japanese-failure-as-data"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-cooking-methods",
+        "ja-sushi-style",
+        "ja-flower-autumn",
+        "japanese-tea-set"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-yakiniku-parts",
+        "japanese-martial-arts",
+        "ja-volcano",
+        "ja-adj-i"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-bags",
+        "ja-noodles",
+        "japanese-insects",
+        "ja-flower-spring"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-sweets",
+        "ja-birds-urban",
+        "japanese-weekdays",
+        "ja-insects-summer"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-school",
+        "japanese-hats",
+        "ja-region-kanto",
+        "ja-flower-winter"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-rivers",
+        "japanese-birds",
+        "japanese-landmarks",
+        "ja-bento-classic"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-fruit-tree",
+        "japanese-fish",
+        "japanese-electronics",
+        "japanese-stationery"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-sashimi-fish",
+        "ja-region-kyushu",
+        "japanese-snacks",
+        "japanese-sports"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-prefectures",
+        "japanese-drinks",
+        "ja-traditional-arts",
+        "japanese-flower-names"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-furniture",
+        "japanese-clothing",
+        "japanese-mushrooms",
+        "ja-region-kansai"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-weather-rainy",
+        "japanese-animals-pets",
+        "japanese-tools",
+        "ja-ramen-broth"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-donburi",
+        "ja-region-hokkaido",
+        "japanese-transportation",
+        "japanese-vegetables"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-mountains",
+        "japanese-wild-animals",
+        "japanese-jewelry",
+        "japanese-prefectures"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-sashimi-fish",
+        "ja-weather-rainy",
+        "ja-wagashi-classic",
+        "japanese-kitchen-tools"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-verb-godan",
+        "ja-toy-traditional",
+        "japanese-cooking-methods",
+        "ja-adj-na"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-ramen-broth",
+        "ja-flower-summer",
+        "japanese-public-bath",
+        "japanese-tatami-room"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-game-genre",
+        "ja-island",
+        "japanese-weekdays",
+        "japanese-cosmetics"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-region-kansai",
+        "japanese-snow",
+        "ja-donburi",
+        "ja-manga-magazine"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-martial-arts",
+        "ja-volcano",
+        "japanese-trees",
+        "japanese-coffee-shop"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-station",
+        "japanese-tableware",
+        "ja-landform",
+        "ja-adj-i"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-electronics",
+        "japanese-photo-poses",
+        "japanese-martial-arts",
+        "ja-craft-traditional"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-sweets",
+        "japanese-cleaning-tools",
+        "japanese-snacks",
+        "japanese-hospital"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-flower-spring",
+        "japanese-hats",
+        "japanese-bags",
+        "ja-region-tohoku"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-breakfast",
+        "japanese-kanji-radicals",
+        "ja-noodles",
+        "japanese-winter-food"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-umbrellas",
+        "japanese-clothing",
+        "japanese-onsen",
+        "japanese-school"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-animals-pets",
+        "japanese-knife-types",
+        "ja-region-kanto",
+        "japanese-supermarket"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-school-subjects",
+        "ja-smartphone",
+        "ja-game-mechanic",
+        "ja-festival-spring"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-anime-genre",
+        "ja-counter-tsugi",
+        "ja-anime-term",
+        "japanese-bento"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-sports",
+        "ja-traditional-arts",
+        "japanese-sushi-types",
+        "ja-architecture"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-manga-term",
+        "japanese-rooms",
+        "ja-performance",
+        "japanese-mushrooms"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-cities",
+        "japanese-rainy-day",
+        "ja-web-service",
+        "japanese-festival"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-landmarks",
+        "ja-waterfall",
+        "japanese-insects",
+        "japanese-izakaya"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-ramen-toppings",
+        "japanese-rivers",
+        "japanese-shoes",
+        "japanese-fish"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-weather-snow",
+        "japanese-tea-set",
+        "japanese-summer-fun",
+        "japanese-drinks"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-flower-autumn",
+        "ja-bento-classic",
+        "japanese-stationery",
+        "ja-sushi-style"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-vegetables",
+        "ja-counter-mai",
+        "ja-sushi-neta",
+        "japanese-transportation"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-game-platform",
+        "ja-it-abbrev",
+        "ja-yakiniku-parts",
+        "japanese-jewelry"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-tools",
+        "japanese-onomatopoeia",
+        "japanese-mountains",
+        "japanese-rain-coat"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-flower-names",
+        "ja-instrument-trad",
+        "japanese-conbini",
+        "japanese-seasons"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-camping",
+        "ja-birds-urban",
+        "japanese-birds",
+        "ja-flower-winter"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-wild-animals",
+        "ja-fruit-tree",
+        "ja-festival-summer",
+        "ja-verb-ichidan"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-musical-instruments",
+        "japanese-kadomatsu",
+        "ja-it-action",
+        "ja-region-kyushu"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-emoji",
+        "ja-counter-people",
+        "japanese-fruits",
+        "ja-region-hokkaido"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-insects-summer",
+        "japanese-furniture",
+        "japanese-beach",
+        "japanese-fast-food"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-particle-basic",
+        "ja-clothing-trad",
+        "ja-western-sweets",
+        "ja-lake"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-fruits",
+        "japanese-electronics",
+        "ja-web-service",
+        "japanese-sweets"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-cleaning-tools",
+        "japanese-vegetables",
+        "ja-verb-ichidan",
+        "japanese-kanji-radicals"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-martial-arts",
+        "japanese-school-subjects",
+        "japanese-furniture",
+        "japanese-conbini"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-region-hokkaido",
+        "ja-bento-classic",
+        "japanese-school",
+        "ja-region-kyushu"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-hospital",
+        "japanese-tableware",
+        "ja-manga-term",
+        "ja-volcano"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-festival-spring",
+        "japanese-sports",
+        "japanese-cooking-methods",
+        "japanese-knife-types"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-sushi-neta",
+        "ja-conjunction",
+        "japanese-seasons",
+        "japanese-bento"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-drinks",
+        "japanese-shoes",
+        "ja-ramen-broth",
+        "ja-western-sweets"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-photo-poses",
+        "ja-anime-term",
+        "japanese-insects",
+        "japanese-supermarket"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-kadomatsu",
+        "japanese-camping",
+        "japanese-cities",
+        "ja-architecture"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-station",
+        "ja-flower-winter",
+        "japanese-fish",
+        "ja-insects-summer"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-emoji",
+        "japanese-trees",
+        "ja-adj-na",
+        "japanese-tea-set"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-weekdays",
+        "ja-weather-snow",
+        "japanese-rain-coat",
+        "ja-fruit-tree"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-hats",
+        "ja-region-kansai",
+        "japanese-birds",
+        "japanese-flower-names"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-animals-pets",
+        "ja-verb-godan",
+        "japanese-ramen-toppings",
+        "ja-game-platform"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-transportation",
+        "ja-wagashi-classic",
+        "japanese-jewelry",
+        "ja-performance"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-region-kanto",
+        "ja-yakiniku-parts",
+        "ja-game-mechanic",
+        "japanese-bags"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-counter-mai",
+        "japanese-izakaya",
+        "ja-particle-basic",
+        "ja-toy-traditional"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-waterfall",
+        "japanese-public-bath",
+        "japanese-onomatopoeia",
+        "ja-clothing-trad"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-sushi-style",
+        "japanese-snacks",
+        "ja-landform",
+        "ja-smartphone"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-tatami-room",
+        "ja-weather-rainy",
+        "japanese-summer-fun",
+        "japanese-rainy-day"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-rooms",
+        "japanese-prefectures",
+        "ja-flower-summer",
+        "ja-lake"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-coffee-shop",
+        "ja-martial-arts",
+        "ja-region-tohoku",
+        "japanese-stationery"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-adj-i",
+        "ja-flower-spring",
+        "japanese-cosmetics",
+        "ja-island"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-counter-people",
+        "ja-manga-magazine",
+        "ja-instrument-trad",
+        "ja-anime-genre"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-winter-food",
+        "japanese-breakfast",
+        "ja-festival-summer",
+        "ja-it-abbrev"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-landmarks",
+        "japanese-mountains",
+        "japanese-sushi-types",
+        "ja-craft-traditional"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-noodles",
+        "japanese-kitchen-tools",
+        "ja-flower-autumn",
+        "ja-sashimi-fish"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-clothing",
+        "ja-birds-urban",
+        "japanese-mushrooms",
+        "japanese-snow"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-counter-tsugi",
+        "japanese-festival",
+        "japanese-tools",
+        "japanese-onsen"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-musical-instruments",
+        "japanese-beach",
+        "japanese-fast-food",
+        "ja-donburi"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-traditional-arts",
+        "japanese-umbrellas",
+        "ja-game-genre",
+        "japanese-wild-animals"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-it-action",
+        "japanese-rivers",
+        "ja-volcano",
+        "ja-weather-rainy"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-sashimi-fish",
+        "ja-island",
+        "japanese-tea-set",
+        "japanese-mountains"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-drinks",
+        "ja-counter-tsugi",
+        "ja-emoji",
+        "japanese-izakaya"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-transportation",
+        "ja-game-genre",
+        "japanese-kanji-radicals",
+        "ja-sushi-style"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-winter-food",
+        "ja-smartphone",
+        "japanese-animals-pets",
+        "ja-ramen-broth"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-school",
+        "ja-flower-autumn",
+        "japanese-school-subjects",
+        "japanese-musical-instruments"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-insects-summer",
+        "japanese-landmarks",
+        "ja-lake",
+        "japanese-wild-animals"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-martial-arts",
+        "ja-region-kansai",
+        "ja-anime-genre",
+        "japanese-beach"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-festival",
+        "ja-festival-summer",
+        "japanese-fish",
+        "japanese-snow"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-public-bath",
+        "japanese-weekdays",
+        "ja-bento-classic",
+        "japanese-tableware"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-cleaning-tools",
+        "ja-anime-term",
+        "ja-birds-urban",
+        "japanese-fast-food"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-supermarket",
+        "japanese-bento",
+        "japanese-seasons",
+        "japanese-rivers"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-instrument-trad",
+        "japanese-trees",
+        "ja-performance",
+        "ja-toy-traditional"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-jewelry",
+        "japanese-snacks",
+        "japanese-rainy-day",
+        "ja-counter-mai"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-architecture",
+        "japanese-birds",
+        "ja-traditional-arts",
+        "japanese-bags"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-prefectures",
+        "japanese-kadomatsu",
+        "japanese-furniture",
+        "ja-craft-traditional"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-fruit-tree",
+        "japanese-stationery",
+        "japanese-rooms",
+        "japanese-flower-names"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-tools",
+        "japanese-hats",
+        "ja-it-action",
+        "japanese-cities"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-region-kanto",
+        "ja-noodles",
+        "ja-particle-basic",
+        "japanese-clothing"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-adj-na",
+        "japanese-insects",
+        "japanese-coffee-shop",
+        "japanese-martial-arts"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-station",
+        "ja-verb-godan",
+        "ja-verb-ichidan",
+        "japanese-breakfast"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-manga-magazine",
+        "japanese-tatami-room",
+        "japanese-onsen",
+        "japanese-rain-coat"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-sports",
+        "japanese-electronics",
+        "ja-weather-snow",
+        "japanese-sushi-types"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-knife-types",
+        "ja-it-abbrev",
+        "japanese-cooking-methods",
+        "ja-manga-term"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-kitchen-tools",
+        "ja-conjunction",
+        "ja-wagashi-classic",
+        "ja-clothing-trad"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-web-service",
+        "japanese-conbini",
+        "ja-festival-spring",
+        "japanese-umbrellas"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-counter-people",
+        "japanese-photo-poses",
+        "japanese-fruits",
+        "ja-game-platform"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-flower-spring",
+        "japanese-mushrooms",
+        "japanese-shoes",
+        "ja-donburi"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-yakiniku-parts",
+        "japanese-sweets",
+        "japanese-camping",
+        "ja-landform"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-region-kyushu",
+        "japanese-summer-fun",
+        "japanese-ramen-toppings",
+        "ja-western-sweets"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-adj-i",
+        "ja-flower-summer",
+        "ja-region-tohoku",
+        "ja-game-mechanic"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-cosmetics",
+        "japanese-vegetables",
+        "japanese-onomatopoeia",
+        "japanese-hospital"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-waterfall",
+        "ja-sushi-neta",
+        "ja-region-hokkaido",
+        "ja-flower-winter"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-winter-food",
+        "ja-flower-autumn",
+        "japanese-supermarket",
+        "ja-landform"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-animals-pets",
+        "japanese-vegetables",
+        "ja-conjunction",
+        "ja-fruit-tree"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-instrument-trad",
+        "japanese-seasons",
+        "ja-particle-basic",
+        "japanese-tea-set"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-rivers",
+        "ja-anime-term",
+        "japanese-hospital",
+        "ja-adj-i"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-cooking-methods",
+        "japanese-cosmetics",
+        "japanese-weekdays",
+        "ja-martial-arts"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-mountains",
+        "japanese-martial-arts",
+        "japanese-furniture",
+        "japanese-cities"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-yakiniku-parts",
+        "japanese-knife-types",
+        "ja-it-action",
+        "japanese-snow"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-summer-fun",
+        "ja-counter-mai",
+        "japanese-beach",
+        "ja-region-kansai"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-performance",
+        "japanese-school",
+        "japanese-tools",
+        "ja-smartphone"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-landmarks",
+        "ja-sushi-style",
+        "ja-island",
+        "ja-game-platform"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-region-kanto",
+        "japanese-festival",
+        "japanese-birds",
+        "ja-counter-people"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-wagashi-classic",
+        "japanese-wild-animals",
+        "japanese-shoes",
+        "ja-game-genre"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-mental-state",
+        "japanese-station",
+        "japanese-rain-coat",
+        "japanese-camping"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-cleaning-tools",
+        "ja-birds-urban",
+        "ja-counter-tsugi",
+        "japanese-umbrellas"
+      ]
+    },
+    {
+      "difficulty": 1,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-sports",
+        "ja-festival-summer",
+        "ja-weather-rainy",
+        "ja-web-service"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-fruits",
+        "ja-flower-spring",
+        "ja-game-mechanic",
+        "ja-volcano"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-coffee-shop",
+        "japanese-sushi-types",
+        "ja-weather-snow",
+        "ja-donburi"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-toy-traditional",
+        "japanese-kadomatsu",
+        "japanese-transportation",
+        "japanese-jewelry"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-vice",
+        "ja-flower-winter",
+        "japanese-rooms",
+        "ja-manga-term"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-drinks",
+        "japanese-electronics",
+        "ja-flower-summer",
+        "japanese-musical-instruments"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-emoji",
+        "japanese-rainy-day",
+        "japanese-insects",
+        "japanese-tableware"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-sushi-neta",
+        "japanese-onomatopoeia",
+        "japanese-ramen-toppings",
+        "japanese-bags"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-trees",
+        "ja-clothing-trad",
+        "ja-verb-godan",
+        "ja-it-abbrev"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-region-kyushu",
+        "japanese-prefectures",
+        "ja-architecture",
+        "ja-craft-traditional"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-noodles",
+        "japanese-kanji-radicals",
+        "japanese-fish",
+        "ja-region-tohoku"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-bento-classic",
+        "japanese-breakfast",
+        "ja-insects-summer",
+        "japanese-hats"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-stationery",
+        "japanese-sweets",
+        "japanese-onsen",
+        "japanese-flower-names"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-western-sweets",
+        "japanese-fast-food",
+        "ja-verb-ichidan",
+        "japanese-snacks"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-izakaya",
+        "ja-ramen-broth",
+        "ja-festival-spring",
+        "japanese-photo-poses"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-kitchen-tools",
+        "japanese-conbini",
+        "ja-manga-magazine",
+        "ja-sashimi-fish"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-school-subjects",
+        "ja-traditional-arts",
+        "ja-anime-genre",
+        "japanese-tatami-room"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-region-hokkaido",
+        "japanese-bento",
+        "japanese-clothing",
+        "ja-adj-na"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-lake",
+        "japanese-public-bath",
+        "ja-waterfall",
+        "japanese-mushrooms"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-breakfast",
+        "ja-emoji",
+        "ja-region-kansai",
+        "japanese-cooking-methods"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-adj-na",
+        "japanese-sports",
+        "ja-western-sweets",
+        "ja-fruit-tree"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-bottlenecks",
+        "ja-game-genre",
+        "ja-anime-genre",
+        "ja-thinking"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-public-bath",
+        "ja-sushi-neta",
+        "japanese-traces",
+        "ja-yakiniku-parts"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-personality-bad",
+        "japanese-furniture",
+        "japanese-shared-resources",
+        "japanese-rooms"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-flow-stillness",
+        "ja-craft-traditional",
+        "ja-architecture",
+        "japanese-beach"
+      ]
+    },
+    {
+      "difficulty": 2,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-festival-summer",
+        "ja-martial-arts",
+        "ja-region-kyushu",
+        "ja-verb-ichidan"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-mushrooms",
+        "ja-island",
+        "ja-game-mechanic",
+        "japanese-transportation"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-performance",
+        "ja-sashimi-fish",
+        "ja-donburi",
+        "ja-counter-mai"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-instrument-trad",
+        "ja-cause-result",
+        "ja-flower-spring",
+        "ja-similarity-diff"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-counter-tsugi",
+        "ja-time-concept",
+        "japanese-anchors",
+        "ja-toy-traditional"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-it-abbrev",
+        "japanese-musical-instruments",
+        "japanese-sweets",
+        "japanese-drinks"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-bento-classic",
+        "ja-region-tohoku",
+        "japanese-martial-arts",
+        "japanese-tools"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-bags",
+        "japanese-izakaya",
+        "japanese-supermarket",
+        "japanese-hospital"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-weather-rainy",
+        "ja-counter-people",
+        "japanese-identity-credentials",
+        "japanese-station"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "ja-manga-term",
+        "ja-landform",
+        "japanese-animals-pets",
+        "japanese-summer-fun"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-mountains",
+        "japanese-cosmetics",
+        "japanese-electronics",
+        "japanese-buffers"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-snow",
+        "japanese-sushi-types",
+        "japanese-kitchen-tools",
+        "ja-clothing-trad"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-exception-default",
+        "ja-anime-term",
+        "japanese-ankers",
+        "japanese-fast-food"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-umbrellas",
+        "ja-traditional-arts",
+        "japanese-cities",
+        "ja-ritual-pattern"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-camping",
+        "ja-festival-spring",
+        "ja-web-service",
+        "japanese-school-subjects"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-landmarks",
+        "ja-game-platform",
+        "japanese-tea-set",
+        "ja-emotion-positive"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-school",
+        "ja-wagashi-classic",
+        "japanese-photo-poses",
+        "japanese-prefectures"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-volcano",
+        "japanese-seasons",
+        "ja-weather-snow",
+        "japanese-fruits"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-coffee-shop",
+        "japanese-trees",
+        "ja-verb-godan",
+        "japanese-jewelry"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "ja-flower-winter",
+        "ja-manga-magazine",
+        "ja-flower-summer",
+        "ja-waterfall"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-particle-basic",
+        "japanese-vegetables",
+        "japanese-rain-coat",
+        "japanese-onomatopoeia"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-hats",
+        "ja-vice",
+        "ja-conjunction",
+        "ja-region-kanto"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-weekdays",
+        "ja-region-hokkaido",
+        "ja-noodles",
+        "japanese-fish"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-tableware",
+        "japanese-festival",
+        "japanese-winter-food",
+        "ja-it-action"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-mental-state",
+        "ja-memory-record",
+        "japanese-clothing",
+        "japanese-boundary-actions"
+      ]
+    },
+    {
+      "difficulty": 3,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-rainy-day",
+        "japanese-wild-animals",
+        "ja-insects-summer",
+        "ja-truth-deception"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-onsen",
+        "ja-sushi-style",
+        "japanese-birds",
+        "japanese-conbini"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-bento",
+        "japanese-tanin-cover",
+        "japanese-shoes",
+        "japanese-flower-names"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-stationery",
+        "japanese-decay",
+        "ja-adj-i",
+        "ja-lake"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-insects",
+        "ja-personality-good",
+        "japanese-switches",
+        "ja-virtue"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-snacks",
+        "ja-flower-autumn",
+        "japanese-feedback-loops",
+        "japanese-ramen-toppings"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-repetition-as-ritual",
+        "japanese-rivers",
+        "ja-birds-urban",
+        "japanese-kadomatsu"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "ja-smartphone",
+        "japanese-knife-types",
+        "ja-ramen-broth",
+        "japanese-tatami-room"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-cleaning-tools",
+        "japanese-kanji-radicals",
+        "japanese-compressed-info",
+        "ja-western-sweets"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "ja-wagashi-classic",
+        "ja-quantity-shape",
+        "japanese-winter-food",
+        "japanese-onomatopoeia"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-supermarket",
+        "japanese-sushi-types",
+        "japanese-animals-pets",
+        "japanese-electronics"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "ja-personality-bad",
+        "japanese-cooking-methods",
+        "ja-island",
+        "ja-counter-tsugi"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-trees",
+        "japanese-clothing",
+        "japanese-musical-instruments",
+        "japanese-boundary-actions"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-izakaya",
+        "japanese-school",
+        "ja-yakiniku-parts",
+        "japanese-fruits"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "学校の窓",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-mountains",
+        "japanese-camping",
+        "ja-sushi-style",
+        "ja-flower-spring"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "家族の時間",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-feedback-loops",
+        "japanese-seasons",
+        "japanese-shoes",
+        "japanese-station"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "海辺の休日",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "japanese-birds",
+        "japanese-kitchen-tools",
+        "japanese-fish",
+        "japanese-identity-credentials"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "旅のしおり",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-bento",
+        "japanese-bottlenecks",
+        "ja-adj-na",
+        "ja-emotion-positive"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "暮らしの中",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-tableware",
+        "japanese-school-subjects",
+        "ja-sushi-neta",
+        "ja-memory-record"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "街の風景",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-anchors",
+        "japanese-mushrooms",
+        "ja-noodles",
+        "japanese-tatami-room"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "台所のヒント",
+      "redHerring": "日常語と専門語が交差して見えるよう、わざと散らしています。",
+      "groupIds": [
+        "japanese-martial-arts",
+        "japanese-flower-names",
+        "ja-flower-autumn",
+        "ja-adj-i"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "山の記憶",
+      "redHerring": "ひとつだけ仲間外れがあります。漢字の読みにだまされないように。",
+      "groupIds": [
+        "japanese-rooms",
+        "ja-manga-magazine",
+        "ja-smartphone",
+        "japanese-ramen-toppings"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "季節の手帳",
+      "redHerring": "似た仲間が二組あり、決定的な差がひとつだけあります。",
+      "groupIds": [
+        "ja-region-hokkaido",
+        "japanese-kadomatsu",
+        "japanese-snacks",
+        "ja-emoji"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "古都の午後",
+      "redHerring": "どの組もそれなりに正しく見えますが、定義の差がカギです。",
+      "groupIds": [
+        "japanese-onsen",
+        "ja-conjunction",
+        "japanese-beach",
+        "japanese-jewelry"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "雨上がりの庭",
+      "redHerring": "いくつかの言葉は場面が似ていますが、本当に共通するのは用途です。",
+      "groupIds": [
+        "japanese-drinks",
+        "ja-virtue",
+        "ja-waterfall",
+        "ja-weather-snow"
+      ]
+    },
+    {
+      "difficulty": 4,
+      "theme": "祭りの夜",
+      "redHerring": "近しい意味の言葉に惑わされないでください。",
+      "groupIds": [
+        "japanese-weekdays",
+        "japanese-ankers",
+        "japanese-buffers",
+        "ja-anime-term"
+      ]
+    }
+  ]
+}

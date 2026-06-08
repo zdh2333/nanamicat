@@ -89,9 +89,29 @@ export function buildTextPuzzles(catalog) {
   return [...builtIn, ...community].filter((puzzle) => puzzle.groups?.length === 4);
 }
 
-export async function loadPuzzleCatalog() {
+/**
+ * Choose the puzzle-data URL for a given UI locale.
+ *   - "ja" loads puzzle-data-ja.json (independently curated Japanese catalog)
+ *   - everything else loads the Chinese-built catalog puzzle-data.json
+ *     (English users see it via the englishPuzzleTerms map).
+ *
+ * Each locale has its own localStorage cache key so a player who flips
+ * between zh and ja doesn't keep re-downloading 200 KB.
+ */
+function catalogUrlFor(locale) {
+  if (locale === "ja") return "/puzzle-data-ja.json";
+  return "/puzzle-data.json";
+}
+function catalogCacheKeyFor(locale) {
+  if (locale === "ja") return `${CACHE_KEY}.ja`;
+  return CACHE_KEY;
+}
+
+export async function loadPuzzleCatalog(locale = "zh") {
+  const url = catalogUrlFor(locale);
+  const cacheKey = catalogCacheKeyFor(locale);
   try {
-    const response = await fetch("/puzzle-data.json", { cache: "no-cache" });
+    const response = await fetch(url, { cache: "no-cache" });
     if (response.ok) {
       let data;
       try {
@@ -119,7 +139,7 @@ export async function loadPuzzleCatalog() {
         // Community puzzles are additive; keep the built-in catalog if the API is unavailable.
       }
       try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        localStorage.setItem(cacheKey, JSON.stringify(data));
       } catch {
         // optional cache
       }
@@ -130,12 +150,18 @@ export async function loadPuzzleCatalog() {
   }
 
   try {
-    const cached = localStorage.getItem(CACHE_KEY);
+    const cached = localStorage.getItem(cacheKey);
     if (cached) return JSON.parse(cached);
   } catch {
     // ignore
   }
 
+  // Last-ditch: if the user is on ja and the JA catalog failed to load, fall
+  // back to the Chinese catalog so the page still works. Better to show
+  // Chinese than a "could not load" error.
+  if (locale === "ja") {
+    return loadPuzzleCatalog("zh");
+  }
   throw new Error("无法加载题库，请检查网络后刷新。");
 }
 
@@ -155,8 +181,10 @@ export function getTodayIndex(max) {
  *                       most recent last. Empty for first-visit.
  *   @param maxWindow  — how many recent puzzles to consider when checking
  *                       overlap (default 5).
- *   @param maxShared  — tolerate at most this many groupIds in common with
- *                       the recent set (default 1).
+ *   @param maxShared  — tolerate at most this many groups in common with
+ *                       the recent set. Default 0 = "all four groups must
+ *                       be new". This is the strictness the player feels as
+ *                       "every puzzle feels fresh".
  *
  * Behaviour:
  *   1. Take the canonical date-hash index.
@@ -167,14 +195,17 @@ export function getTodayIndex(max) {
  *      never repeats the same group combo they just played.
  *   4. If nothing in the ±50 window works, fall back to the canonical one.
  */
-export function getTodayIndexBalanced(pool, recentIds = [], maxWindow = 5, maxShared = 1) {
+export function getTodayIndexBalanced(pool, recentIds = [], maxWindow = 5, maxShared = 0) {
   if (!pool.length) return 0;
   const canonical = getTodayIndex(pool.length);
   const recentPuzzles = recentIds.slice(-maxWindow);
   const recentGroups = new Set();
+  // Pool puzzles have .groups (array of {name, level, items}), not .groupIds.
+  // Use group names as the stable fingerprint for overlap detection,
+  // consistent with pickBalancedNext below.
   for (const p of recentPuzzles) {
-    if (p && Array.isArray(p.groupIds)) {
-      for (const gid of p.groupIds) recentGroups.add(gid);
+    if (p && Array.isArray(p.groups)) {
+      for (const g of p.groups) recentGroups.add(g.name);
     }
   }
   // Empty recent (first visit, or after localStorage clear): just return canonical.
@@ -205,7 +236,7 @@ export function getTodayIndexBalanced(pool, recentIds = [], maxWindow = 5, maxSh
  * Pick the next puzzle after `puzzleIndex` while avoiding groups the player
  * has just seen. Mirrors getTodayIndexBalanced for the "Next puzzle" button.
  */
-export function pickBalancedNext(pool, currentIndex, recentIds = [], maxWindow = 5, maxShared = 1) {
+export function pickBalancedNext(pool, currentIndex, recentIds = [], maxWindow = 5, maxShared = 0) {
   if (!pool.length) return 0;
   const recentPuzzles = recentIds.slice(-maxWindow);
   const recentGroups = new Set();
