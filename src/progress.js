@@ -196,7 +196,6 @@ export function shouldResume(resume, puzzleId, maxMistakes) {
   if (resume.completed) return false;
   if (Number.isFinite(resume.mistakes) && maxMistakes) {
     if (resume.mistakes >= maxMistakes) return false;
-    if (resume.mistakes >= Math.floor(maxMistakes * 0.75)) return false;
   }
   return true;
 }

@@ -197,31 +197,57 @@ export function getTodayIndex(max) {
  */
 export function getTodayIndexBalanced(pool, recentIds = [], maxWindow = 5, maxShared = 0) {
   if (!pool.length) return 0;
+
+  // Determine target difficulty: cycle D1→D2→D3→D4→D1 based on UTC date so
+  // each difficulty appears equally often. D4 has many more puzzles in zh (328
+  // vs 100 each for D1-D3), so without targeting it would dominate ~52% of
+  // days. Cycling ensures all four difficulties get equal screen time.
+  const now = new Date();
+  const dayKey = now.getUTCFullYear() * 372 + now.getUTCMonth() * 31 + now.getUTCDate();
+  const targetDifficulty = (dayKey % 4) + 1;
+
   const canonical = getTodayIndex(pool.length);
   const recentPuzzles = recentIds.slice(-maxWindow);
   const recentGroups = new Set();
-  // Pool puzzles have .groups (array of {name, level, items}), not .groupIds.
-  // Use group names as the stable fingerprint for overlap detection,
-  // consistent with pickBalancedNext below.
   for (const p of recentPuzzles) {
     if (p && Array.isArray(p.groups)) {
       for (const g of p.groups) recentGroups.add(g.name);
     }
   }
-  // Empty recent (first visit, or after localStorage clear): just return canonical.
-  if (recentGroups.size === 0) return canonical;
 
-  // Pool puzzles expose their 4 groups as `puzzle.groups` (array of {name, level, items}).
-  // We extract a "fingerprint" of group NAMES (not ids) for overlap comparison.
-  // buildTextPuzzles does not preserve the manifest's groupIds, but the group
-  // name is stable and unique per group, so it works as a fingerprint.
   const groupNames = (puzzle) => (puzzle.groups || []).map((g) => g.name);
   const sharedCount = (puzzle) => groupNames(puzzle).filter((n) => recentGroups.has(n)).length;
 
-  // 2. Canonical already good?
+  // Build a sub-pool for the target difficulty level
+  const targetEntries = pool.map((p, i) => ({ p, i })).filter(({ p }) => p.difficulty === targetDifficulty);
+
+  if (targetEntries.length > 0) {
+    // Within target difficulty, pick by a daily hash of that sub-pool
+    const subCanonical = getTodayIndex(targetEntries.length);
+
+    if (recentGroups.size === 0) return targetEntries[subCanonical].i;
+
+    if (sharedCount(targetEntries[subCanonical].p) <= maxShared) {
+      return targetEntries[subCanonical].i;
+    }
+
+    // Search ±all within target difficulty sub-pool
+    const N = targetEntries.length;
+    for (let delta = 1; delta <= N; delta += 1) {
+      for (const sign of [1, -1]) {
+        const idx = (subCanonical + sign * delta + N * 100) % N;
+        if (sharedCount(targetEntries[idx].p) <= maxShared) return targetEntries[idx].i;
+      }
+    }
+
+    // Overlap unavoidable — still stay within target difficulty
+    return targetEntries[subCanonical].i;
+  }
+
+  // Fallback: no puzzles of target difficulty (shouldn't happen), use original logic
+  if (recentGroups.size === 0) return canonical;
   if (sharedCount(pool[canonical]) <= maxShared) return canonical;
 
-  // 3. Search ±50
   const N = pool.length;
   for (let delta = 1; delta <= 50; delta += 1) {
     for (const sign of [1, -1]) {
@@ -234,10 +260,16 @@ export function getTodayIndexBalanced(pool, recentIds = [], maxWindow = 5, maxSh
 
 /**
  * Pick the next puzzle after `puzzleIndex` while avoiding groups the player
- * has just seen. Mirrors getTodayIndexBalanced for the "Next puzzle" button.
+ * has just seen. Cycles through difficulty levels D1→D2→D3→D4→D1 so the
+ * player never gets two consecutive puzzles at the same difficulty.
  */
 export function pickBalancedNext(pool, currentIndex, recentIds = [], maxWindow = 5, maxShared = 0) {
   if (!pool.length) return 0;
+
+  // Advance to the next difficulty level in the rotation
+  const currentDifficulty = pool[currentIndex]?.difficulty ?? 1;
+  const targetDifficulty = (currentDifficulty % 4) + 1;
+
   const recentPuzzles = recentIds.slice(-maxWindow);
   const recentGroups = new Set();
   for (const p of recentPuzzles) {
@@ -249,11 +281,19 @@ export function pickBalancedNext(pool, currentIndex, recentIds = [], maxWindow =
   const sharedCount = (puzzle) => groupNames(puzzle).filter((n) => recentGroups.has(n)).length;
 
   const N = pool.length;
-  // Try indices starting just after the current one, walking forward.
+
+  // Pass 1: target difficulty + no group overlap
+  for (let delta = 1; delta < N; delta += 1) {
+    const idx = (currentIndex + delta) % N;
+    if (pool[idx].difficulty === targetDifficulty && sharedCount(pool[idx]) <= maxShared) return idx;
+  }
+
+  // Pass 2: any difficulty + no group overlap
   for (let delta = 1; delta < N; delta += 1) {
     const idx = (currentIndex + delta) % N;
     if (sharedCount(pool[idx]) <= maxShared) return idx;
   }
+
   return (currentIndex + 1) % N;
 }
 

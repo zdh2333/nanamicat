@@ -807,6 +807,9 @@ function App() {
   const isGameOver = mistakes >= maxMistakes && solved.length < (puzzle.groups?.length ?? 4);
   const isComplete = pool.length > 0 && puzzle.groups.length === 4 && solved.length === puzzle.groups.length;
   const abstractGroup = isComplete ? mostAbstractGroup(puzzle.groups) : null;
+  // Namespace the resume key by locale so zh and ja saves never collide
+  // (both catalogs use "text-001", "text-002", … as puzzle IDs).
+  const resumeId = `${locale}:${puzzle.id}`;
 
   useEffect(() => {
     let cancelled = false;
@@ -930,8 +933,8 @@ function App() {
   // clobbers the resume we just read.
   useLayoutEffect(() => {
     if (pool.length && puzzle.id !== "loading") {
-      const resume = readResume(puzzle.id);
-      if (shouldResume(resume, puzzle.id, maxMistakes)) {
+      const resume = readResume(resumeId);
+      if (shouldResume(resume, resumeId, maxMistakes)) {
         const restoredSolved = (resume.solvedNames || [])
           .map((name) => puzzle.groups.find((g) => g.name === name))
           .filter(Boolean);
@@ -940,18 +943,18 @@ function App() {
         setMistakes(resume.mistakes || 0);
         setHintIndex(0);
         if (resume.gameStartTs) setGameStartTs(resume.gameStartTs);
-        resumeAppliedFor.current = puzzle.id;
+        resumeAppliedFor.current = resumeId;
         if (resume.updatedAt && Date.now() - new Date(resume.updatedAt).getTime() < 30 * 60 * 1000) {
           setApiNotice((locale === "zh" ? "已恢复上次的进度。" : (locale === "ja" ? "前回の続きから再開します。" : "Resumed your last game.")));
         }
         setMessage((locale === "zh" ? "继续上次的进度。" : (locale === "ja" ? "前回の続きから。" : "Continuing where you left off.")));
       } else {
         resetPuzzleState();
-        if (resume) clearResume(puzzle.id);
+        if (resume) clearResume(resumeId);
         setGameStartTs(Date.now());
         setMessage(t.intro);
         setApiNotice("");
-        resumeAppliedFor.current = puzzle.id;
+        resumeAppliedFor.current = resumeId;
       }
     } else {
       resetPuzzleState();
@@ -989,16 +992,16 @@ function App() {
   // with a blank board.
   useEffect(() => {
     if (!pool.length || puzzle.id === "loading") return;
-    if (resumeAppliedFor.current !== puzzle.id) {
+    if (resumeAppliedFor.current !== resumeId) {
       // The restore effect hasn't run yet for this puzzle; let it finish
       // first so we don't clobber the resume we're about to load.
       return;
     }
     if (isComplete) {
-      clearResume(puzzle.id);
+      clearResume(resumeId);
       return;
     }
-    writeResume(puzzle.id, {
+    writeResume(resumeId, {
       date: pinnedDate || getTodayIsoDate(),
       selected,
       solvedNames: solved.map((g) => g.name),
@@ -1568,7 +1571,7 @@ function App() {
       .map((id) => pool.find((p) => p.id === id))
       .filter(Boolean);
     // Wipe the current puzzle's resume — the player is choosing to leave.
-    if (puzzle.id && puzzle.id !== "loading") clearResume(puzzle.id);
+    if (puzzle.id && puzzle.id !== "loading") clearResume(resumeId);
     const nextIndex = pickBalancedNext(pool, puzzleIndex, recentPuzzles, 50, 0);
     setPuzzleIndex(nextIndex);
     resetPuzzleState();

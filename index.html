@@ -4,22 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0e2d57" />
-    <meta name="description" content="Nanami Cat - free daily word category puzzle. Sort sixteen words into four hidden groups every day. No sign-up required." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.svg" />
     <link rel="canonical" href="https://nanamicat.com/" />
+    <link rel="alternate" hreflang="en" href="https://nanamicat.com/?lang=en" />
+    <link rel="alternate" hreflang="zh-CN" href="https://nanamicat.com/?lang=zh" />
+    <link rel="alternate" hreflang="ja" href="https://nanamicat.com/?lang=ja" />
+    <link rel="alternate" hreflang="x-default" href="https://nanamicat.com/" />
 
     <!-- Social -->
     <meta property="og:site_name" content="Nanami Cat" />
-    <meta property="og:title" content="Nanami Cat - Daily Word Categories Puzzle" />
-    <meta property="og:description" content="Sort sixteen words into four hidden groups every day. A free daily brain teaser with a friendly black cat." />
+    <meta property="og:title" content="Nanami Cat - Today's Daily Word Categories Puzzle" />
+    <meta property="og:description" content="Play today's Nanami Cat daily word categories puzzle. Sort 16 words into 4 hidden groups. A free daily brain teaser, available in English, Chinese, and Japanese." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://nanamicat.com/" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta property="og:locale:alternate" content="ja_JP" />
     <meta property="og:image" content="https://nanamicat.com/nanamicat_mascot_celebration.webp" />
     <meta property="og:image:alt" content="Nanami Cat celebrating a finished puzzle" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Nanami Cat - Daily Word Categories Puzzle" />
-    <meta name="twitter:description" content="Sort sixteen words into four hidden groups every day. A free daily brain teaser with a friendly black cat." />
+    <meta name="twitter:title" content="Nanami Cat - Today's Daily Word Categories Puzzle" />
+    <meta name="twitter:description" content="Play today's Nanami Cat daily word categories puzzle. Sort 16 words into 4 hidden groups. A free daily brain teaser, available in English, Chinese, and Japanese." />
     <meta name="twitter:image" content="https://nanamicat.com/nanamicat_mascot_celebration.webp" />
 
     <!-- LCP optimisation: preload the celebration mascot, the one image most likely
@@ -40,8 +46,66 @@
     <noscript>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&display=swap" />
     </noscript>
+    <!-- Chinese handwriting font for zh locale -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" />
+    </noscript>
+    <!-- Japanese handwriting font for ja locale -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" />
+    </noscript>
 
-    <title>Nanami Cat - Daily Word Categories Puzzle</title>
+    <title>Nanami Cat - Today's Daily Word Categories Puzzle</title>
+    <meta name="description" content="Play today's Nanami Cat daily word categories puzzle for free. Sort sixteen words into four hidden groups, every day. Today's theme updated at midnight. No sign-up required." />
+    <meta name="keywords" content="daily word puzzle, today puzzle, today's puzzle, connections game, word categories, daily puzzle online, free word puzzle, no signup word game, wordle alternative, NYT Connections alternative, word category game, connections puzzle, 今日单词分类游戏, 每日单词游戏, 文字分类游戏, 每日文字分类游戏, 免费单词游戏, ことばパズル, 今日のパズル, 今日のことばパズル, 文字分類パズル, 毎日の文字パズル, ことばパズル 無料, 文字パズル 無料" />
+
+    <!-- SEO: Game + Organization + BreadcrumbList schemas (static fallback).
+         Per-locale overrides (title, description, og:locale) happen at runtime
+         in src/main.jsx; this is what crawlers see if JS is delayed, and the
+         JSON-LD is what powers rich-result eligibility. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Game",
+      "name": "Nanami Cat",
+      "alternateName": ["MeowGrid", "ナナミキャット", "喵格谜"],
+      "url": "https://nanamicat.com/",
+      "description": "Free daily word category puzzle. Sort sixteen words into four hidden groups every day. No sign-up required.",
+      "image": "https://nanamicat.com/nanamicat_mascot_celebration.webp",
+      "genre": ["Word game", "Puzzle", "Brain teaser"],
+      "gamePlatform": "Web Browser",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Any",
+      "inLanguage": ["en", "zh-CN", "ja"],
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Nanami Cat",
+        "url": "https://nanamicat.com/"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nanamicat.com/" }
+      ]
+    }
+    </script>
 
     <!-- AdSense config. Toggle `enabled` to false to instantly turn all
          ads off without redeploying. Slot ids are the numeric AdSense
