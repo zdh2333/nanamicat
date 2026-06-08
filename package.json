@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --env-file-if-exists=.env server.js",
-    "build": "vite build",
+    "build": "node scripts/generate-sitemap.mjs && vite build",
     "start": "node --env-file-if-exists=.env server.js",
     "test:puzzles": "node scripts/validate-puzzles.mjs",
     "sync:puzzles": "node scripts/sync-puzzle-data.mjs",

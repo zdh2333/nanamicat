@@ -1,0 +1,40 @@
+{
+  "name": "Nanami Cat",
+  "short_name": "NanamiCat",
+  "description": "Free daily word categories puzzle. Sort 16 words into 4 hidden groups. Available in English, Chinese, and Japanese.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8f1e4",
+  "theme_color": "#0e2d57",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["games", "puzzle"],
+  "icons": [
+    {
+      "src": "/nanamicat_mascot_standard.png",
+      "sizes": "160x160",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/nanamicat_mascot_celebration.png",
+      "sizes": "160x160",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/puzzle-easy.png",
+      "type": "image/png",
+      "label": "Easy difficulty puzzle"
+    },
+    {
+      "src": "/puzzle-medium.png",
+      "type": "image/png",
+      "label": "Medium difficulty puzzle"
+    }
+  ]
+}
