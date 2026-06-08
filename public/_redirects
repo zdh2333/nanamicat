@@ -1,1 +1,15 @@
-/* /index.html 200
+# Static legal/info pages (P0 of the AdSense / SEO plan).
+# Each entry maps the clean URL to the static .html file in /public so the page
+# is served as a real HTML document (good for SEO bots and fast TTFB).
+/privacy        /privacy.html       200
+/terms          /terms.html         200
+/contact        /contact.html       200
+/about          /about.html         200
+/how-to-play    /how-to-play.html   200
+/sitemap.xml    /sitemap.xml        200
+/robots.txt     /robots.txt         200
+/ads.txt        /ads.txt            200
+
+# SPA fallback for everything else (game, archive, /puzzle/:date, leaderboard, contribute, admin).
+# Must be last.
+/*    /index.html    200
