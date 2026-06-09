@@ -1,5 +1,1 @@
-# ads.txt placeholder for Nanami Cat.
-#
-# DO NOT add lines here until Google AdSense issues a real publisher ID.
-# Adding fake entries will cause AdSense to reject the application.
-# Format reference: https://iabtechlab.com/ads-txt/
+google.com, pub-4282000221262612, DIRECT, f08c47fec0942fa0
