@@ -1639,16 +1639,27 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
   background: var(--surface);
   box-shadow: 2px 3px 0 0 var(--ink);
   min-width: 90px;
+  /* CLS fix: the streak number goes from 0 to 9 (1 char) to 10+ (2 chars)
+     to 100+ (3 chars). Without this the box height would grow when the
+     number grew, pushing everything below it. */
+  min-height: 64px;
+  justify-content: center;
 }
 .archive-streak__value {
   font-size: 1.6rem;
   font-weight: 800;
   line-height: 1;
+  /* CLS fix: tabular numerals so 1→9→10→99 keeps the same width. */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 .archive-streak__label {
   font-size: 0.85rem;
   color: var(--muted);
   margin-top: 2px;
+  /* CLS fix: lock the label to a single line so a longer translation
+     (e.g. "連続天数") doesn't add a second line later. */
+  white-space: nowrap;
 }
 
 .archive-filters {
@@ -1762,6 +1773,14 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
   background: var(--surface);
   box-shadow: 3px 4px 0 0 var(--ink);
   color: var(--ink);
+  /* CLS fix: reserve a stable minimum height so the footer block never
+     grows/shrinks after initial paint. The "Recent clears" column loads
+     from localStorage on mount and used to silently grow the footer by
+     a few lines, which is the #1 contributor to /archive's CLS. The
+     value here is large enough to hold the empty-state copy in any of
+     the three supported locales. */
+  min-height: 180px;
+  contain: layout;
 }
 .site-footer__cols {
   display: grid;
@@ -1791,6 +1810,15 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
 }
 .site-footer a:hover { border-bottom-color: var(--ink); }
 .site-footer__recent time { font-weight: 700; }
+/* CLS fix: the "Recent clears" column renders either a <ul> with up to 3
+   <li> rows or a single <p> empty-state line. The height difference used
+   to push the bottom of the footer (and the .site-footer__copy line) by
+   a few pixels when localStorage loaded. We give both branches the same
+   min-height so the column box never changes size. */
+.site-footer__recent,
+.site-footer__empty {
+  min-height: 72px;
+}
 .site-footer__empty { color: var(--muted); margin: 0; font-size: 0.9rem; }
 .site-footer__copy {
   margin: 14px 0 0;
