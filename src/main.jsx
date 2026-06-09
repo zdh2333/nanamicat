@@ -352,7 +352,7 @@ const copy = {
   // Translation choices favor plainspoken daily-life Japanese over
   // 直訳的 wording that would feel stiff on a casual puzzle site.
   ja: {
-    appName: "ナナミキャット",
+    appName: "ナナミ",
     kicker: "毎日のことばパズル",
     language: "中文 / English",
     help: "遊び方",
@@ -496,14 +496,14 @@ const SEO_BY_LOCALE = {
   ja: {
     ogLocale: "ja_JP",
     hreflang: "ja",
-    appName: "ナナミキャット",
+    appName: "ナナミ",
     siteUrl: "https://nanamicat.com",
     home: {
-      title: "ナナミキャット - 今日のことばパズル(無料)",
+      title: "ナナミ - 今日のことばパズル(無料)",
       description: "今日の無料ことばパズル。毎日16語を4つの隠れたグループに分けよう。登録不要、NYT Connections 風の毎日の脳トレ。日本語・中文・English 対応。"
     },
     today: {
-      title: "今日のことばパズル - 無料の毎日文字分類ゲーム | ナナミキャット",
+      title: "今日のことばパズル - 無料の毎日文字分類ゲーム | ナナミ",
       description: "今日の無料ことばパズル:16語を4つの隠れたグループに分類する毎日の脳トレ。登録不要、ダウンロード不要、NYT Connections 風の日本語パズル。",
       h1: "今日のことばパズル - 無料の毎日文字分類ゲーム",
       lead: "今日の無料ことばパズルへようこそ。16のことばを4つの隠れたグループに分け、結果をシェアして、明日も新しい問題にチャレンジしましょう。",
@@ -609,7 +609,7 @@ function buildGameSchema(locale) {
     "@context": "https://schema.org",
     "@type": "Game",
     "name": seo.appName,
-    "alternateName": ["MeowGrid", "ナナミキャット", "喵格谜", "Nanami Cat"],
+    "alternateName": ["MeowGrid", "ナナミ", "喵格谜", "Nanami Cat"],
     "url": seo.siteUrl,
     "description": seo.home.description,
     "image": `${seo.siteUrl}/nanamicat_mascot_celebration.webp`,
@@ -1203,8 +1203,8 @@ function App() {
             <div className="puzzle-seo__body">
               <h2 className="puzzle-seo__heading">
                 {pinnedDate
-                  ? (locale === "zh" ? `${pinnedDate} 喵格谜每日文字分类谜题` : (locale === "ja" ? `${pinnedDate} のナナミキャット ことばパズル` : `Nanami Cat Daily Word Puzzle - ${pinnedDate}`))
-                  : (locale === "zh" ? `今日喵格谜每日文字分类谜题` : (locale === "ja" ? `今日のナナミキャット ことばパズル` : `Nanami Cat Daily Word Puzzle - Today`))}
+                  ? (locale === "zh" ? `${pinnedDate} 喵格谜每日文字分类谜题` : (locale === "ja" ? `${pinnedDate} のナナミ ことばパズル` : `Nanami Cat Daily Word Puzzle - ${pinnedDate}`))
+                  : (locale === "zh" ? `今日喵格谜每日文字分类谜题` : (locale === "ja" ? `今日のナナミ ことばパズル` : `Nanami Cat Daily Word Puzzle - Today`))}
               </h2>
               <p className="puzzle-seo__lead">
                 {locale === "zh"
@@ -1773,7 +1773,7 @@ function App() {
     const perfect = mistakes === 0;
     const abstractName = abstractGroup ? localizePuzzleTerm(abstractGroup.name, locale, englishTerms) : "-";
     const timeStr = `${Math.floor(timeSeconds / 60)}:${String(timeSeconds % 60).padStart(2, "0")}`;
-    const headline = (locale === "zh" ? "喵格谜" : (locale === "ja" ? "ナナミキャット" : "Nanami Cat"));
+    const headline = (locale === "zh" ? "喵格谜" : (locale === "ja" ? "ナナミ" : "Nanami Cat"));
     const report = [
       `${headline} · ${completionDate}`,
       `${puzzleLabel(puzzle, locale)}`,

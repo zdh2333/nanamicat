@@ -226,7 +226,7 @@ select:focus-visible {
   color: var(--header-ink);
   text-shadow: 2px 2px 0 rgba(0,0,0,0.22);
   /* Keep the title on one line even on narrow mobile. We accept a slight
-     shrink on the very smallest screens to avoid the "ナナミキャット"
+     shrink on the very smallest screens to avoid the "ナナミ"
      title wrapping onto 3 lines, which looks broken. */
   white-space: nowrap;
   /* The decorative dashed ellipse is `position:absolute` inside the title
