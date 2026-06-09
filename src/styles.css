@@ -1721,6 +1721,7 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
 }
 .archive-status--perfect { background: var(--crayon-yellow); }
 .archive-status--completed { background: var(--crayon-green); color: #fff; border-color: var(--ink); }
+.archive-status--failed { background: var(--crayon-red, #e05252); color: #fff; border-color: var(--ink); }
 .archive-status--none { background: var(--surface-3); color: var(--muted); }
 
 .archive-open {
@@ -1916,4 +1917,49 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
   .sticky-ad-bar__chevron {
     transition: none;
   }
+}
+
+/* Today SEO landing section (view=today, /today URL) */
+.today-seo-landing {
+  max-width: 680px;
+  margin: 32px auto 0;
+  padding: 0 16px 40px;
+  color: var(--text);
+}
+.today-seo-h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.today-seo-lead {
+  color: var(--muted);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+.today-seo-features h3,
+.today-seo-faq h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.today-seo-features ul {
+  padding-left: 1.2em;
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+.today-seo-faq-item {
+  border-top: 1px solid var(--border);
+  padding: 10px 0;
+}
+.today-seo-faq-item summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  padding: 2px 0;
+}
+.today-seo-faq-item summary::-webkit-details-marker { display: none; }
+.today-seo-faq-item p {
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.6;
 }

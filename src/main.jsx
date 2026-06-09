@@ -30,6 +30,7 @@ import {
   getTodayIsoDate,
   puzzleIndexForDate,
   recordCompletion,
+  recordFailure,
   readResume,
   writeResume,
   clearResume,
@@ -1172,8 +1173,8 @@ function App() {
             <span>{t.hint}</span>
             <strong aria-label={`${hintBalance} hints remaining`}>{hintBalance}</strong>
           </section>
-          <section className="status status-stairs" aria-label={locale === "zh" ? "难易程度" : "Difficulty"}>
-            <span>{locale === "zh" ? "难度" : "Level"}</span>
+          <section className="status status-stairs" aria-label={locale === "zh" ? "难易程度" : (locale === "ja" ? "難易度" : "Difficulty")}>
+            <span>{locale === "zh" ? "难度" : (locale === "ja" ? "難易度" : "Level")}</span>
             <div className="diff-stairs" role="img" aria-label={`${solved.length}/4 groups solved`}>
               {[1, 2, 3, 4].map((lvl) => {
                 const barColors = ["#f7c948", "#7bc67b", "#6db6e8", "#a87dc8"];
@@ -1417,6 +1418,48 @@ function App() {
     );
   }
 
+  function renderTodayLanding() {
+    const seo = getSeo(locale);
+    const todaySeo = seo.today;
+    return (
+      <>
+        <section className="toolbar" aria-label="Game settings">
+          <div className="theme-picker">
+            <Palette size={16} />
+            {themes.map((item) => (
+              <button key={item.id} type="button" className={theme === item.id ? "active" : ""} onClick={() => setTheme(item.id)}>
+                {item[locale]}
+              </button>
+            ))}
+          </div>
+        </section>
+        {renderGameBoardInline()}
+        <section className="today-seo-landing" aria-label={todaySeo.h1}>
+          <h2 className="today-seo-h1">{todaySeo.h1}</h2>
+          <p className="today-seo-lead">{todaySeo.lead}</p>
+          <div className="today-seo-features">
+            <h3>{todaySeo.featuresTitle}</h3>
+            <ul>
+              {todaySeo.features.map((feature, idx) => (
+                <li key={idx}>{feature}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="today-seo-faq">
+            <h3>{todaySeo.faqTitle}</h3>
+            {todaySeo.faq.map((item, idx) => (
+              <details key={idx} className="today-seo-faq-item">
+                <summary>{item.q}</summary>
+                <p>{item.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+        <AdSlot slotName="ad-page-bottom" reservedHeight={120} label="Ad" />
+      </>
+    );
+  }
+
   function setRoute(nextView, options = {}) {
     setView(nextView);
     const nextPinned = options.pinnedDate ?? null;
@@ -1554,6 +1597,9 @@ function App() {
     setTimeout(() => setBoardShake(false), 420);
     if (nextMistakes >= maxMistakes) {
       trackGameFail({ puzzleId: puzzle.id, mistakes: nextMistakes });
+      const failDate = pinnedDate || getTodayIsoDate();
+      const failTime = Math.max(0, Math.floor((Date.now() - gameStartTs) / 1000));
+      recordFailure({ date: failDate, puzzleId: puzzle.id, mistakes: nextMistakes, timeSeconds: failTime });
     }
   }
 
@@ -1883,9 +1929,9 @@ function App() {
 
           {/* Back link when this board is pinned to a specific date via /puzzle/:date */}
           {pinnedDate && (
-            <nav className="puzzle-back" aria-label={locale === "zh" ? "返回" : "Navigation"}>
+            <nav className="puzzle-back" aria-label={locale === "zh" ? "返回" : (locale === "ja" ? "戻る" : "Navigation")}>
               <button type="button" className="ghost-back" onClick={() => setRoute("archive")}>
-                {locale === "zh" ? `← 返回 ${pinnedDate} 的题库` : `← Back to archive (${pinnedDate})`}
+                {locale === "zh" ? `← 返回 ${pinnedDate} 的题库` : (locale === "ja" ? `← 履歴に戻る (${pinnedDate})` : `← Back to archive (${pinnedDate})`)}
               </button>
             </nav>
           )}
@@ -2034,7 +2080,7 @@ function App() {
                         }}
                       />
                       {nameEmpty && group.words && (
-                        <span className="field-error">{locale === "zh" ? "请填写组名" : "Group name required"}</span>
+                        <span className="field-error">{locale === "zh" ? "请填写组名" : (locale === "ja" ? "グループ名は必須です" : "Group name required")}</span>
                       )}
                       <textarea
                         value={group.words}
@@ -2077,10 +2123,10 @@ function App() {
               <h2>{t.admin}</h2>
               <p>{t.adminLead}</p>
             </div>
-            <button type="button" onClick={loadAdmin}>{locale === "zh" ? "刷新" : "Refresh"}</button>
+            <button type="button" onClick={loadAdmin}>{locale === "zh" ? "刷新" : (locale === "ja" ? "更新" : "Refresh")}</button>
           </div>
           <label className="admin-key-field">
-            <span>{locale === "zh" ? "本地 Admin Key（可选）" : "Local admin key (optional)"}</span>
+            <span>{locale === "zh" ? "本地 Admin Key（可选）" : (locale === "ja" ? "ローカル Admin Key（任意）" : "Local admin key (optional)")}</span>
             <input
               type="password"
               value={adminKeyInput}
@@ -2088,7 +2134,7 @@ function App() {
                 setAdminKeyInput(event.target.value);
                 setStored("nanamicat.adminKey", event.target.value);
               }}
-              placeholder={locale === "zh" ? "与 .env 中 ADMIN_KEY 一致" : "Match ADMIN_KEY in .env"}
+              placeholder={locale === "zh" ? "与 .env 中 ADMIN_KEY 一致" : (locale === "ja" ? ".env の ADMIN_KEY と同じ値" : "Match ADMIN_KEY in .env")}
               autoComplete="off"
             />
           </label>
@@ -2203,15 +2249,15 @@ function App() {
       <footer className="site-footer" aria-label="Site links">
         <div className="site-footer__cols">
           <div>
-            <h4>{locale === "zh" ? "导航" : "Site"}</h4>
+            <h4>{locale === "zh" ? "导航" : (locale === "ja" ? "サイト" : "Site")}</h4>
             <ul>
-              <li><a href="/how-to-play">{locale === "zh" ? "玩法" : "How to play"}</a></li>
-              <li><a href="/archive">{locale === "zh" ? "历史题" : "Archive"}</a></li>
-              <li><a href="/about">{locale === "zh" ? "关于" : "About"}</a></li>
+              <li><a href="/how-to-play">{locale === "zh" ? "玩法" : (locale === "ja" ? "遊び方" : "How to play")}</a></li>
+              <li><a href="/archive">{locale === "zh" ? "历史题" : (locale === "ja" ? "履歴" : "Archive")}</a></li>
+              <li><a href="/about">{locale === "zh" ? "关于" : (locale === "ja" ? "このゲームについて" : "About")}</a></li>
             </ul>
           </div>
           <div>
-            <h4>{locale === "zh" ? "法律" : "Legal"}</h4>
+            <h4>{locale === "zh" ? "法律" : (locale === "ja" ? "法的情報" : "Legal")}</h4>
             <ul>
               <li><a href="/privacy">Privacy Policy</a></li>
               <li><a href="/terms">Terms of Use</a></li>
@@ -2219,7 +2265,7 @@ function App() {
             </ul>
           </div>
           <div>
-            <h4>{locale === "zh" ? "最近完成" : "Recent clears"}</h4>
+            <h4>{locale === "zh" ? "最近完成" : (locale === "ja" ? "最近のクリア" : "Recent clears")}</h4>
             {recentCompletions.length ? (
               <ul className="site-footer__recent">
                 {recentCompletions.map((item) => (
@@ -2232,7 +2278,7 @@ function App() {
                 ))}
               </ul>
             ) : (
-              <p className="site-footer__empty">{locale === "zh" ? "完成一题后会显示在这里。" : "Recent completions will appear here."}</p>
+              <p className="site-footer__empty">{locale === "zh" ? "完成一题后会显示在这里。" : (locale === "ja" ? "クリアした問題がここに表示されます。" : "Recent completions will appear here.")}</p>
             )}
           </div>
         </div>

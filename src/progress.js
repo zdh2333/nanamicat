@@ -96,6 +96,29 @@ export function getRecentCompletions() {
 }
 
 /**
+ * Mark a puzzle as failed (mistakes exhausted, not all groups solved) for a
+ * given date. Only written if no successful completion entry already exists for
+ * that date so that replaying and completing later upgrades the status.
+ */
+export function recordFailure({ date, puzzleId, mistakes, timeSeconds }) {
+  if (!date) return null;
+  const map = readProgressMap();
+  if (map[date]?.completed) return map[date]; // don't overwrite a completion
+  const entry = {
+    completed: false,
+    failed: true,
+    mistakes: Math.max(0, Math.floor(mistakes ?? 0)),
+    timeSeconds: Math.max(0, Math.floor(timeSeconds ?? 0)),
+    perfect: false,
+    puzzleId: puzzleId ?? null,
+    lastPlayedAt: new Date().toISOString()
+  };
+  map[date] = entry;
+  safeWrite(PROGRESS_KEY, map);
+  return entry;
+}
+
+/**
  * Mark a puzzle as completed for a given date. Updates progress, streak and
  * the "recently completed" ring buffer in one pass.
  */

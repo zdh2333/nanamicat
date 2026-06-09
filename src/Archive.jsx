@@ -1,18 +1,17 @@
-// Archive view — shows recent daily puzzles (last 30 days by default) with
-// per-row completion status pulled from localStorage. Mobile-friendly, no
-// server round-trip.
-
 import { useEffect, useMemo, useState } from "react";
 import { buildArchiveDates, getAllProgress, getStreak, getRecentCompletions, getTodayIsoDate, puzzleIndexForDate } from "./progress.js";
 import { trackArchiveOpen, trackPuzzleFromArchive, trackPageView } from "./analytics.js";
 import AdSlot from "./AdSlot.jsx";
 
-const FILTERS = [
-  { id: "all", label: "All" },
-  { id: "completed", label: "Completed" },
-  { id: "perfect", label: "Perfect" },
-  { id: "unplayed", label: "Not played" }
-];
+function getFilters(locale) {
+  return [
+    { id: "all",       label: locale === "zh" ? "全部"   : locale === "ja" ? "すべて"   : "All" },
+    { id: "completed", label: locale === "zh" ? "已通关" : locale === "ja" ? "クリア済み" : "Completed" },
+    { id: "perfect",   label: locale === "zh" ? "完美"   : locale === "ja" ? "パーフェクト" : "Perfect" },
+    { id: "failed",    label: locale === "zh" ? "失败"   : locale === "ja" ? "失敗"     : "Failed" },
+    { id: "unplayed",  label: locale === "zh" ? "未玩"   : locale === "ja" ? "未プレイ"  : "Not played" }
+  ];
+}
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return "—";
@@ -25,18 +24,28 @@ function formatTime(seconds) {
 function statusFor(entry) {
   if (!entry) return "not-played";
   if (entry.perfect) return "perfect";
-  return "completed";
+  if (entry.completed) return "completed";
+  if (entry.failed) return "failed";
+  return "not-played";
 }
 
 function statusLabel(status, locale) {
-  if (status === "perfect") return locale === "zh" ? "完美" : "Perfect";
-  if (status === "completed") return locale === "zh" ? "已完成" : "Completed";
-  return locale === "zh" ? "未玩" : "Not played";
+  if (status === "perfect") {
+    return locale === "zh" ? "完美" : locale === "ja" ? "パーフェクト" : "Perfect";
+  }
+  if (status === "completed") {
+    return locale === "zh" ? "已通关" : locale === "ja" ? "クリア済み" : "Completed";
+  }
+  if (status === "failed") {
+    return locale === "zh" ? "失败" : locale === "ja" ? "失敗" : "Failed";
+  }
+  return locale === "zh" ? "未玩" : locale === "ja" ? "未プレイ" : "Not played";
 }
 
 function statusClassName(status) {
   if (status === "perfect") return "archive-status archive-status--perfect";
   if (status === "completed") return "archive-status archive-status--completed";
+  if (status === "failed") return "archive-status archive-status--failed";
   return "archive-status archive-status--none";
 }
 
@@ -53,7 +62,6 @@ export default function Archive({ pool, onOpenPuzzle, locale = "en" }) {
   }, []);
 
   useEffect(() => {
-    // Re-read on mount in case progress was just written on the game page.
     setProgress(getAllProgress());
     setStreak(getStreak());
     setRecent(getRecentCompletions());
@@ -70,10 +78,13 @@ export default function Archive({ pool, onOpenPuzzle, locale = "en" }) {
     });
   }, [dates, progress, pool]);
 
+  const filters = useMemo(() => getFilters(locale), [locale]);
+
   const filtered = useMemo(() => {
     if (filter === "all") return rows;
     if (filter === "perfect") return rows.filter((row) => row.status === "perfect");
     if (filter === "completed") return rows.filter((row) => row.status === "completed" || row.status === "perfect");
+    if (filter === "failed") return rows.filter((row) => row.status === "failed");
     if (filter === "unplayed") return rows.filter((row) => row.status === "not-played");
     return rows;
   }, [rows, filter]);
@@ -88,35 +99,44 @@ export default function Archive({ pool, onOpenPuzzle, locale = "en" }) {
     }
   };
 
+  const t = {
+    title:       locale === "zh" ? "题库历史"          : locale === "ja" ? "問題履歴"              : "Puzzle Archive",
+    desc:        locale === "zh" ? "浏览全部历史题目，本地记录完成状态。" : locale === "ja" ? "過去の問題を振り返り、完了状態をローカルで確認できます。" : "Browse all past Nanami Cat puzzles and track your progress.",
+    streakLabel: locale === "zh" ? "连续天数"           : locale === "ja" ? "連続日数"              : "Day streak",
+    recentLabel: locale === "zh" ? "最近完成"           : locale === "ja" ? "最近のクリア"           : "Recent",
+    filterAriaLabel: locale === "zh" ? "状态筛选"       : locale === "ja" ? "フィルター"            : "Filter",
+    listAriaLabel:   locale === "zh" ? "历史题目列表"    : locale === "ja" ? "問題履歴リスト"         : "Archive list",
+    colDate:     locale === "zh" ? "日期"              : locale === "ja" ? "日付"                  : "Date",
+    colPuzzle:   locale === "zh" ? "题号"              : locale === "ja" ? "問題番号"               : "Puzzle",
+    colTime:     locale === "zh" ? "用时"              : locale === "ja" ? "タイム"                : "Time",
+    colMistakes: locale === "zh" ? "失误"              : locale === "ja" ? "ミス"                  : "Mistakes",
+    colStatus:   locale === "zh" ? "状态"              : locale === "ja" ? "ステータス"             : "Status",
+    todayLabel:  locale === "zh" ? "今天"              : locale === "ja" ? "今日"                  : "today",
+    playBtn:     locale === "zh" ? "玩这题"             : locale === "ja" ? "プレイ"                : "Play",
+    empty:       locale === "zh" ? "这个筛选下没有题目。" : locale === "ja" ? "この条件に合う問題はありません。" : "No puzzles match this filter."
+  };
+
   return (
-    <section className="archive panel" aria-label="Puzzle archive">
+    <section className="archive panel" aria-label={t.title}>
       <header className="archive-head">
         <div>
-          <h2>{locale === "zh" ? "题库历史" : "Puzzle Archive"}</h2>
-          <p>
-            {locale === "zh"
-              ? "回顾过去 30 天的每日文字分类谜题，本地记录完成状态。"
-              : "Play previous Nanami Cat daily word puzzles and track your progress."}
-          </p>
+          <h2>{t.title}</h2>
+          <p>{t.desc}</p>
         </div>
         <div className="archive-streak" aria-live="polite">
           <div>
             <span className="archive-streak__value">{streak.current}</span>
-            <span className="archive-streak__label">
-              {locale === "zh" ? "连续天数" : "Day streak"}
-            </span>
+            <span className="archive-streak__label">{t.streakLabel}</span>
           </div>
           <div>
             <span className="archive-streak__value">{recent.length}</span>
-            <span className="archive-streak__label">
-              {locale === "zh" ? "最近完成" : "Recent"}
-            </span>
+            <span className="archive-streak__label">{t.recentLabel}</span>
           </div>
         </div>
       </header>
 
-      <nav className="archive-filters" aria-label={locale === "zh" ? "状态筛选" : "Filter"}>
-        {FILTERS.map((item) => (
+      <nav className="archive-filters" aria-label={t.filterAriaLabel}>
+        {filters.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -128,16 +148,16 @@ export default function Archive({ pool, onOpenPuzzle, locale = "en" }) {
         ))}
       </nav>
 
-      <div className="archive-table-wrap" role="region" aria-label={locale === "zh" ? "历史题目列表" : "Archive list"}>
+      <div className="archive-table-wrap" role="region" aria-label={t.listAriaLabel}>
         <table className="archive-table">
           <thead>
             <tr>
-              <th scope="col">{locale === "zh" ? "日期" : "Date"}</th>
-              <th scope="col">{locale === "zh" ? "题号" : "Puzzle"}</th>
-              <th scope="col">{locale === "zh" ? "用时" : "Time"}</th>
-              <th scope="col">{locale === "zh" ? "失误" : "Mistakes"}</th>
-              <th scope="col">{locale === "zh" ? "状态" : "Status"}</th>
-              <th scope="col"><span className="visually-hidden">Open</span></th>
+              <th scope="col">{t.colDate}</th>
+              <th scope="col">{t.colPuzzle}</th>
+              <th scope="col">{t.colTime}</th>
+              <th scope="col">{t.colMistakes}</th>
+              <th scope="col">{t.colStatus}</th>
+              <th scope="col"><span className="visually-hidden">{t.playBtn}</span></th>
             </tr>
           </thead>
           <tbody>
@@ -147,7 +167,7 @@ export default function Archive({ pool, onOpenPuzzle, locale = "en" }) {
                 <tr key={row.date} className="archive-row">
                   <th scope="row">
                     <time dateTime={row.date}>{row.date}</time>
-                    {isToday ? <span className="archive-today"> · {locale === "zh" ? "今天" : "today"}</span> : null}
+                    {isToday ? <span className="archive-today"> · {t.todayLabel}</span> : null}
                   </th>
                   <td>{row.puzzleId ? row.puzzleId.replace("text-", "#") : "—"}</td>
                   <td>{formatTime(row.entry?.timeSeconds)}</td>
@@ -163,7 +183,7 @@ export default function Archive({ pool, onOpenPuzzle, locale = "en" }) {
                       className="archive-open"
                       onClick={() => handleOpen(row)}
                     >
-                      {locale === "zh" ? "玩这题" : "Play"}
+                      {t.playBtn}
                     </button>
                   </td>
                 </tr>
@@ -172,7 +192,7 @@ export default function Archive({ pool, onOpenPuzzle, locale = "en" }) {
             {!filtered.length && (
               <tr>
                 <td colSpan={6} className="archive-empty">
-                  {locale === "zh" ? "这个筛选下没有题目。" : "No puzzles match this filter."}
+                  {t.empty}
                 </td>
               </tr>
             )}
