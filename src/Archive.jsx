@@ -59,7 +59,7 @@ export default function Archive({ pool, onOpenPuzzle, locale = "en" }) {
     setRecent(getRecentCompletions());
   }, []);
 
-  const dates = useMemo(() => buildArchiveDates(30, today), [today]);
+  const dates = useMemo(() => buildArchiveDates(pool.length || 500, today), [today, pool.length]);
 
   const rows = useMemo(() => {
     return dates.map((date) => {
