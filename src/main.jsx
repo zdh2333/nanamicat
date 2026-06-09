@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useState, useRef, lazy, Suspense } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useState, useRef, lazy, Suspense, Component } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Check,
@@ -54,6 +54,31 @@ function ArchiveFallback() {
       <p style={{ textAlign: "center", color: "var(--muted)" }}>Loading archive…</p>
     </section>
   );
+}
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <main className="page page-loading" role="alert" style={{ textAlign: "center", padding: "40px 24px" }}>
+          <p style={{ fontSize: "1.1rem", marginBottom: "16px" }}>
+            Something went wrong loading the puzzle. Please refresh to try again.
+          </p>
+          <button type="button" className="primary" onClick={() => window.location.reload()}>
+            Retry
+          </button>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 const DEFAULT_MAX_MISTAKES = 4;
@@ -744,7 +769,7 @@ function App() {
         // ignore — fall through to stored/navigator detection
       }
     }
-    const stored = localStorage.getItem("nanamicat.locale");
+    const stored = getStored("nanamicat.locale", null);
     if (stored === "zh" || stored === "en" || stored === "ja") return stored;
     // Pick the closest supported locale from the browser's accept-language.
     // Order matters: ja is checked before en so a Japanese locale never
@@ -1168,7 +1193,7 @@ function App() {
         <section className="game-stage">
           <p className="message" role="status" aria-live="polite">{message}</p>
 
-          <details className="puzzle-seo">
+          {(isComplete || isGameOver) && <details className="puzzle-seo">
             <summary>
               {pinnedDate
                 ? (locale === "zh" ? `查看 ${pinnedDate} 的题目说明` : (locale === "ja" ? `${pinnedDate} の問題説明を見る` : `About the ${pinnedDate} puzzle`))
@@ -1208,7 +1233,7 @@ function App() {
                     : `Free to play, no sign-up. Missed days can be replayed from the archive.`)}
               </p>
             </div>
-          </details>
+          </details>}
 
           <div className="board-doodle-wrap">
             <svg className="board-doodle" viewBox="0 0 400 320" fill="none" aria-hidden="true" preserveAspectRatio="none">
@@ -2219,8 +2244,8 @@ function App() {
 }
 
 createRoot(document.getElementById("root")).render(
-  <>
+  <ErrorBoundary>
     <App />
     <StickyAdBar slotName="page-bottom" reservedHeight={90} />
-  </>
+  </ErrorBoundary>
 );
