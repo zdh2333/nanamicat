@@ -27,3 +27,6 @@ DerivedData/
 
 # Local agent tooling
 .claude/
+
+# Playwright sweep output (regenerated locally by npm run test:visual:ja)
+test-output/
