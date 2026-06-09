@@ -1464,6 +1464,7 @@ function App() {
     setView(nextView);
     const nextPinned = options.pinnedDate ?? null;
     setPinnedDate(nextPinned);
+    setApiNotice("");
     const paths = {
       game: nextPinned ? `/puzzle/${nextPinned}` : "/",
       today: "/today",
@@ -1624,10 +1625,12 @@ function App() {
     });
     const hintGroup = unsolvedGroups[hintIndex % unsolvedGroups.length];
     setHintIndex((current) => current + 1);
-    const herring = localizePuzzleTerm(puzzle.redHerring, locale, englishTerms);
+    const herring = localizePuzzleTerm(puzzle.redHerring || "", locale, englishTerms);
     setMessage(
       locale === "zh"
         ? `提示：有一组与「${hintGroup.name}」有关。${herring}`
+        : locale === "ja"
+        ? `ヒント：「${localizePuzzleTerm(hintGroup.name, locale, englishTerms)}」に関連するグループがあります。${herring}`
         : `Hint: one group relates to "${localizePuzzleTerm(hintGroup.name, locale, englishTerms)}". ${herring}`
     );
   }
@@ -1764,7 +1767,7 @@ function App() {
     });
     while (blocks.length < 4) blocks.push("⬜");
     const miss = Math.max(0, mistakes);
-    return `${blocks.join(" ")}\n${"❌".repeat(Math.min(3, miss))}${"⬛".repeat(Math.max(0, 3 - miss))}`;
+    return `${blocks.join(" ")}\n${"❌".repeat(Math.min(maxMistakes, miss))}${"⬛".repeat(Math.max(0, maxMistakes - miss))}`;
   }
 
   async function shareResult() {

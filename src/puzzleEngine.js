@@ -107,6 +107,29 @@ function catalogCacheKeyFor(locale) {
   return CACHE_KEY;
 }
 
+const CATALOG_ERRORS = {
+  formatInvalid: {
+    zh: "题库数据格式无效。",
+    en: "Invalid puzzle data format.",
+    ja: "パズルデータの形式が無効です。"
+  },
+  dataIncomplete: {
+    zh: "题库数据不完整。",
+    en: "Puzzle data is incomplete.",
+    ja: "パズルデータが不完全です。"
+  },
+  loadFailed: {
+    zh: "无法加载题库，请检查网络后刷新。",
+    en: "Failed to load puzzles. Check your connection and try again.",
+    ja: "問題の読み込みに失敗しました。接続を確認して再読み込みしてください。"
+  }
+};
+
+function catalogError(key, locale) {
+  const map = CATALOG_ERRORS[key] || CATALOG_ERRORS.loadFailed;
+  return new Error(map[locale] || map.en);
+}
+
 export async function loadPuzzleCatalog(locale = "zh") {
   const url = catalogUrlFor(locale);
   const cacheKey = catalogCacheKeyFor(locale);
@@ -117,10 +140,10 @@ export async function loadPuzzleCatalog(locale = "zh") {
       try {
         data = await response.json();
       } catch {
-        throw new Error("题库数据格式无效。");
+        throw catalogError("formatInvalid", locale);
       }
       if (!data?.textGroupBank?.length) {
-        throw new Error("题库数据不完整。");
+        throw catalogError("dataIncomplete", locale);
       }
       try {
         const communityResponse = await fetch("/api/puzzles", { cache: "no-store" });
@@ -162,7 +185,7 @@ export async function loadPuzzleCatalog(locale = "zh") {
   if (locale === "ja") {
     return loadPuzzleCatalog("zh");
   }
-  throw new Error("无法加载题库，请检查网络后刷新。");
+  throw catalogError("loadFailed", locale);
 }
 
 export function getTodayIndex(max) {
