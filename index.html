@@ -128,29 +128,10 @@
       };
     </script>
 
-    <!-- AdSense bootstrap.
-         Reads window.NANAMICAT_ADS_CONFIG and only loads the real AdSense
-         script when both `enabled` and `clientId` are set. The script is
-         loaded async and never blocks first paint. The actual ad fills
-         happen lazily inside <AdSlot> components. To turn ads off, set
-         `enabled: false` in the config above. -->
-    <script>
-      (function () {
-        try {
-          var cfg = (typeof window !== "undefined" && window.NANAMICAT_ADS_CONFIG) || null;
-          var enabled = !!(cfg && cfg.enabled && cfg.clientId);
-          if (!enabled) return;
-          var s = document.createElement("script");
-          s.async = true;
-          s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(cfg.clientId);
-          s.crossOrigin = "anonymous";
-          s.setAttribute("data-adsbygoogle-env", cfg.test ? "test" : "production");
-          document.head.appendChild(s);
-        } catch (e) {
-          // Never break the page over an ad.
-        }
-      })();
-    </script>
+    <!-- AdSense verification and runtime loader. Keep this exact static tag in
+         <head>; the AdSense site-ownership checker scans raw HTML and may not
+         execute our app bootstrap code. -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4282000221262612" crossorigin="anonymous"></script>
   </head>
   <body>
     <noscript>

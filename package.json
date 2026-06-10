@@ -11,6 +11,7 @@
     "sync:puzzles": "node scripts/sync-puzzle-data.mjs",
     "validate:puzzles": "node scripts/validate-puzzle-manifest.mjs NanamiCat-iOS/NanamiCat/Resources/puzzle-data.json",
     "validate:translations": "node scripts/validate-translations.mjs",
+    "test:adsense": "node --test tests/adsense-head.test.mjs",
     "test:visual:ja": "node scripts/visual-ja/sweep.mjs",
     "test:leaderboard": "node --test tests/leaderboard-sync.test.mjs",
     "test:puzzle-difficulty": "node --test tests/puzzle-difficulty.test.mjs",
