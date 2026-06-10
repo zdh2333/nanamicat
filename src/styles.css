@@ -528,6 +528,13 @@ html[lang="ja"] .title-doodle {
 /* ── Difficulty staircase ────────────────────────────────────── */
 .status-stairs { min-height: 58px; }
 
+.difficulty-value {
+  color: var(--ink) !important;
+  letter-spacing: 0;
+  font-size: 0.98rem !important;
+  line-height: 1.2;
+}
+
 .diff-stairs {
   display: flex;
   align-items: flex-end;
@@ -546,7 +553,7 @@ html[lang="ja"] .title-doodle {
   transform-origin: bottom center;
 }
 
-.diff-bar--solved {
+.diff-bar--active {
   opacity: 1;
   transform: scaleY(1.08);
   box-shadow: 1px -1px 0 0 var(--ink);
@@ -1961,9 +1968,32 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
 }
 .today-seo-lead {
   color: var(--muted);
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   line-height: 1.6;
 }
+.today-seo-actions {
+  margin-bottom: 14px;
+}
+.today-seo-more {
+  border: 2px dashed rgba(18, 52, 95, 0.18);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.32);
+}
+.today-seo-more > summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--ink);
+  list-style: none;
+}
+.today-seo-more > summary::-webkit-details-marker { display: none; }
+.today-seo-more > summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 120ms ease;
+}
+.today-seo-more[open] > summary::before { transform: rotate(90deg); }
 .today-seo-features h3,
 .today-seo-faq h3 {
   font-size: 1rem;
@@ -1972,8 +2002,11 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
 }
 .today-seo-features ul {
   padding-left: 1.2em;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
   line-height: 1.7;
+}
+.today-seo-features {
+  margin-top: 14px;
 }
 .today-seo-faq-item {
   border-top: 1px solid var(--border);

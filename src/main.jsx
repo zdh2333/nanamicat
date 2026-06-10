@@ -23,6 +23,7 @@ import {
   loadPuzzleCatalog,
   mostAbstractGroup
 } from "./puzzleEngine.js";
+import { puzzleDifficultySummary } from "./puzzleDifficulty.js";
 import {
   getStreak,
   getRecentCompletions,
@@ -155,10 +156,6 @@ const difficultyMeta = {
   3: { zh: "跨域关系", en: "Cross-domain", ja: "分野をまたぐ関係", className: "level-blue" },
   4: { zh: "细节线索", en: "Detail clues", ja: "細かいヒント", className: "level-purple" }
 };
-
-function difficultyLabel(level, locale) {
-  return difficultyMeta[level]?.[locale] ?? difficultyMeta[1][locale];
-}
 
 function NanamiCatMascot({ size = "header", showCelebration = false, className = "", altText = "喵格谜" }) {
   const dimensions = {
@@ -839,6 +836,7 @@ function App() {
   const isGameOver = mistakes >= maxMistakes && solved.length < (puzzle.groups?.length ?? 4);
   const isComplete = pool.length > 0 && puzzle.groups.length === 4 && solved.length === puzzle.groups.length;
   const abstractGroup = isComplete ? mostAbstractGroup(puzzle.groups) : null;
+  const overallDifficulty = puzzleDifficultySummary(puzzle, locale);
   // Namespace the resume key by locale so zh and ja saves never collide
   // (both catalogs use "text-001", "text-002", … as puzzle IDs).
   const resumeId = `${locale}:${puzzle.id}`;
@@ -1179,16 +1177,17 @@ function App() {
             <span>{t.hint}</span>
             <strong aria-label={`${hintBalance} hints remaining`}>{hintBalance}</strong>
           </section>
-          <section className="status status-stairs" aria-label={locale === "zh" ? "难易程度" : (locale === "ja" ? "難易度" : "Difficulty")}>
-            <span>{locale === "zh" ? "难度" : (locale === "ja" ? "難易度" : "Level")}</span>
-            <div className="diff-stairs" role="img" aria-label={`${solved.length}/4 groups solved`}>
+          <section className="status status-stairs" aria-label={`${overallDifficulty.label}: ${overallDifficulty.value}`}>
+            <span>{overallDifficulty.label}</span>
+            <strong className="difficulty-value">{overallDifficulty.value}</strong>
+            <div className="diff-stairs" role="img" aria-label={`${overallDifficulty.label}: ${overallDifficulty.value}`}>
               {[1, 2, 3, 4].map((lvl) => {
                 const barColors = ["#f7c948", "#7bc67b", "#6db6e8", "#a87dc8"];
-                const isSolved = lvl === 1 || solved.some((g) => g.level === lvl);
+                const isActive = lvl <= overallDifficulty.level;
                 return (
                   <div
                     key={lvl}
-                    className={`diff-bar${isSolved ? " diff-bar--solved" : ""}`}
+                    className={`diff-bar${isActive ? " diff-bar--active" : ""}`}
                     style={{ "--bar-color": barColors[lvl - 1], "--bar-h": `${lvl * 7 + 3}px` }}
                   />
                 );
@@ -1443,23 +1442,33 @@ function App() {
         <section className="today-seo-landing" aria-label={todaySeo.h1}>
           <h2 className="today-seo-h1">{todaySeo.h1}</h2>
           <p className="today-seo-lead">{todaySeo.lead}</p>
-          <div className="today-seo-features">
-            <h3>{todaySeo.featuresTitle}</h3>
-            <ul>
-              {todaySeo.features.map((feature, idx) => (
-                <li key={idx}>{feature}</li>
+          <div className="today-seo-actions">
+            <button type="button" className="ghost" onClick={() => setHelpOpen(true)}>
+              <HelpCircle size={15} /> {t.help}
+            </button>
+          </div>
+          <details className="today-seo-more">
+            <summary>
+              {locale === "zh" ? "展开玩法亮点与常见问题" : (locale === "ja" ? "遊び方とFAQを見る" : "Show highlights and FAQ")}
+            </summary>
+            <div className="today-seo-features">
+              <h3>{todaySeo.featuresTitle}</h3>
+              <ul>
+                {todaySeo.features.map((feature, idx) => (
+                  <li key={idx}>{feature}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="today-seo-faq">
+              <h3>{todaySeo.faqTitle}</h3>
+              {todaySeo.faq.map((item, idx) => (
+                <details key={idx} className="today-seo-faq-item">
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
               ))}
-            </ul>
-          </div>
-          <div className="today-seo-faq">
-            <h3>{todaySeo.faqTitle}</h3>
-            {todaySeo.faq.map((item, idx) => (
-              <details key={idx} className="today-seo-faq-item">
-                <summary>{item.q}</summary>
-                <p>{item.a}</p>
-              </details>
-            ))}
-          </div>
+            </div>
+          </details>
         </section>
         <AdSlot slotName="ad-page-bottom" reservedHeight={120} label="Ad" />
       </>
@@ -1859,7 +1868,7 @@ function App() {
                   </svg>
                 </span>
               </h1>
-              <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale, englishTerms)} / {difficultyLabel(puzzle.difficulty, locale)}</p>
+              <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale, englishTerms)} / {overallDifficulty.label}: {overallDifficulty.value}</p>
             </div>
           </div>
           <div className="hero-tools">
@@ -1910,6 +1919,9 @@ function App() {
         </section>
 
         <nav className="topnav" aria-label="Primary">
+          <button type="button" onClick={() => setHelpOpen(true)}>
+            <HelpCircle size={16} /> {locale === "zh" ? "玩法" : (locale === "ja" ? "遊び方" : "How to play")}
+          </button>
           {[
             ["today", locale === "zh" ? "今日" : (locale === "ja" ? "今日" : "Today"), Sparkles],
             ["archive", locale === "zh" ? "历史" : (locale === "ja" ? "履歴" : "Archive"), Sparkles],
