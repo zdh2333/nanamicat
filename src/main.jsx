@@ -43,7 +43,12 @@ import {
   trackGameFail,
   trackShareClick
 } from "./analytics.js";
-import { syncPlayedPuzzleScores } from "./leaderboardSync.js";
+import {
+  addPendingScorePuzzleId,
+  readPendingScorePuzzleIds,
+  removePendingScorePuzzleIds,
+  syncPlayedPuzzleScores
+} from "./leaderboardSync.js";
 import AdSlot from "./AdSlot.jsx";
 
 // Archive is rarely used on first visit; lazy-load it so the home board
@@ -1533,6 +1538,7 @@ function App() {
         method: "POST",
         body: JSON.stringify({ playerId: player.id, nickname: player.nickname, mode: "text", puzzleId: puzzle.id })
       });
+      removePendingScorePuzzleIds([puzzle.id]);
       setApiNotice(t.savedScore);
       loadLeaderboard();
     } catch (error) {
@@ -1559,6 +1565,7 @@ function App() {
       if (nextSolved.length === puzzle.groups.length) {
         setMessage(t.complete);
         markPuzzlePlayed(puzzle.id);
+        addPendingScorePuzzleId(puzzle.id);
         const nextCompleted = completedPuzzleCount + 1;
         setCompletedPuzzleCount(nextCompleted);
         setStored("nanamicat.completedPuzzleCount", String(nextCompleted));
@@ -1659,12 +1666,13 @@ function App() {
         const synced = await syncPlayedPuzzleScores({
           player,
           nickname: player.nickname,
-          puzzleIds: playedPuzzleIds,
+          puzzleIds: [...readPendingScorePuzzleIds(), ...playedPuzzleIds],
           submitScore: (body) => api("/api/score", {
             method: "POST",
             body: JSON.stringify(body)
           })
         });
+        removePendingScorePuzzleIds(synced.syncedPuzzleIds);
         const clears = Number(synced.player?.text_clears ?? player.text_clears ?? 0);
         setApiNotice(t.joinedLeaderboard.replace("%d", String(clears)));
         loadLeaderboard();
