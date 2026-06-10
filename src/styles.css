@@ -1974,6 +1974,12 @@ tbody tr:first-child td:first-child { color: #d69c00; font-size: 1.2rem; }
 .today-seo-actions {
   margin-bottom: 14px;
 }
+.today-seo-actions .ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--ink);
+  box-shadow: 2px 3px 0 0 var(--ink);
+}
 .today-seo-more {
   border: 2px dashed rgba(18, 52, 95, 0.18);
   border-radius: 14px;

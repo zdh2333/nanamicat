@@ -1424,8 +1424,6 @@ function App() {
   }
 
   function renderTodayLanding() {
-    const seo = getSeo(locale);
-    const todaySeo = seo.today;
     return (
       <>
         <section className="toolbar" aria-label="Game settings">
@@ -1439,6 +1437,15 @@ function App() {
           </div>
         </section>
         {renderGameBoardInline()}
+        {renderTodayInfoSection({ includeAd: true })}
+      </>
+    );
+  }
+
+  function renderTodayInfoSection({ includeAd = false } = {}) {
+    const todaySeo = getSeo(locale).today;
+    return (
+      <>
         <section className="today-seo-landing" aria-label={todaySeo.h1}>
           <h2 className="today-seo-h1">{todaySeo.h1}</h2>
           <p className="today-seo-lead">{todaySeo.lead}</p>
@@ -1470,7 +1477,7 @@ function App() {
             </div>
           </details>
         </section>
-        <AdSlot slotName="ad-page-bottom" reservedHeight={120} label="Ad" />
+        {includeAd && <AdSlot slotName="ad-page-bottom" reservedHeight={120} label="Ad" />}
       </>
     );
   }
@@ -1959,6 +1966,8 @@ function App() {
               helper function) so React DevTools and the error stack can
               point at the right component boundary. */}
           {renderGameBoardInline()}
+
+          {!pinnedDate && renderTodayInfoSection()}
 
           {/* Back link when this board is pinned to a specific date via /puzzle/:date */}
           {pinnedDate && (
