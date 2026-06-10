@@ -1178,7 +1178,7 @@ function App() {
             <strong aria-label={`${hintBalance} hints remaining`}>{hintBalance}</strong>
           </section>
           <section className="status status-stairs" aria-label={`${overallDifficulty.label}: ${overallDifficulty.value}`}>
-            <span>{overallDifficulty.label}</span>
+            <span>{locale === "zh" ? "难度" : (locale === "ja" ? "難易度" : "Level")}</span>
             <strong className="difficulty-value">{overallDifficulty.value}</strong>
             <div className="diff-stairs" role="img" aria-label={`${overallDifficulty.label}: ${overallDifficulty.value}`}>
               {[1, 2, 3, 4].map((lvl) => {
