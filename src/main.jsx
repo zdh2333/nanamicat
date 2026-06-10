@@ -43,6 +43,7 @@ import {
   trackGameFail,
   trackShareClick
 } from "./analytics.js";
+import { syncPlayedPuzzleScores } from "./leaderboardSync.js";
 import AdSlot from "./AdSlot.jsx";
 
 // Archive is rarely used on first visit; lazy-load it so the home board
@@ -1655,7 +1656,16 @@ function App() {
     try {
       const player = await ensurePlayer();
       if (player) {
-        const clears = Number(player.text_clears ?? 0);
+        const synced = await syncPlayedPuzzleScores({
+          player,
+          nickname: player.nickname,
+          puzzleIds: playedPuzzleIds,
+          submitScore: (body) => api("/api/score", {
+            method: "POST",
+            body: JSON.stringify(body)
+          })
+        });
+        const clears = Number(synced.player?.text_clears ?? player.text_clears ?? 0);
         setApiNotice(t.joinedLeaderboard.replace("%d", String(clears)));
         loadLeaderboard();
       }

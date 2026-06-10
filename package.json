@@ -12,6 +12,7 @@
     "validate:puzzles": "node scripts/validate-puzzle-manifest.mjs NanamiCat-iOS/NanamiCat/Resources/puzzle-data.json",
     "validate:translations": "node scripts/validate-translations.mjs",
     "test:visual:ja": "node scripts/visual-ja/sweep.mjs",
+    "test:leaderboard": "node --test tests/leaderboard-sync.test.mjs",
     "test:visual:ja:remote": "JA_BASE=https://nanamicat.com node scripts/visual-ja/sweep.mjs"
   },
   "dependencies": {
