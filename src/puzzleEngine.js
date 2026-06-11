@@ -1,4 +1,32 @@
 const CACHE_KEY = "nanamicat.puzzle-data.cache";
+const CACHE_VERSION = "v2";
+
+// Fallback English terms for high-frequency entries that may be absent from
+// puzzle-data.json /api/puzzles englishPuzzleTerms. Upstream terms still win.
+const ENGLISH_FALLBACK_TERMS = {
+  "思维的陷阱": "Thinking traps",
+  "中间地带": "Middle ground",
+  "幸存者偏差": "Survivorship bias",
+  "确认偏误": "Confirmation bias",
+  "初印象": "First impression",
+  "忽视": "Neglect",
+  "极端化": "Extremization",
+  "起点": "Starting point",
+  "定价参考": "Price anchor",
+  "第一稿": "First draft",
+  "定势": "Mental set",
+  "偏见": "Bias",
+  "样本偏差": "Sampling bias",
+  "默认值": "Default option",
+  "可得性偏见": "Availability bias",
+  "非此即彼": "False dichotomy",
+  "灰度": "Gray scale",
+  "选择性偏差": "Selection bias",
+  "注意：一个词是正确启发法而非偏见。":
+    "Note: one term is a valid heuristic, not a bias.",
+  "Hint: one group relates to \"选择性偏差\". 注意：一个词是正确启发法而非偏见。":
+    "Hint: one group relates to \"Selection bias\". Note: one term is a valid heuristic, not a bias."
+};
 
 function textItem(label, puzzleId) {
   return { id: `${puzzleId}-${label}`, label };
@@ -106,7 +134,10 @@ function mapCommunityPuzzleToEnglish(puzzle, terms) {
 }
 
 function buildEnglishCatalog(catalog) {
-  const terms = catalog?.englishPuzzleTerms ?? {};
+  const terms = {
+    ...ENGLISH_FALLBACK_TERMS,
+    ...(catalog?.englishPuzzleTerms ?? {})
+  };
   if (!terms || Object.keys(terms).length === 0) return catalog;
 
   return {
@@ -164,10 +195,17 @@ function catalogUrlFor(locale) {
   if (locale === "ja") return "/puzzle-data-ja.json";
   return "/puzzle-data.json";
 }
-function catalogCacheKeyFor(locale) {
-  if (locale === "ja") return `${CACHE_KEY}.ja`;
-  if (locale === "en") return `${CACHE_KEY}.en`;
-  return CACHE_KEY;
+function localeCacheSuffix(locale) {
+  if (locale === "ja") return ".ja";
+  if (locale === "en") return ".en";
+  return "";
+}
+function catalogCachePrimaryKeyFor(locale) {
+  return `${CACHE_KEY}${localeCacheSuffix(locale)}.${CACHE_VERSION}`;
+}
+function catalogCacheLegacyKeysFor(locale) {
+  const suffix = localeCacheSuffix(locale);
+  return [`${CACHE_KEY}${suffix}`];
 }
 
 const CATALOG_ERRORS = {
@@ -195,7 +233,8 @@ function catalogError(key, locale) {
 
 export async function loadPuzzleCatalog(locale = "zh") {
   const url = catalogUrlFor(locale);
-  const cacheKey = catalogCacheKeyFor(locale);
+  const cacheKey = catalogCachePrimaryKeyFor(locale);
+  const legacyCacheKeys = catalogCacheLegacyKeysFor(locale);
   try {
     const response = await fetch(url, { cache: "no-cache" });
     if (response.ok) {
@@ -227,6 +266,7 @@ export async function loadPuzzleCatalog(locale = "zh") {
       const localizedData = locale === "en" ? buildEnglishCatalog(data) : data;
       try {
         localStorage.setItem(cacheKey, JSON.stringify(localizedData));
+        legacyCacheKeys.forEach((key) => localStorage.removeItem(key));
       } catch {
         // optional cache
       }
@@ -239,6 +279,10 @@ export async function loadPuzzleCatalog(locale = "zh") {
   try {
     const cached = localStorage.getItem(cacheKey);
     if (cached) return JSON.parse(cached);
+    for (const key of legacyCacheKeys) {
+      const legacyCached = localStorage.getItem(key);
+      if (legacyCached) return JSON.parse(legacyCached);
+    }
   } catch {
     // ignore
   }
