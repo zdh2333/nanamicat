@@ -829,6 +829,12 @@ function App() {
   const [recentCompletions, setRecentCompletions] = useState(() => getRecentCompletions());
   const [gameStartTs, setGameStartTs] = useState(() => Date.now());
   const [playerId, setPlayerId] = useState(() => getStored("nanamicat.playerId", ""));
+  // Tracks whether we've already created this session's leaderboard row.
+  // We deliberately do NOT join on cold start — only after the player's
+  // first real interaction (a tile click) — so passive visitors never
+  // flood the board with "0 clears" rows. A ref (not state) because the
+  // value never needs to trigger a re-render.
+  const hasJoinedLeaderboardRef = useRef(false);
   const [leaderboard, setLeaderboard] = useState([]);
   const [adminPuzzles, setAdminPuzzles] = useState([]);
   const [adminScores, setAdminScores] = useState([]);
@@ -920,15 +926,13 @@ function App() {
       if (!id) {
         id = newPlayerId();
         setStored(PLAYER_ID_KEY, id);
-        setPlayerId(id);
-      } else {
-        setPlayerId(id);
       }
+      if (!cancelled) setPlayerId(id);
       if (!nick) {
-        // Best-effort IP-based region lookup. The endpoint is read-only
-        // so we don't pollute the players table with a half-baked row.
-        // If the call fails (offline, regional outage) we fall through
-        // to the browser-language heuristic in defaultNickname().
+        // Best-effort IP-based region lookup. The endpoint is read-only so a
+        // passive visitor never gets a players-table row from just loading
+        // the page. If the call fails (offline, regional outage) we fall
+        // through to the browser-language heuristic in defaultNickname().
         let region = null;
         try {
           const regionPayload = await api("/api/region");
@@ -938,30 +942,12 @@ function App() {
         }
         nick = defaultNickname(region);
         setStored(PLAYER_NICKNAME_KEY, nick);
-        setNickname(nick);
       }
-      // Always upsert on first mount (cold start). We need the row in
-      // the leaderboard BEFORE the user does anything — that's the
-      // whole point of the "未通关也会显示为 0 次" promise on the
-      // leaderboard panel. On a warm reload the upsert is also useful:
-      // it lets the server adopt the local playerId when the row was
-      // originally created on a different device.
-      if (id && nick) {
-        try {
-          const payload = await api("/api/player", {
-            method: "POST",
-            body: JSON.stringify({ playerId: id, nickname: nick })
-          });
-          if (!cancelled && payload?.player?.id && payload.player.id !== id) {
-            // Server normalised/assigned a different id (e.g. legacy
-            // account matched by nickname only). Trust the server's id.
-            setPlayerId(payload.player.id);
-            setStored(PLAYER_ID_KEY, payload.player.id);
-          }
-        } catch {
-          // Network down? No problem — the next visit will retry.
-        }
-      }
+      if (!cancelled) setNickname(nick);
+      // NOTE: we no longer upsert the player here. Creating the leaderboard
+      // row is deferred to joinLeaderboard(), which fires on the player's
+      // first tile click (see toggleItem). This keeps the board free of
+      // "drive-by" 0-clear rows from visitors who never actually play.
     })();
     return () => {
       cancelled = true;
@@ -1611,6 +1597,10 @@ function App() {
 
   function toggleItem(item) {
     if (isComplete || isGameOver || solvedIds.includes(item.id)) return;
+    // First tile click = the player is actually playing. Create their
+    // leaderboard row now (idempotent) so they show up with 0 clears
+    // until they finish a puzzle. Passive visitors never trigger this.
+    joinLeaderboard();
     setSelected((current) => {
       if (current.includes(item.id)) return current.filter((id) => id !== item.id);
       // Already at 4 picks: drop the oldest one and append the new pick
@@ -1638,11 +1628,48 @@ function App() {
     return t.wrong;
   }
 
+  // Lazily create this player's leaderboard row. Called on the first real
+  // interaction (a tile click in toggleItem) so the board only ever lists
+  // people who actually started playing — never passive page views. The ref
+  // guard means we POST at most once per session; the server upsert is keyed
+  // on the stable playerId, so a later score submission stays attributed to
+  // the same row.
+  async function joinLeaderboard() {
+    if (hasJoinedLeaderboardRef.current) return;
+    const id = playerId || getStored(PLAYER_ID_KEY, "");
+    if (!id) return;
+    let name = String(nickname || getStored(PLAYER_NICKNAME_KEY, "")).trim();
+    if (!name) {
+      // Identity bootstrap hasn't filled in a nickname yet (e.g. the region
+      // lookup is still in flight). Fall back to a browser-language default
+      // so the row is never created with an empty name.
+      name = defaultNickname();
+      setStored(PLAYER_NICKNAME_KEY, name);
+      setNickname(name);
+    }
+    // Optimistically mark as joined so rapid clicks don't fire duplicate
+    // POSTs. On failure we reset the flag so a later interaction retries.
+    hasJoinedLeaderboardRef.current = true;
+    try {
+      const payload = await api("/api/player", {
+        method: "POST",
+        body: JSON.stringify({ playerId: id, nickname: name })
+      });
+      if (payload?.player?.id && payload.player.id !== id) {
+        setPlayerId(payload.player.id);
+        setStored(PLAYER_ID_KEY, payload.player.id);
+      }
+      loadLeaderboard();
+    } catch {
+      hasJoinedLeaderboardRef.current = false;
+    }
+  }
+
   // ensurePlayer is now a thin "do we have an identity to attach the score
-  // to?" check. The actual upsert happens in the boot useEffect above,
-  // and again in saveNickname() whenever the user edits their nickname.
-  // We keep this function (and its no-op fallback path) so the score flow
-  // never has to be rewritten.
+  // to?" check. The actual upsert happens in joinLeaderboard() on first
+  // interaction, and again in saveNickname() whenever the user edits their
+  // nickname. We keep this function (and its no-op fallback path) so the
+  // score flow never has to be rewritten.
   async function ensurePlayer(overrideNickname) {
     if (!playerId) {
       // Identity not ready yet (boot effect still in flight or localStorage
@@ -1687,6 +1714,9 @@ function App() {
         method: "POST",
         body: JSON.stringify({ playerId: player.id, nickname: player.nickname, mode: "text", puzzleId: puzzle.id })
       });
+      // A score submission also creates/refreshes the leaderboard row, so a
+      // later tile click shouldn't fire a redundant join.
+      hasJoinedLeaderboardRef.current = true;
       removePendingScorePuzzleIds([puzzle.id]);
       setApiNotice(t.savedScore);
       loadLeaderboard();
@@ -1831,6 +1861,9 @@ function App() {
       // (which can be one keystroke behind on onBlur/Enter).
       const player = await ensurePlayer(safeOverride);
       if (player) {
+        // Saving a nickname is an explicit "put me on the board" action, so
+        // a later tile click shouldn't fire a redundant join.
+        hasJoinedLeaderboardRef.current = true;
         // Mirror the server-accepted value into React state + localStorage
         // so subsequent renders and tabs agree on the canonical name.
         // Always persist to localStorage: React state may already equal
