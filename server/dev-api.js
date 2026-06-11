@@ -209,6 +209,15 @@ export function mountDevApi(app, dataDir, { adminKey = "", allowOpenAdmin = fals
     });
   });
 
+  // Dev fallback for the geo-hint endpoint. Local dev doesn't have
+  // request.cf, so we synthesise a region from the test client's IP
+  // (using req.ip) — which on localhost usually reads 127.0.0.1, so we
+  // return a fixed "Osaka" prefix. That's good enough for verifying the
+  // wire format; production traffic uses the real CF path.
+  app.get("/api/region", async (_request, response) => {
+    response.json({ region: "Osaka" });
+  });
+
   app.post("/api/player", async (request, response) => {
     try {
       const nickname = cleanNickname(request.body.nickname);

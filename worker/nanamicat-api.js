@@ -25,6 +25,94 @@ function json(data, status = 200) {
   });
 }
 
+// Map of major CF-reported English city names (and a few aliases) to
+// short, ASCII-safe prefix tokens used in auto-generated nicknames. We
+// keep them in a single transliteration table so the worker doesn't ship
+// a full city database — the goal is "good enough" defaults like
+// "Shenzhen4821" or "上海3521", not exhaustive geocoding. Falls back to
+// the country code (e.g. "JP", "US", "FR") when the city is missing.
+const CITY_TO_PREFIX = {
+  // Greater China
+  'beijing': 'Beijing', 'shanghai': 'Shanghai', 'guangzhou': 'Guangzhou',
+  'shenzhen': 'Shenzhen', 'chengdu': 'Chengdu', 'hangzhou': 'Hangzhou',
+  'nanjing': 'Nanjing', 'wuhan': 'Wuhan', 'xian': 'Xian', "xi'an": 'Xian',
+  'suzhou': 'Suzhou', 'tianjin': 'Tianjin', 'chongqing': 'Chongqing',
+  'qingdao': 'Qingdao', 'dalian': 'Dalian', 'xiamen': 'Xiamen',
+  'changsha': 'Changsha', 'zhengzhou': 'Zhengzhou', 'kunming': 'Kunming',
+  'shenyang': 'Shenyang', 'haerbin': 'Haerbin', 'harbin': 'Haerbin',
+  'jinan': 'Jinan', 'fuzhou': 'Fuzhou', 'hefei': 'Hefei',
+  'ningbo': 'Ningbo', 'wuxi': 'Wuxi', 'dongguan': 'Dongguan',
+  'foshan': 'Foshan', 'taipei': 'Taipei', 'kaohsiung': 'Kaohsiung',
+  'hong kong': 'HongKong', 'macau': 'Macau', 'macao': 'Macau',
+  // Japan
+  'tokyo': 'Tokyo', 'osaka': 'Osaka', 'kyoto': 'Kyoto', 'yokohama': 'Yokohama',
+  'nagoya': 'Nagoya', 'sapporo': 'Sapporo', 'fukuoka': 'Fukuoka',
+  'kobe': 'Kobe', 'sendai': 'Sendai', 'hiroshima': 'Hiroshima',
+  // Korea
+  'seoul': 'Seoul', 'busan': 'Busan', 'incheon': 'Incheon',
+  // SEA
+  'singapore': 'Singapore', 'bangkok': 'Bangkok', 'kuala lumpur': 'KualaLumpur',
+  'jakarta': 'Jakarta', 'manila': 'Manila', 'hanoi': 'Hanoi',
+  'ho chi minh city': 'Hanoi', 'phnom penh': 'PhnomPenh',
+  // US
+  'new york': 'NewYork', 'los angeles': 'LosAngeles', 'san francisco': 'SanFrancisco',
+  'seattle': 'Seattle', 'chicago': 'Chicago', 'boston': 'Boston',
+  'austin': 'Austin', 'miami': 'Miami', 'denver': 'Denver',
+  'houston': 'Houston', 'dallas': 'Dallas', 'atlanta': 'Atlanta',
+  'portland': 'Portland', 'san diego': 'SanDiego', 'washington': 'Washington',
+  'philadelphia': 'Philadelphia', 'toronto': 'Toronto', 'vancouver': 'Vancouver',
+  'montreal': 'Montreal', 'mexico city': 'MexicoCity',
+  // EU
+  'london': 'London', 'paris': 'Paris', 'berlin': 'Berlin', 'madrid': 'Madrid',
+  'rome': 'Roma', 'barcelona': 'Barcelona', 'amsterdam': 'Amsterdam',
+  'brussels': 'Brussels', 'vienna': 'Vienna', 'zurich': 'Zurich',
+  'geneva': 'Geneva', 'munich': 'Munich', 'hamburg': 'Hamburg',
+  'copenhagen': 'Copenhagen', 'stockholm': 'Stockholm', 'oslo': 'Oslo',
+  'helsinki': 'Helsinki', 'warsaw': 'Warsaw', 'prague': 'Prague',
+  'budapest': 'Budapest', 'athens': 'Athens', 'lisbon': 'Lisbon',
+  'porto': 'Porto', 'dublin': 'Dublin', 'edinburgh': 'Edinburgh',
+  'manchester': 'Manchester', 'milan': 'Milan', 'florence': 'Florence',
+  'venice': 'Venice', 'naples': 'Naples',
+  // AU / NZ
+  'sydney': 'Sydney', 'melbourne': 'Melbourne', 'brisbane': 'Brisbane',
+  'perth': 'Perth', 'auckland': 'Auckland', 'wellington': 'Wellington',
+  // Others
+  'dubai': 'Dubai', 'doha': 'Doha', 'riyadh': 'Riyadh', 'tel aviv': 'TelAviv',
+  'istanbul': 'Istanbul', 'cairo': 'Cairo', 'cape town': 'CapeTown',
+  'johannesburg': 'Johannesburg', 'mumbai': 'Mumbai', 'delhi': 'Delhi',
+  'bangalore': 'Bangalore', 'bengaluru': 'Bangalore', 'chennai': 'Chennai',
+  'kolkata': 'Kolkata', 'sao paulo': 'SaoPaulo', 'rio de janeiro': 'Rio',
+  'buenos aires': 'BuenosAires', 'moscow': 'Moscow', 'st petersburg': 'StPetersburg',
+  'saint petersburg': 'StPetersburg', 'kiev': 'Kiev', 'kyiv': 'Kiev',
+  'bucharest': 'Bucharest', 'sofia': 'Sofia', 'belgrade': 'Belgrade',
+  'zagreb': 'Zagreb', 'vilnius': 'Vilnius', 'riga': 'Riga', 'tallinn': 'Tallinn',
+  'reykjavik': 'Reykjavik'
+};
+
+function regionFromRequest(request) {
+  // Cloudflare Workers populate request.cf on every request. The fields
+  // can be missing when the request comes from a non-CF edge (rare for
+  // us, since everything is on nanamicat.com) or when geo lookup failed.
+  const cf = request?.cf ?? {};
+  const rawCity = String(cf.city || '').trim();
+  const rawCountry = String(cf.country || '').trim();
+  const cityKey = rawCity.toLowerCase();
+  if (cityKey && CITY_TO_PREFIX[cityKey]) return CITY_TO_PREFIX[cityKey];
+  if (rawCity) {
+    // Unknown city — sanitise it (drop spaces, punctuation) and cap at
+    // 16 chars so the suffix "1234" still leaves a sane total length.
+    const cleaned = rawCity.replace(/[^A-Za-z\u4e00-\u9fff]+/g, '').slice(0, 16);
+    if (cleaned) return cleaned;
+  }
+  if (rawCountry) {
+    // Country-only fallback. Some CF countries read as alpha-2 codes
+    // (JP, US), some as full names ("Japan"); we keep whatever CF gave
+    // us after a light tidy.
+    return rawCountry.length <= 3 ? rawCountry.toUpperCase() : rawCountry;
+  }
+  return null;
+}
+
 async function readPuzzleSubmissionRows(env, { limit = 100 } = {}) {
   const result = await env.DB.prepare(`
     SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
@@ -495,6 +583,14 @@ async function handleRequest(request, env) {
     return json({ leaderboard: result.results ?? [] });
   }
 
+  // Read-only geo hint. Returns a sanitised region string the client
+  // uses as the default-nickname prefix. The endpoint is intentionally
+  // side-effect free so cold-start upserts can call it without polluting
+  // the players table with a half-minted row.
+  if (path === '/api/region' && request.method === 'GET') {
+    return json({ region: regionFromRequest(request) });
+  }
+
   if (path === '/api/player' && request.method === 'POST') {
     // Rate-limit player registration: 20 / hour / IP.  Without this an
     // attacker can spam unique nicknames to bloat the `players` table or
@@ -507,13 +603,17 @@ async function handleRequest(request, env) {
       const nickname = cleanNickname(body.nickname);
       const playerId = String(body.playerId || '').trim();
       const now = new Date().toISOString();
+      // The region is purely a hint for the client's default-nickname
+      // generator. It never reaches the database — we don't want to
+      // attach city data to a player account.
+      const region = regionFromRequest(request);
 
       if (playerId) {
         const existing = await env.DB.prepare('SELECT * FROM players WHERE id = ?').bind(playerId).first();
         if (existing) {
           await env.DB.prepare('UPDATE players SET nickname = ?, updated_at = ? WHERE id = ?')
             .bind(nickname, now, playerId).run();
-          return json({ player: { ...existing, nickname, updated_at: now } });
+          return json({ player: { ...existing, nickname, updated_at: now }, region });
         }
       }
 
@@ -533,12 +633,13 @@ async function handleRequest(request, env) {
             UPDATE players SET id = ?, updated_at = ? WHERE id = ?
           `).bind(playerId, now, byName.id).run();
           return json({
-            player: { ...byName, id: playerId, nickname, updated_at: now }
+            player: { ...byName, id: playerId, nickname, updated_at: now },
+            region
           });
         }
         await env.DB.prepare('UPDATE players SET nickname = ?, updated_at = ? WHERE id = ?')
           .bind(nickname, now, byName.id).run();
-        return json({ player: { ...byName, nickname, updated_at: now } });
+        return json({ player: { ...byName, nickname, updated_at: now }, region });
       }
 
       // Brand new player — honour the client-supplied playerId if
@@ -558,6 +659,7 @@ async function handleRequest(request, env) {
           created_at: now,
           updated_at: now,
         },
+        region
       }, 201);
     } catch (error) {
       const status = /nickname/i.test(error.message) ? 400 : 500;

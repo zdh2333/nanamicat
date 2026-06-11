@@ -83,7 +83,7 @@
          Per-locale overrides (title, description, og:locale) happen at runtime
          in src/main.jsx; this is what crawlers see if JS is delayed, and the
          JSON-LD is what powers rich-result eligibility. -->
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="jsonld-schema-game">
     {
       "@context": "https://schema.org",
       "@type": "Game",
@@ -105,12 +105,39 @@
       }
     }
     </script>
-    <script type="application/ld+json">
+    <script type="application/ld+json" id="jsonld-schema-breadcrumb">
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://nanamicat.com/" }
+      ]
+    }
+    </script>
+    <!-- FAQPage schema (static English fallback). Mirrors the visible FAQ on
+         the home view; src/main.jsx swaps in the per-locale version at runtime.
+         Keep this text in sync with the en FAQ in SEO_BY_LOCALE. -->
+    <script type="application/ld+json" id="jsonld-schema-faq">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "inLanguage": "en",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is today's puzzle really free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Nanami Cat is a free daily word puzzle with no signup, no download, and no paywall. Open the page and play." }
+        },
+        {
+          "@type": "Question",
+          "name": "How is today's puzzle different from yesterday's?",
+          "acceptedAnswer": { "@type": "Answer", "text": "A new theme and four new groups unlock at midnight UTC. Yesterday's puzzle stays playable in the archive." }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I share today's result?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Hit the share button on the result screen to copy a Connections-style emoji block to your clipboard, or use the system share sheet on mobile." }
+        }
       ]
     }
     </script>
@@ -128,29 +155,10 @@
       };
     </script>
 
-    <!-- AdSense bootstrap.
-         Reads window.NANAMICAT_ADS_CONFIG and only loads the real AdSense
-         script when both `enabled` and `clientId` are set. The script is
-         loaded async and never blocks first paint. The actual ad fills
-         happen lazily inside <AdSlot> components. To turn ads off, set
-         `enabled: false` in the config above. -->
-    <script>
-      (function () {
-        try {
-          var cfg = (typeof window !== "undefined" && window.NANAMICAT_ADS_CONFIG) || null;
-          var enabled = !!(cfg && cfg.enabled && cfg.clientId);
-          if (!enabled) return;
-          var s = document.createElement("script");
-          s.async = true;
-          s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(cfg.clientId);
-          s.crossOrigin = "anonymous";
-          s.setAttribute("data-adsbygoogle-env", cfg.test ? "test" : "production");
-          document.head.appendChild(s);
-        } catch (e) {
-          // Never break the page over an ad.
-        }
-      })();
-    </script>
+    <!-- AdSense verification and runtime loader. Keep this exact static tag in
+         <head>; the AdSense site-ownership checker scans raw HTML and may not
+         execute our app bootstrap code. -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4282000221262612" crossorigin="anonymous"></script>
   </head>
   <body>
     <noscript>

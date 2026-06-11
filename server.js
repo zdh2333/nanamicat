@@ -4,6 +4,8 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { mountDevApi } from './server/dev-api.js';
+import { mountStaticPageRoutes } from './server/static-pages.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(root, 'data');
@@ -238,12 +240,11 @@ async function sendThankYouEmail(submission) {
   }
 }
 
-import { mountDevApi } from './server/dev-api.js';
-
 const app = express();
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '100kb' }));
 mountDevApi(app, dataDir, { adminKey, allowOpenAdmin: !isProduction && !adminKey });
+mountStaticPageRoutes(app, isProduction ? path.join(root, 'dist') : path.join(root, 'public'));
 
 app.post('/api/submissions', async (request, response) => {
   if (!consumeRateLimit(request, 'submissions', 20, 86400)) {

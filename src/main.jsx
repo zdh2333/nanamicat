@@ -23,6 +23,7 @@ import {
   loadPuzzleCatalog,
   mostAbstractGroup
 } from "./puzzleEngine.js";
+import { puzzleDifficultySummary } from "./puzzleDifficulty.js";
 import {
   getStreak,
   getRecentCompletions,
@@ -46,6 +47,12 @@ import {
   trackGameFail,
   trackShareClick
 } from "./analytics.js";
+import {
+  addPendingScorePuzzleId,
+  readPendingScorePuzzleIds,
+  removePendingScorePuzzleIds,
+  syncPlayedPuzzleScores
+} from "./leaderboardSync.js";
 import AdSlot from "./AdSlot.jsx";
 
 // Archive is rarely used on first visit; lazy-load it so the home board
@@ -152,10 +159,6 @@ const difficultyMeta = {
   3: { zh: "跨域关系", en: "Cross-domain", ja: "分野をまたぐ関係", className: "level-blue" },
   4: { zh: "细节线索", en: "Detail clues", ja: "細かいヒント", className: "level-purple" }
 };
-
-function difficultyLabel(level, locale) {
-  return difficultyMeta[level]?.[locale] ?? difficultyMeta[1][locale];
-}
 
 function NanamiCatMascot({ size = "header", showCelebration = false, className = "", altText = "喵格谜" }) {
   const dimensions = {
@@ -648,6 +651,26 @@ function buildBreadcrumbSchema(locale, pathForView) {
   };
 }
 
+// Build an FAQPage schema from the per-locale FAQ copy that's already
+// rendered on the home/game view. Google surfaces these as FAQ rich
+// results, so the structured data MUST mirror the visible Q&A text
+// (which it does — both read from seo.today.faq).
+function buildFaqSchema(locale) {
+  const seo = getSeo(locale);
+  const faq = seo.today?.faq;
+  if (!Array.isArray(faq) || faq.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "inLanguage": seo.hreflang,
+    "mainEntity": faq.map((item) => ({
+      "@type": "Question",
+      "name": item.q,
+      "acceptedAnswer": { "@type": "Answer", "text": item.a }
+    }))
+  };
+}
+
 function localizePuzzleTerm(value, locale, terms = {}) {
   return locale === "en" ? terms[value] ?? value : value;
 }
@@ -836,6 +859,7 @@ function App() {
   const isGameOver = mistakes >= maxMistakes && solved.length < (puzzle.groups?.length ?? 4);
   const isComplete = pool.length > 0 && puzzle.groups.length === 4 && solved.length === puzzle.groups.length;
   const abstractGroup = isComplete ? mostAbstractGroup(puzzle.groups) : null;
+  const overallDifficulty = puzzleDifficultySummary(puzzle, locale);
   // Namespace the resume key by locale so zh and ja saves never collide
   // (both catalogs use "text-001", "text-002", … as puzzle IDs).
   const resumeId = `${locale}:${puzzle.id}`;
@@ -901,7 +925,18 @@ function App() {
         setPlayerId(id);
       }
       if (!nick) {
-        nick = defaultNickname();
+        // Best-effort IP-based region lookup. The endpoint is read-only
+        // so we don't pollute the players table with a half-baked row.
+        // If the call fails (offline, regional outage) we fall through
+        // to the browser-language heuristic in defaultNickname().
+        let region = null;
+        try {
+          const regionPayload = await api("/api/region");
+          region = regionPayload?.region || null;
+        } catch {
+          // Swallow — we'll fall back to the browser-language default.
+        }
+        nick = defaultNickname(region);
         setStored(PLAYER_NICKNAME_KEY, nick);
         setNickname(nick);
       }
@@ -1199,6 +1234,18 @@ function App() {
     } else {
       removeJsonLd("schema-breadcrumb");
     }
+
+    // FAQPage schema mirrors the visible FAQ block, which renders on the
+    // home/game and today views (renderTodayInfoSection). Only emit it
+    // where that block is actually on the page so the structured data
+    // never lies about the page content.
+    if (currentView === "game" || currentView === "today") {
+      const faqSchema = buildFaqSchema(locale);
+      if (faqSchema) injectJsonLd("schema-faq", faqSchema);
+      else removeJsonLd("schema-faq");
+    } else {
+      removeJsonLd("schema-faq");
+    }
   }, [view, pinnedDate, locale]);
 
   useEffect(() => {
@@ -1233,16 +1280,17 @@ function App() {
             <span>{t.hint}</span>
             <strong aria-label={`${hintBalance} hints remaining`}>{hintBalance}</strong>
           </section>
-          <section className="status status-stairs" aria-label={locale === "zh" ? "难易程度" : (locale === "ja" ? "難易度" : "Difficulty")}>
+          <section className="status status-stairs" aria-label={`${overallDifficulty.label}: ${overallDifficulty.value}`}>
             <span>{locale === "zh" ? "难度" : (locale === "ja" ? "難易度" : "Level")}</span>
-            <div className="diff-stairs" role="img" aria-label={`${solved.length}/4 groups solved`}>
+            <strong className="difficulty-value">{overallDifficulty.value}</strong>
+            <div className="diff-stairs" role="img" aria-label={`${overallDifficulty.label}: ${overallDifficulty.value}`}>
               {[1, 2, 3, 4].map((lvl) => {
                 const barColors = ["#f7c948", "#7bc67b", "#6db6e8", "#a87dc8"];
-                const isSolved = lvl === 1 || solved.some((g) => g.level === lvl);
+                const isActive = lvl <= overallDifficulty.level;
                 return (
                   <div
                     key={lvl}
-                    className={`diff-bar${isSolved ? " diff-bar--solved" : ""}`}
+                    className={`diff-bar${isActive ? " diff-bar--active" : ""}`}
                     style={{ "--bar-color": barColors[lvl - 1], "--bar-h": `${lvl * 7 + 3}px` }}
                   />
                 );
@@ -1479,8 +1527,6 @@ function App() {
   }
 
   function renderTodayLanding() {
-    const seo = getSeo(locale);
-    const todaySeo = seo.today;
     return (
       <>
         <section className="toolbar" aria-label="Game settings">
@@ -1494,28 +1540,47 @@ function App() {
           </div>
         </section>
         {renderGameBoardInline()}
+        {renderTodayInfoSection({ includeAd: true })}
+      </>
+    );
+  }
+
+  function renderTodayInfoSection({ includeAd = false } = {}) {
+    const todaySeo = getSeo(locale).today;
+    return (
+      <>
         <section className="today-seo-landing" aria-label={todaySeo.h1}>
           <h2 className="today-seo-h1">{todaySeo.h1}</h2>
           <p className="today-seo-lead">{todaySeo.lead}</p>
-          <div className="today-seo-features">
-            <h3>{todaySeo.featuresTitle}</h3>
-            <ul>
-              {todaySeo.features.map((feature, idx) => (
-                <li key={idx}>{feature}</li>
+          <div className="today-seo-actions">
+            <button type="button" className="ghost" onClick={() => setHelpOpen(true)}>
+              <HelpCircle size={15} /> {t.help}
+            </button>
+          </div>
+          <details className="today-seo-more">
+            <summary>
+              {locale === "zh" ? "展开玩法亮点与常见问题" : (locale === "ja" ? "遊び方とFAQを見る" : "Show highlights and FAQ")}
+            </summary>
+            <div className="today-seo-features">
+              <h3>{todaySeo.featuresTitle}</h3>
+              <ul>
+                {todaySeo.features.map((feature, idx) => (
+                  <li key={idx}>{feature}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="today-seo-faq">
+              <h3>{todaySeo.faqTitle}</h3>
+              {todaySeo.faq.map((item, idx) => (
+                <details key={idx} className="today-seo-faq-item">
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
               ))}
-            </ul>
-          </div>
-          <div className="today-seo-faq">
-            <h3>{todaySeo.faqTitle}</h3>
-            {todaySeo.faq.map((item, idx) => (
-              <details key={idx} className="today-seo-faq-item">
-                <summary>{item.q}</summary>
-                <p>{item.a}</p>
-              </details>
-            ))}
-          </div>
+            </div>
+          </details>
         </section>
-        <AdSlot slotName="ad-page-bottom" reservedHeight={120} label="Ad" />
+        {includeAd && <AdSlot slotName="ad-page-bottom" reservedHeight={120} label="Ad" />}
       </>
     );
   }
@@ -1578,13 +1643,18 @@ function App() {
   // and again in saveNickname() whenever the user edits their nickname.
   // We keep this function (and its no-op fallback path) so the score flow
   // never has to be rewritten.
-  async function ensurePlayer() {
+  async function ensurePlayer(overrideNickname) {
     if (!playerId) {
       // Identity not ready yet (boot effect still in flight or localStorage
       // was wiped). Bail with a friendly notice; the player can retry.
       return null;
     }
-    const cleanName = nickname.trim();
+    // Prefer a DOM-supplied override (from onBlur / Enter) over the
+    // React state closure value — those handlers can fire before the
+    // onChange setState commits, leaving `nickname` stale by one keystroke.
+    // Guard against a non-string override (e.g. a stray event object).
+    const override = typeof overrideNickname === "string" ? overrideNickname : null;
+    const cleanName = String(override ?? nickname).trim();
     if (!cleanName) return null;
     // If the user has edited the nickname since the last server sync,
     // push that update. This keeps the leaderboard label in lockstep
@@ -1617,6 +1687,7 @@ function App() {
         method: "POST",
         body: JSON.stringify({ playerId: player.id, nickname: player.nickname, mode: "text", puzzleId: puzzle.id })
       });
+      removePendingScorePuzzleIds([puzzle.id]);
       setApiNotice(t.savedScore);
       loadLeaderboard();
     } catch (error) {
@@ -1643,6 +1714,7 @@ function App() {
       if (nextSolved.length === puzzle.groups.length) {
         setMessage(t.complete);
         markPuzzlePlayed(puzzle.id);
+        addPendingScorePuzzleId(puzzle.id);
         const nextCompleted = completedPuzzleCount + 1;
         setCompletedPuzzleCount(nextCompleted);
         setStored("nanamicat.completedPuzzleCount", String(nextCompleted));
@@ -1742,6 +1814,11 @@ function App() {
   // After the server confirms, we reload every UI surface that shows
   // the nickname so the change is visible everywhere immediately.
   async function saveNickname(overrideNickname) {
+    // Defensive: only honour a *string* override. Event handlers like
+    // onClick={saveNickname} would otherwise pass a SyntheticEvent here,
+    // and String(event) === "[object Object]" would silently corrupt the
+    // saved nickname. Anything non-string falls back to React state.
+    const safeOverride = typeof overrideNickname === "string" ? overrideNickname : undefined;
     try {
       if (!playerId) {
         // Boot effect hasn't minted a playerId yet. Let the user know
@@ -1749,38 +1826,40 @@ function App() {
         setApiNotice(locale === "zh" ? "正在初始化账户…" : (locale === "ja" ? "アカウントを初期化中…" : "Setting up your account…"));
         return;
       }
-      // Prefer the value the caller just read off the DOM (passed in via
-      // overrideNickname) so onBlur / Enter-key handlers can flush the
-      // latest typed text without waiting for the next React render.
-      const cleanName = String(overrideNickname ?? nickname).trim();
-      if (!cleanName) return;
-      const payload = await api("/api/player", {
-        method: "POST",
-        body: JSON.stringify({ playerId, nickname: cleanName })
-      });
-      // Persist the (possibly server-normalised) values so the rest of
-      // the session can rely on them.
-      if (payload?.player?.id) {
-        setPlayerId(payload.player.id);
-        setStored(PLAYER_ID_KEY, payload.player.id);
+      // Pass the override through to ensurePlayer so the network call
+      // sends the freshly-typed nickname, not the React-state value
+      // (which can be one keystroke behind on onBlur/Enter).
+      const player = await ensurePlayer(safeOverride);
+      if (player) {
+        // Mirror the server-accepted value into React state + localStorage
+        // so subsequent renders and tabs agree on the canonical name.
+        // Always persist to localStorage: React state may already equal
+        // player.nickname (the user just typed it) while localStorage still
+        // holds the stale boot default, so a "!== nickname" guard would skip
+        // the write and leave storage out of sync.
+        if (player.nickname) {
+          setStored(PLAYER_NICKNAME_KEY, player.nickname);
+          if (player.nickname !== nickname) setNickname(player.nickname);
+        }
+        const synced = await syncPlayedPuzzleScores({
+          player,
+          nickname: player.nickname,
+          puzzleIds: [...readPendingScorePuzzleIds(), ...playedPuzzleIds],
+          submitScore: (body) => api("/api/score", {
+            method: "POST",
+            body: JSON.stringify(body)
+          })
+        });
+        removePendingScorePuzzleIds(synced.syncedPuzzleIds);
+        const clears = Number(synced.player?.text_clears ?? player.text_clears ?? 0);
+        setApiNotice(t.joinedLeaderboard.replace("%d", String(clears)));
+        loadLeaderboard();
+        // Also re-fetch the most-recent completions for the footer.
+        try {
+          setRecentCompletions(getRecentCompletions());
+        } catch {}
+        if (view === "admin") loadAdmin();
       }
-      setStored(PLAYER_NICKNAME_KEY, cleanName);
-      const clears = Number(payload?.player?.text_clears ?? 0);
-      setApiNotice(
-        (locale === "zh" ? "昵称已保存（" :
-         locale === "ja" ? "ニックネームを保存しました（" :
-         "Nickname saved (")
-        + clears + " " + (locale === "zh" ? "次通关）" : (locale === "ja" ? "回クリア）" : "clears)"))
-      );
-      // Force a full re-read of everywhere the nickname appears so the
-      // leaderboard, recent completions list, and admin panel (if
-      // open) all reflect the new name.
-      loadLeaderboard({ showError: true });
-      if (view === "admin") loadAdmin();
-      // Also re-fetch the most-recent completions for the footer.
-      try {
-        setRecentCompletions(getRecentCompletions());
-      } catch {}
     } catch (error) {
       setApiNotice(error.message);
     }
@@ -1963,7 +2042,7 @@ function App() {
                   </svg>
                 </span>
               </h1>
-              <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale, englishTerms)} / {difficultyLabel(puzzle.difficulty, locale)}</p>
+              <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale, englishTerms)} / {overallDifficulty.label}: {overallDifficulty.value}</p>
             </div>
           </div>
           <div className="hero-tools">
@@ -2014,6 +2093,9 @@ function App() {
         </section>
 
         <nav className="topnav" aria-label="Primary">
+          <button type="button" onClick={() => setHelpOpen(true)}>
+            <HelpCircle size={16} /> {locale === "zh" ? "玩法" : (locale === "ja" ? "遊び方" : "How to play")}
+          </button>
           {[
             ["today", locale === "zh" ? "今日" : (locale === "ja" ? "今日" : "Today"), Sparkles],
             ["archive", locale === "zh" ? "历史" : (locale === "ja" ? "履歴" : "Archive"), Sparkles],
@@ -2051,6 +2133,8 @@ function App() {
               helper function) so React DevTools and the error stack can
               point at the right component boundary. */}
           {renderGameBoardInline()}
+
+          {!pinnedDate && renderTodayInfoSection()}
 
           {/* Back link when this board is pinned to a specific date via /puzzle/:date */}
           {pinnedDate && (
@@ -2105,7 +2189,7 @@ function App() {
                   placeholder={t.playerName}
                   aria-label={t.playerName}
                 />
-              <button type="button" className="primary" onClick={saveNickname}>{t.saveName}</button>
+              <button type="button" className="primary" onClick={() => saveNickname()}>{t.saveName}</button>
             </div>
           </div>
           {leaderboardLoading ? (
@@ -2190,7 +2274,7 @@ function App() {
                   placeholder={t.playerName}
                   aria-label={t.playerName}
                 />
-              <button type="button" onClick={saveNickname}>{t.saveName}</button>
+              <button type="button" onClick={() => saveNickname()}>{t.saveName}</button>
             </div>
           </div>
           <form className="submission-form" onSubmit={submitPuzzleForm}>

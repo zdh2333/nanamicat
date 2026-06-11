@@ -205,11 +205,12 @@ export function getTodayIsoDate() {
 
 /**
  * Best-effort region guess from the browser's accept-language header.
- * Used as the *prefix* of an auto-generated default nickname like
- * "Tokyo1234" or "Madrid4321". The user can edit the nickname at any
- * time; the playerId (separate, see below) stays fixed forever.
+ * Used as the FALLBACK prefix of an auto-generated default nickname
+ * like "Tokyo1234" or "Madrid4321" when the server-side geo (request.cf)
+ * isn't available. The user can edit the nickname at any time; the
+ * playerId (separate, see below) stays fixed forever.
  */
-export function guessRegion() {
+export function guessRegionFromBrowser() {
   if (typeof navigator === "undefined") return "Player";
   const lang = (navigator.language || (navigator.languages && navigator.languages[0]) || "en").toLowerCase();
   if (lang.includes("ja")) return "Tokyo";
@@ -226,14 +227,34 @@ export function guessRegion() {
   return "Player";
 }
 
+// Sanitise a region string returned by the server (CF request.cf.city
+// after a transliteration table) so it can be safely used as the prefix
+// of a public nickname. Strips punctuation, whitespace, and control
+// characters; caps length at 20 chars so the 4-digit suffix still fits.
+export function sanitiseRegionPrefix(region) {
+  if (!region || typeof region !== "string") return null;
+  const cleaned = region
+    .replace(/[\u0000-\u001f\u007f-\u009f]/g, "")
+    .replace(/[.,!?;:/\\|]+/g, "")
+    .replace(/\s+/g, "")
+    .trim();
+  if (!cleaned) return null;
+  return cleaned.slice(0, 20);
+}
+
 /**
  * Build a "region + 4 random digits" default nickname. The digits are
  * re-rolled each time the function is called, but in practice the caller
  * should only invoke this once and persist the result so the nickname
  * stays stable.
+ *
+ * @param {string} [preferredRegion] - Region string from a trusted
+ *   source (typically the server's `request.cf` lookup). When provided
+ *   it wins over the browser-language fallback.
  */
-export function defaultNickname() {
-  const region = guessRegion();
+export function defaultNickname(preferredRegion) {
+  const sanitised = sanitiseRegionPrefix(preferredRegion);
+  const region = sanitised || guessRegionFromBrowser() || "Player";
   const suffix = String(Math.floor(1000 + Math.random() * 9000));
   return `${region}${suffix}`;
 }
