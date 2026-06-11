@@ -1,14 +1,41 @@
+# Cloudflare Pages _headers
+#
+# IMPORTANT: matching rules here are ADDITIVE. Every rule whose pattern matches
+# the request is applied, and when the SAME header name appears in more than one
+# matching rule the values are JOINED with a comma (per Cloudflare Pages docs).
+#
+# The catch-all `/*` below sets `no-cache, no-store` so HTML / SPA routes always
+# revalidate and pick up new deploys. Without the `! Cache-Control` detach lines,
+# that catch-all would be prepended onto every asset's Cache-Control, e.g.
+#   no-cache, no-store, must-revalidate, public, max-age=31536000, immutable
+# and `no-store` wins, so the hashed bundles and images were never cached by the
+# browser or the Cloudflare edge (cf-cache-status: BYPASS). The `! Cache-Control`
+# lines remove the inherited value before each block sets its own.
+
+# HTML documents and SPA deep-link routes: always revalidate.
 /*
   Cache-Control: no-cache, no-store, must-revalidate
 
+# Immutable, content-hashed build assets (filenames change on every deploy):
+# safe to cache for a year in both the browser and at the edge.
 /assets/*
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 
+# Images are not content-hashed but change rarely: cache for a day and allow
+# the edge to serve slightly stale copies while it refreshes in the background.
 /*.png
-  Cache-Control: public, max-age=86400
+  ! Cache-Control
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
 /*.jpg
-  Cache-Control: public, max-age=86400
+  ! Cache-Control
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
 /*.webp
+  ! Cache-Control
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/favicon.svg
+  ! Cache-Control
   Cache-Control: public, max-age=86400

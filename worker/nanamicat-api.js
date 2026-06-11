@@ -18,10 +18,10 @@ function corsHeaders(request) {
   };
 }
 
-function json(data, status = 200) {
+function json(data, status = 200, extraHeaders = null) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
+    headers: { 'content-type': 'application/json; charset=utf-8', ...(extraHeaders ?? {}) },
   });
 }
 
@@ -580,7 +580,12 @@ async function handleRequest(request, env) {
       ORDER BY total_score DESC, text_clears DESC, updated_at DESC
       LIMIT 100
     `).all();
-    return json({ leaderboard: result.results ?? [] });
+    // Short cache so repeat reads within a session avoid hitting the worker +
+    // D1 again. The board changes slowly, so a 30s browser cache (with a brief
+    // stale-while-revalidate window) is a safe, low-risk freshness trade-off.
+    return json({ leaderboard: result.results ?? [] }, 200, {
+      'cache-control': 'public, max-age=30, stale-while-revalidate=60',
+    });
   }
 
   // Read-only geo hint. Returns a sanitised region string the client
