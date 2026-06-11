@@ -94,6 +94,10 @@
 }
 :lang(ja) {
   font-family: 'Klee One', 'Caveat', 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif;
+  /* Klee One 只提供 400/600 两档，无法落到 500，故日文正文用已加载的 600（SemiBold），
+     使纤细的假名/汉字更清晰。:lang(ja) 比 body 选择器更specific，会覆盖上面的 500；
+     而词块/标题等显式 700/600 的元素仍按各自字重渲染。 */
+  font-weight: 600;
 }
 
 /* ── Reset ───────────────────────────────────────────────────── */
@@ -106,6 +110,10 @@ body {
   margin: 0;
   min-height: 100dvh;
   color: var(--ink);
+  /* 正文基础字重设为 500（中等），让手写体不显单薄、更清晰；
+     标题/词块等已显式 600/700 的元素不受影响，视觉层级保持不变。
+     注意：不设置 -webkit-font-smoothing: antialiased，否则在 macOS/Safari 上反而会让字变细。 */
+  font-weight: 500;
   /* 纸张底色 + 颗粒点状纹理（规范 §3.2） */
   background-color: var(--bg);
   background-image:
