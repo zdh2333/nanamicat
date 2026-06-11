@@ -77,6 +77,68 @@ function buildLegacyPuzzles(catalog) {
   }).filter(Boolean);
 }
 
+function termToEnglish(value, terms) {
+  if (typeof value !== "string") return value;
+  return terms[value] ?? value;
+}
+
+function mapCommunityPuzzleToEnglish(puzzle, terms) {
+  if (!puzzle || typeof puzzle !== "object") return puzzle;
+  return {
+    ...puzzle,
+    label: termToEnglish(puzzle.label, terms),
+    theme: termToEnglish(puzzle.theme, terms),
+    redHerring: termToEnglish(puzzle.redHerring, terms),
+    groups: Array.isArray(puzzle.groups)
+      ? puzzle.groups.map((group) => ({
+          ...group,
+          name: termToEnglish(group.name, terms),
+          items: Array.isArray(group.items)
+            ? group.items.map((item) => ({
+                ...item,
+                label: termToEnglish(item.label, terms),
+                alt: termToEnglish(item.alt, terms)
+              }))
+            : group.items
+        }))
+      : puzzle.groups
+  };
+}
+
+function buildEnglishCatalog(catalog) {
+  const terms = catalog?.englishPuzzleTerms ?? {};
+  if (!terms || Object.keys(terms).length === 0) return catalog;
+
+  return {
+    ...catalog,
+    textGroupBank: Array.isArray(catalog.textGroupBank)
+      ? catalog.textGroupBank.map((group) => ({
+          ...group,
+          name: termToEnglish(group.name, terms),
+          words: Array.isArray(group.words)
+            ? group.words.map((word) => termToEnglish(word, terms))
+            : group.words
+        }))
+      : catalog.textGroupBank,
+    puzzleThemes: Array.isArray(catalog.puzzleThemes)
+      ? catalog.puzzleThemes.map((theme) => termToEnglish(theme, terms))
+      : catalog.puzzleThemes,
+    redHerringNotes: Array.isArray(catalog.redHerringNotes)
+      ? catalog.redHerringNotes.map((note) => termToEnglish(note, terms))
+      : catalog.redHerringNotes,
+    textPuzzleManifest: Array.isArray(catalog.textPuzzleManifest)
+      ? catalog.textPuzzleManifest.map((entry) => ({
+          ...entry,
+          theme: termToEnglish(entry.theme, terms),
+          redHerring: termToEnglish(entry.redHerring, terms)
+        }))
+      : catalog.textPuzzleManifest,
+    communityPuzzles: Array.isArray(catalog.communityPuzzles)
+      ? catalog.communityPuzzles.map((puzzle) => mapCommunityPuzzleToEnglish(puzzle, terms))
+      : catalog.communityPuzzles
+  };
+}
+
 export function buildTextPuzzles(catalog) {
   const builtIn = catalog?.textGroupBank?.length
     ? (catalog.textPuzzleManifest?.length
@@ -92,11 +154,11 @@ export function buildTextPuzzles(catalog) {
 /**
  * Choose the puzzle-data URL for a given UI locale.
  *   - "ja" loads puzzle-data-ja.json (independently curated Japanese catalog)
- *   - everything else loads the Chinese-built catalog puzzle-data.json
- *     (English users see it via the englishPuzzleTerms map).
+ *   - "zh"/"en" load puzzle-data.json; English is materialized from
+ *     englishPuzzleTerms at runtime so puzzle content is truly English.
  *
- * Each locale has its own localStorage cache key so a player who flips
- * between zh and ja doesn't keep re-downloading 200 KB.
+ * Each locale has its own localStorage cache key so caches never bleed
+ * across locales (especially zh/en, because their transformed payloads differ).
  */
 function catalogUrlFor(locale) {
   if (locale === "ja") return "/puzzle-data-ja.json";
@@ -104,6 +166,7 @@ function catalogUrlFor(locale) {
 }
 function catalogCacheKeyFor(locale) {
   if (locale === "ja") return `${CACHE_KEY}.ja`;
+  if (locale === "en") return `${CACHE_KEY}.en`;
   return CACHE_KEY;
 }
 
@@ -161,12 +224,13 @@ export async function loadPuzzleCatalog(locale = "zh") {
       } catch {
         // Community puzzles are additive; keep the built-in catalog if the API is unavailable.
       }
+      const localizedData = locale === "en" ? buildEnglishCatalog(data) : data;
       try {
-        localStorage.setItem(cacheKey, JSON.stringify(data));
+        localStorage.setItem(cacheKey, JSON.stringify(localizedData));
       } catch {
         // optional cache
       }
-      return data;
+      return localizedData;
     }
   } catch {
     // fall through to cache
