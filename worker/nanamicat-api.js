@@ -517,14 +517,34 @@ async function handleRequest(request, env) {
         }
       }
 
+      // Fallback: match by nickname. The client may have lost their
+      // playerId (cleared localStorage, new device) but kept the same
+      // nickname — in that case we adopt the existing account so all
+      // of their clears stay attributed to one leaderboard row.
       const byName = await env.DB.prepare('SELECT * FROM players WHERE nickname = ?').bind(nickname).first();
       if (byName) {
+        // If the client now carries a different ID (e.g. they cleared
+        // localStorage and got a fresh UUID), migrate the row to the
+        // new ID. This keeps the player's identity consistent across
+        // devices. We preserve text_clears and total_score so the
+        // rename doesn't reset the leaderboard counters.
+        if (playerId && byName.id !== playerId) {
+          await env.DB.prepare(`
+            UPDATE players SET id = ?, updated_at = ? WHERE id = ?
+          `).bind(playerId, now, byName.id).run();
+          return json({
+            player: { ...byName, id: playerId, nickname, updated_at: now }
+          });
+        }
         await env.DB.prepare('UPDATE players SET nickname = ?, updated_at = ? WHERE id = ?')
           .bind(nickname, now, byName.id).run();
         return json({ player: { ...byName, nickname, updated_at: now } });
       }
 
-      const id = newId('player');
+      // Brand new player — honour the client-supplied playerId if
+      // present so the localStorage identity sticks even before the
+      // user has ever interacted with the leaderboard.
+      const id = playerId || newId('player');
       await env.DB.prepare(`
         INSERT INTO players (id, nickname, created_at, updated_at)
         VALUES (?, ?, ?, ?)

@@ -30,11 +30,14 @@ import {
   getTodayIsoDate,
   puzzleIndexForDate,
   recordCompletion,
-  recordFailure,
   readResume,
   writeResume,
   clearResume,
-  shouldResume
+  shouldResume,
+  newPlayerId,
+  defaultNickname,
+  PLAYER_ID_KEY,
+  PLAYER_NICKNAME_KEY
 } from "./progress.js";
 import {
   trackPageView,
@@ -874,6 +877,63 @@ function App() {
     };
   }, [locale]);
 
+  // One-time player identity bootstrap.
+  //   1. Make sure we have a stable playerId stored locally. If not, mint
+  //      a new one (UUID-based) and persist it. This is the "permanent
+  //      identity" — renaming the user never changes it.
+  //   2. Make sure we have a nickname stored locally. If not, generate a
+  //      default "region + 4 digits" name like "Tokyo1234" so the player
+  //      appears on the leaderboard even if they never type anything.
+  //   3. Upsert both to the server so the leaderboard knows about us.
+  // We do NOT block the rest of the app on this — a failed network call
+  // just leaves us with locally-only state, which the next visit will
+  // retry.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      let id = getStored(PLAYER_ID_KEY, "");
+      let nick = getStored(PLAYER_NICKNAME_KEY, "");
+      if (!id) {
+        id = newPlayerId();
+        setStored(PLAYER_ID_KEY, id);
+        setPlayerId(id);
+      } else {
+        setPlayerId(id);
+      }
+      if (!nick) {
+        nick = defaultNickname();
+        setStored(PLAYER_NICKNAME_KEY, nick);
+        setNickname(nick);
+      }
+      // Always upsert on first mount (cold start). We need the row in
+      // the leaderboard BEFORE the user does anything — that's the
+      // whole point of the "未通关也会显示为 0 次" promise on the
+      // leaderboard panel. On a warm reload the upsert is also useful:
+      // it lets the server adopt the local playerId when the row was
+      // originally created on a different device.
+      if (id && nick) {
+        try {
+          const payload = await api("/api/player", {
+            method: "POST",
+            body: JSON.stringify({ playerId: id, nickname: nick })
+          });
+          if (!cancelled && payload?.player?.id && payload.player.id !== id) {
+            // Server normalised/assigned a different id (e.g. legacy
+            // account matched by nickname only). Trust the server's id.
+            setPlayerId(payload.player.id);
+            setStored(PLAYER_ID_KEY, payload.player.id);
+          }
+        } catch {
+          // Network down? No problem — the next visit will retry.
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!helpOpen) return undefined;
     function onKeyDown(event) {
@@ -1488,7 +1548,12 @@ function App() {
     if (isComplete || isGameOver || solvedIds.includes(item.id)) return;
     setSelected((current) => {
       if (current.includes(item.id)) return current.filter((id) => id !== item.id);
-      if (current.length === 4) return current;
+      // Already at 4 picks: drop the oldest one and append the new pick
+      // so the clicked tile visibly turns blue. The user gets immediate
+      // feedback ("yes, my click registered") instead of a dead tile, and
+      // they can re-roll their last pick by just tapping a new one.
+      // This matches NYT Connections' "shake the oldest one off" feel.
+      if (current.length === 4) return [...current.slice(1), item.id];
       return [...current, item.id];
     });
   }
@@ -1508,17 +1573,37 @@ function App() {
     return t.wrong;
   }
 
+  // ensurePlayer is now a thin "do we have an identity to attach the score
+  // to?" check. The actual upsert happens in the boot useEffect above,
+  // and again in saveNickname() whenever the user edits their nickname.
+  // We keep this function (and its no-op fallback path) so the score flow
+  // never has to be rewritten.
   async function ensurePlayer() {
+    if (!playerId) {
+      // Identity not ready yet (boot effect still in flight or localStorage
+      // was wiped). Bail with a friendly notice; the player can retry.
+      return null;
+    }
     const cleanName = nickname.trim();
     if (!cleanName) return null;
-    const payload = await api("/api/player", {
-      method: "POST",
-      body: JSON.stringify({ playerId: playerId || undefined, nickname: cleanName })
-    });
-    setPlayerId(payload.player.id);
-    setStored("nanamicat.playerId", payload.player.id);
-    setStored("nanamicat.nickname", cleanName);
-    return payload.player;
+    // If the user has edited the nickname since the last server sync,
+    // push that update. This keeps the leaderboard label in lockstep
+    // with what the player sees in the input.
+    try {
+      const payload = await api("/api/player", {
+        method: "POST",
+        body: JSON.stringify({ playerId, nickname: cleanName })
+      });
+      if (payload?.player?.id && payload.player.id !== playerId) {
+        setPlayerId(payload.player.id);
+        setStored(PLAYER_ID_KEY, payload.player.id);
+      }
+      return { id: payload?.player?.id || playerId, nickname: cleanName };
+    } catch {
+      // Network hiccup — proceed with the local identity and let the
+      // server sort it out on the next call.
+      return { id: playerId, nickname: cleanName };
+    }
   }
 
   async function submitScore() {
@@ -1651,14 +1736,51 @@ function App() {
     resetPuzzleState();
   }
 
-  async function saveNickname() {
+  // Save / update the player's nickname. Called either explicitly
+  // (the user clicks "Save name") or implicitly by an onBlur / Enter in
+  // the nickname input on the leaderboard / contribute panels.
+  // After the server confirms, we reload every UI surface that shows
+  // the nickname so the change is visible everywhere immediately.
+  async function saveNickname(overrideNickname) {
     try {
-      const player = await ensurePlayer();
-      if (player) {
-        const clears = Number(player.text_clears ?? 0);
-        setApiNotice(t.joinedLeaderboard.replace("%d", String(clears)));
-        loadLeaderboard();
+      if (!playerId) {
+        // Boot effect hasn't minted a playerId yet. Let the user know
+        // the page is still warming up.
+        setApiNotice(locale === "zh" ? "正在初始化账户…" : (locale === "ja" ? "アカウントを初期化中…" : "Setting up your account…"));
+        return;
       }
+      // Prefer the value the caller just read off the DOM (passed in via
+      // overrideNickname) so onBlur / Enter-key handlers can flush the
+      // latest typed text without waiting for the next React render.
+      const cleanName = String(overrideNickname ?? nickname).trim();
+      if (!cleanName) return;
+      const payload = await api("/api/player", {
+        method: "POST",
+        body: JSON.stringify({ playerId, nickname: cleanName })
+      });
+      // Persist the (possibly server-normalised) values so the rest of
+      // the session can rely on them.
+      if (payload?.player?.id) {
+        setPlayerId(payload.player.id);
+        setStored(PLAYER_ID_KEY, payload.player.id);
+      }
+      setStored(PLAYER_NICKNAME_KEY, cleanName);
+      const clears = Number(payload?.player?.text_clears ?? 0);
+      setApiNotice(
+        (locale === "zh" ? "昵称已保存（" :
+         locale === "ja" ? "ニックネームを保存しました（" :
+         "Nickname saved (")
+        + clears + " " + (locale === "zh" ? "次通关）" : (locale === "ja" ? "回クリア）" : "clears)"))
+      );
+      // Force a full re-read of everywhere the nickname appears so the
+      // leaderboard, recent completions list, and admin panel (if
+      // open) all reflect the new name.
+      loadLeaderboard({ showError: true });
+      if (view === "admin") loadAdmin();
+      // Also re-fetch the most-recent completions for the footer.
+      try {
+        setRecentCompletions(getRecentCompletions());
+      } catch {}
     } catch (error) {
       setApiNotice(error.message);
     }
@@ -1966,7 +2088,23 @@ function App() {
               <p>{t.leaderboardLead}</p>
             </div>
             <div className="name-row">
-              <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={24} placeholder={t.playerName} />
+              <input
+                  value={nickname}
+                  onChange={(event) => setNickname(event.target.value)}
+                  onBlur={(event) => {
+                    // Read the latest value off the DOM rather than the
+                    // React state closure — onBlur can fire before the
+                    // onChange setState commits, so `nickname` inside
+                    // saveNickname() would otherwise be the previous value.
+                    const value = event.currentTarget.value;
+                    setNickname(value);
+                    saveNickname(value);
+                  }}
+                  onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); saveNickname(event.currentTarget.value); } }}
+                  maxLength={24}
+                  placeholder={t.playerName}
+                  aria-label={t.playerName}
+                />
               <button type="button" className="primary" onClick={saveNickname}>{t.saveName}</button>
             </div>
           </div>
@@ -2035,7 +2173,23 @@ function App() {
               <p>{t.contributionLead}</p>
             </div>
             <div className="name-row">
-              <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={24} placeholder={t.playerName} />
+              <input
+                  value={nickname}
+                  onChange={(event) => setNickname(event.target.value)}
+                  onBlur={(event) => {
+                    // Read the latest value off the DOM rather than the
+                    // React state closure — onBlur can fire before the
+                    // onChange setState commits, so `nickname` inside
+                    // saveNickname() would otherwise be the previous value.
+                    const value = event.currentTarget.value;
+                    setNickname(value);
+                    saveNickname(value);
+                  }}
+                  onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); saveNickname(event.currentTarget.value); } }}
+                  maxLength={24}
+                  placeholder={t.playerName}
+                  aria-label={t.playerName}
+                />
               <button type="button" onClick={saveNickname}>{t.saveName}</button>
             </div>
           </div>

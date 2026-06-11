@@ -200,6 +200,63 @@ export function getTodayIsoDate() {
 }
 
 // ──────────────────────────────────────────────────────────────────────────
+//  Player identity (playerId + default nickname)
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * Best-effort region guess from the browser's accept-language header.
+ * Used as the *prefix* of an auto-generated default nickname like
+ * "Tokyo1234" or "Madrid4321". The user can edit the nickname at any
+ * time; the playerId (separate, see below) stays fixed forever.
+ */
+export function guessRegion() {
+  if (typeof navigator === "undefined") return "Player";
+  const lang = (navigator.language || (navigator.languages && navigator.languages[0]) || "en").toLowerCase();
+  if (lang.includes("ja")) return "Tokyo";
+  if (lang.includes("zh-tw") || lang.includes("zh-hk")) return "Taipei";
+  if (lang.includes("zh")) return "Beijing";
+  if (lang.startsWith("ko")) return "Seoul";
+  if (lang.startsWith("es")) return "Madrid";
+  if (lang.startsWith("fr")) return "Paris";
+  if (lang.startsWith("de")) return "Berlin";
+  if (lang.startsWith("pt")) return "Lisbon";
+  if (lang.startsWith("it")) return "Roma";
+  if (lang.startsWith("ru")) return "Moscow";
+  if (lang.startsWith("ja-jp")) return "Tokyo";
+  return "Player";
+}
+
+/**
+ * Build a "region + 4 random digits" default nickname. The digits are
+ * re-rolled each time the function is called, but in practice the caller
+ * should only invoke this once and persist the result so the nickname
+ * stays stable.
+ */
+export function defaultNickname() {
+  const region = guessRegion();
+  const suffix = String(Math.floor(1000 + Math.random() * 9000));
+  return `${region}${suffix}`;
+}
+
+/**
+ * Build a stable, globally-unique playerId. We use `crypto.randomUUID()`
+ * which is available in every browser since 2022; on the wire this
+ * becomes a string like "player_<uuid>" so the ID is self-describing
+ * in server logs.
+ */
+export function newPlayerId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return `player_${crypto.randomUUID()}`;
+  }
+  // Fallback for ancient browsers — Math.random is not crypto-secure but
+  // it's only a "best effort" identifier for non-critical gameplay.
+  return `player_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export const PLAYER_ID_KEY = "nanamicat.playerId";
+export const PLAYER_NICKNAME_KEY = "nanamicat.nickname";
+
+// ──────────────────────────────────────────────────────────────────────────
 //  Resume (in-progress) state
 // ──────────────────────────────────────────────────────────────────────────
 

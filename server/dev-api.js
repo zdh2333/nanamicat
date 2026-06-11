@@ -216,6 +216,9 @@ export function mountDevApi(app, dataDir, { adminKey = "", allowOpenAdmin = fals
       const now = new Date().toISOString();
       const players = await readPlayers();
 
+      // 1. Match by ID first — this is the permanent identity the client
+      //    carries in localStorage. If we find it, the only thing that
+      //    can change is the nickname.
       if (playerId) {
         const existing = players.find((item) => item.id === playerId);
         if (existing) {
@@ -226,16 +229,32 @@ export function mountDevApi(app, dataDir, { adminKey = "", allowOpenAdmin = fals
         }
       }
 
+      // 2. Match by nickname. The client may have lost their playerId
+      //    (cleared localStorage in another tab / new device) but kept
+      //    the same nickname. In that case we should NOT create a fresh
+      //    row — we adopt the existing account so all of their clears
+      //    stay attributed to one leaderboard row.
       const byName = players.find((item) => item.nickname === nickname);
       if (byName) {
+        // If the client has a playerId and the matched row has a
+        // different (legacy) ID, migrate the row to the new ID so the
+        // client's localStorage and the server stay in sync going forward.
+        if (playerId && byName.id !== playerId) {
+          // Rename the old row to the new ID — keep the score counters
+          // so the player's clears don't reset.
+          byName.id = playerId;
+        }
         byName.nickname = nickname;
         byName.updated_at = now;
         await writeJson(playersFile, players);
         return response.json({ player: byName });
       }
 
+      // 3. Brand new player — create a row. Honour the client-supplied
+      //    playerId if any so the localStorage identity sticks even
+      //    before the user has interacted with the leaderboard.
       const player = {
-        id: newId("player"),
+        id: playerId || newId("player"),
         nickname,
         text_clears: 0,
         total_score: 0,
