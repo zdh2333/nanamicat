@@ -733,7 +733,9 @@ function humanizeApiError(message, locale = getStored("nanamicat.locale", (navig
 }
 
 function resolveViewFromPath(pathname) {
-  if (pathname.startsWith("/admin")) return { view: "admin", pinnedDate: null };
+  if (pathname.startsWith("/admin") || pathname.startsWith("/control-panel")) {
+    return { view: "admin", pinnedDate: null };
+  }
   if (pathname.startsWith("/leaderboard")) return { view: "leaderboard", pinnedDate: null };
   if (pathname.startsWith("/contribute")) return { view: "contribute", pinnedDate: null };
   if (pathname.startsWith("/archive")) return { view: "archive", pinnedDate: null };
@@ -1582,7 +1584,7 @@ function App() {
       archive: "/archive",
       leaderboard: "/leaderboard",
       contribute: "/contribute",
-      admin: "/admin"
+      admin: "/control-panel"
     };
     history.pushState(null, "", paths[nextView] ?? "/");
   }
