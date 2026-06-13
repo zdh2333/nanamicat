@@ -1,5 +1,4 @@
 import express from 'express';
-import nodemailer from 'nodemailer';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
@@ -14,18 +13,9 @@ const scoresFile = path.join(dataDir, 'scores.json');
 const port = Number(process.env.PORT || 4173);
 const isProduction = process.env.NODE_ENV === 'production';
 const adminKey = process.env.ADMIN_KEY || '';
-const mailFrom = process.env.MAIL_FROM || 'noreply@nanamicat.com';
 const groupColors = ['yellow', 'green', 'blue', 'purple'];
 const scoreKeyPattern = /^(text-(built-in-\d+|community-\d+)|image-(yellow|green|blue|purple)-(yellow|green|blue|purple)-\d+)$/;
 const rateLimits = new Map();
-const mailTransport = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS
-  ? nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: process.env.SMTP_SECURE === 'true' || Number(process.env.SMTP_PORT) === 465,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    })
-  : null;
 
 async function readSubmissions() {
   try {
@@ -165,8 +155,6 @@ function validateSubmission(body) {
   const nickname = String(body.nickname || '').trim();
   if (!nickname) return 'Please enter a nickname.';
   if (nickname.length > 32) return 'Nickname is too long.';
-  const contactEmail = String(body.contactEmail || '').trim();
-  if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) return 'Please enter a valid email address.';
   if (!Array.isArray(body.groups) || body.groups.length < 1 || body.groups.length > 10) return 'Submit between 1 and 10 groups.';
   const groupNames = new Set();
   const allWords = new Set();
@@ -188,56 +176,6 @@ function validateSubmission(body) {
     }
   }
   return null;
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
-
-async function sendThankYouEmail(submission) {
-  if (!submission.contactEmail) return { status: 'not_requested' };
-  if (!mailTransport) {
-    return {
-      status: 'not_configured',
-      error: 'SMTP is not configured.',
-      from: mailFrom,
-    };
-  }
-
-  try {
-    await mailTransport.sendMail({
-      from: `"MeowGrid" <${mailFrom}>`,
-      to: submission.contactEmail,
-      subject: 'Thank you for submitting a MeowGrid puzzle',
-      text: [
-        `Hi ${submission.nickname},`,
-        '',
-        `Thank you for leaving the puzzle "${submission.title}" for MeowGrid.`,
-        'Your support helps make the puzzle bank more interesting. I will review the submission before adding it to a future puzzle set.',
-        '',
-        'Have fun playing today.',
-        'MeowGrid',
-      ].join('\n'),
-      html: `
-        <p>Hi ${escapeHtml(submission.nickname)},</p>
-        <p>Thank you for leaving the puzzle "<strong>${escapeHtml(submission.title)}</strong>" for MeowGrid.</p>
-        <p>Your support helps make the puzzle bank more interesting. I will review the submission before adding it to a future puzzle set.</p>
-        <p>Have fun playing today.<br />MeowGrid</p>
-      `,
-    });
-    return { status: 'sent', sentAt: new Date().toISOString(), from: mailFrom };
-  } catch (error) {
-    return {
-      status: 'failed',
-      error: error.message,
-      from: mailFrom,
-    };
-  }
 }
 
 const app = express();
@@ -266,14 +204,11 @@ app.post('/api/submissions', async (request, response) => {
     id: randomUUID(),
     nickname: String(request.body.nickname).trim(),
     title: String(request.body.title || groups[0]?.name || 'Untitled submission').trim(),
-    contactEmail: String(request.body.contactEmail || '').trim(),
     groups,
     status: 'pending',
-    thankYouEmail: { status: 'not_requested' },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  submission.thankYouEmail = await sendThankYouEmail(submission);
   submissions.unshift(submission);
   await saveSubmissions(submissions);
   response.status(201).json({ submission });
