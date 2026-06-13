@@ -238,7 +238,6 @@ const copy = {
     recent: "最近时间",
     submitPuzzle: "提交谜题",
     puzzleTitle: "谜题标题",
-    contactEmail: "联系邮箱（可选）",
     groupName: "组名",
     words: "4 个词，用逗号分隔",
     savePuzzle: "提交到后台",
@@ -277,8 +276,6 @@ const copy = {
     statusIncluded: "已编入",
     statusRejected: "已拒绝",
     submissionSavedPending: "投稿已保存为待审核。",
-    thankYouEmailSent: "投稿成功，感谢邮件已发送。",
-    thankYouEmailNotSent: "投稿成功，但感谢邮件暂未发送（稍后可重试）。"
   },
   en: {
     appName: "MeowGrid",
@@ -310,7 +307,6 @@ const copy = {
     recent: "Recent",
     submitPuzzle: "Submit puzzle",
     puzzleTitle: "Puzzle title",
-    contactEmail: "Contact email (optional)",
     groupName: "Group name",
     words: "4 words, comma separated",
     savePuzzle: "Send to admin",
@@ -349,8 +345,6 @@ const copy = {
     statusIncluded: "Included",
     statusRejected: "Rejected",
     submissionSavedPending: "Submission saved as pending.",
-    thankYouEmailSent: "Submission saved and thank-you email sent.",
-    thankYouEmailNotSent: "Submission saved, but thank-you email was not sent yet."
   },
   // Japanese UI copy. The puzzle DATA itself (group names, words) lives in
   // public/puzzle-data-ja.json — a separate file with Japanese-native
@@ -387,7 +381,6 @@ const copy = {
     recent: "更新時刻",
     submitPuzzle: "問題を投稿",
     puzzleTitle: "問題のタイトル",
-    contactEmail: "連絡先メール(任意)",
     groupName: "グループ名",
     words: "4つのことば、カンマ区切り",
     savePuzzle: "管理者に送信",
@@ -426,8 +419,6 @@ const copy = {
     statusIncluded: "採用",
     statusRejected: "却下",
     submissionSavedPending: "投稿を保存しました(審査待ち)。",
-    thankYouEmailSent: "投稿を保存し、お礼メールを送信しました。",
-    thankYouEmailNotSent: "投稿は保存しましたが、お礼メールはまだ送信されていません。"
   }
 };
 
@@ -841,7 +832,6 @@ function App() {
   const [adminPuzzles, setAdminPuzzles] = useState([]);
   const [adminScores, setAdminScores] = useState([]);
   const [form, setForm] = useState(() => ({
-    email: "",
     groups: [{ name: "", words: "" }]
   }));
   const [apiNotice, setApiNotice] = useState("");
@@ -1936,18 +1926,11 @@ function App() {
         body: JSON.stringify({
           playerId: player?.id,
           nickname: nickname.trim() || "Guest",
-          email: form.email.trim() || undefined,
           groups: filledGroups
         })
       });
-      setForm({ email: "", groups: [{ name: "", words: "" }] });
-      if (payload?.email?.attempted && payload?.email?.sent) {
-        setApiNotice(t.thankYouEmailSent);
-      } else if (form.email.trim()) {
-        setApiNotice(t.thankYouEmailNotSent);
-      } else {
-        setApiNotice(t.submissionSavedPending);
-      }
+      setForm({ groups: [{ name: "", words: "" }] });
+      setApiNotice(t.submissionSavedPending);
     } catch (error) {
       setApiNotice(error.message);
     } finally {
@@ -2313,15 +2296,6 @@ function App() {
             </div>
           </div>
           <form className="submission-form" onSubmit={submitPuzzleForm}>
-            <label>
-              {t.contactEmail}
-              <input
-                type="email"
-                value={form.email}
-                onChange={(event) => setForm({ ...form, email: event.target.value })}
-                maxLength={254}
-              />
-            </label>
             <div className="group-grid">
               {form.groups.map((group, index) => {
                 const wordCount = group.words.split(/[,\n，]/).map((w) => w.trim()).filter(Boolean).length;
@@ -2423,7 +2397,6 @@ function App() {
                 <div>
                   <strong>{submissionSummary(item, t)}</strong>
                   <p>{item.nickname} / {new Date(item.created_at).toLocaleString()}</p>
-                  {item.contact_email ? <p>{item.contact_email}</p> : null}
                   <div className="admin-groups">
                     {groups.map((group, index) => (
                       <div key={`${item.id}-${index}`} className="admin-group-card">

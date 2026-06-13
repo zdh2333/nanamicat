@@ -1,0 +1,217 @@
+version: 1
+plan:
+  name: 'Nanami Cat: 日语版 + SEO 长尾词 + today 类关键词'
+  max_concurrency: 4
+  max_consecutive_failures: 2
+  max_cycles: 6
+  auto_reject_retries: 1
+  verifier_config:
+    default_verifiers: [verifier]
+    audit_sample_rate: 0.0
+tasks:
+  # ── Track A: SEO 长尾词 + today landing page ──────────────────────────
+  - id: seo-today-longtail
+    title: 'Track A: SEO 长尾词 + today landing page (zh/en/ja)'
+    prompt: |
+      项目根: /Users/zdh/Developer/web/nanamicat
+
+      目标:
+      1. 抢 "today" 类长尾关键词: "today's puzzle", "daily word puzzle",
+         "今日のパズル", "今日のことばパズル", "今日单词分类游戏",
+         "今日文字分類パズル" 等。
+      2. 抢 SEO 长尾词: "free word puzzle", "no signup word game",
+         "毎日の文字パズル", "ことばパズル 無料", "每日单词游戏 免费",
+         "文字分类游戏 在线", "wordle alternative connections",
+         "NYT Connections alternative" 等。
+      3. 新增 /today 路由 (SPA in-app route), 渲染今日题目专用 SEO landing,
+         title/description/h1 走 locale 切换, 加 JSON-LD Game schema
+         和 BreadcrumbList schema。
+      4. 在 index.html 注入 hreflang 三语标签 (en/zh-CN/ja/x-default)。
+      5. update src/main.jsx 的 <head> meta 注入逻辑: 按 locale 动态
+         设 title/description/og:locale/og:title/og:description。
+      6. 生成 /public/sitemap.xml 时按 locale 拆 3 份 (或加 alternate
+         hreflang 节点), 当前 manifest 文件已存在, 跑一个脚本重新生成
+         时带 alternate 链接。
+      7. 不要 push public/puzzle-data.json (题库本地的优化版) —
+         永远不要 git add 它。
+
+      约束:
+      - 必须三语 (en / zh / ja) 都补齐, 不能只补一种。
+      - 长尾词要真的搜得出来 — 参考 Google 搜索量靠前的 "connections
+        puzzle" / "word category game" / "ことばパズル" / "文字分类游戏"
+        / "Wordle alternative"。
+      - /today 页面必须能被搜索引擎索引 (不 noindex), 不影响 LCP。
+      - 不要破坏现有 Archive / StickyAdBar / AdSlot / i18n 切换。
+
+      交付:
+      - 修改的文件路径列表
+      - 每个 locale 的 title/description/h1/key-meta-tag
+      - hreflang 注入位置
+      - sitemap 更新策略
+      - build 通过
+      - 报告写入 $MAVIS_SCRATCHPAD/track-a-deliverable.md
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      独立验证 Track A (不要相信 producer 的描述):
+      1. cd /Users/zdh/Developer/web/nanamicat && npm run build 必须通过
+      2. 检查 dist/index.html 含 hreflang 标签 (en/zh/ja 三语 + x-default)
+      3. 用 mavis browser 打开 https://nanamicat.com (cache-bust: ?v=$RANDOM)
+         - HTML 源码里找 "今日のパズル" / "today's puzzle" 之一
+         - 找 "ことばパズル" 或 "Today's word puzzle"
+      4. 打开 https://nanamicat.com/today (cache-bust), 检查:
+         - title 含 "Today" / "今日" / "今日"
+         - h1 可见且不含 "404"
+         - JSON-LD 包含 "@type":"Game" 或 "BreadcrumbList"
+      5. 检查 /sitemap.xml 含 alternate hreflang 节点 (en/zh/ja)
+      6. 静态页 (about/how-to-play/privacy/terms/contact) 三语长尾词覆盖度
+         - 用 mavis browser 打开 /about 看 source 是否含日文/中文长尾词
+      7. 给出 PASS/FAIL + 缺什么
+    max_retries: 2
+
+  # ── Track B: 日语 UI 溢出 sweep ────────────────────────────────────────
+  - id: ja-ui-overflow-sweep
+    title: 'Track B: 日语 UI 溢出全量 sweep + 修复'
+    prompt: |
+      项目根: /Users/zdh/Developer/web/nanamicat
+
+      目标:
+      1. 用 Playwright 跑全量 UI 截图 + 测量脚本, 切到 ja locale,
+         访问以下页面 + 状态, 检查每个文本元素是否溢出/截断/换行错位:
+         - 首页 (/)
+         - /archive
+         - /puzzle/<today>
+         - 完成结果页 (完成一题)
+         - /how-to-play / /about / /privacy / /terms / /contact
+         - 完成分享弹窗
+         - locale 切换器打开态
+         - 移动端 (375x812 iPhone 12 size)
+         - 平板 (768x1024 iPad)
+      2. 视觉判定标准:
+         - 任何 text-overflow:ellipsis 出现在按钮/标题/词条/说明上
+         - 任何元素 scrollWidth > clientWidth
+         - 任何元素文字垂直方向被裁
+         - 词条 (puzzle item) 在 ja 模式下被切 (日文常比英文长 30-50%)
+         - 顶部 nav 在 ja 模式下挤压
+      3. 把所有问题列出来, 然后**逐个修**:
+         - 加 max-width + text-wrap: balance 或 word-break: break-word
+         - 用 CSS clamp / container queries 做响应式字号
+         - 日文长词 (カタカナ > 8 字符) 自动换行
+         - 按钮 padding 自适应内容长度
+         - 词条网格 minmax 调小一档
+         - 添加 .ja locale 专属样式块 (html[lang="ja"] ...)
+      4. 加 npm script: "test:visual:ja" 跑 Playwright sweep
+      5. 不要 push public/puzzle-data.json
+      6. 跑 npm run build 确认通过
+
+      交付:
+      - 修复前后对比截图 (before/after, before 可选)
+      - 列出所有修过的 CSS 选择器
+      - Playwright 脚本路径 + 怎么跑
+      - 报告写入 $MAVIS_SCRATCHPAD/track-b-deliverable.md
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      独立验证 Track B:
+      1. cd /Users/zdh/Developer/web/nanamicat && npm run build 通过
+      2. 用 mavis browser (如果没 Playwright 走 mavis 真实 Chrome):
+         - 访问 https://nanamicat.com/?v=$RANDOM&locale=ja (或先点切换到 ja)
+         - 截图 / 首页
+         - 检查顶部 nav "ことばパズル" 之类词是否完全可见不截断
+         - 检查 word grid 词条是否被切 (应为完整日文)
+         - 检查 mobile 宽度 375 模式下
+         - 访问 /archive, 截图
+         - 完成一题后看结果页, 截图
+      3. 任意发现文字被截 / 溢出 / 切错位 → FAIL, 列出具体元素
+      4. 给出 PASS/FAIL + 修过哪些 CSS
+    max_retries: 2
+
+  # ── Track C: 日语题库 100 → 500 + 日语习惯审计 ─────────────────────────
+  - id: ja-puzzle-bank-expand
+    title: 'Track C: 日语题库 100 → 500 + 日语习惯审计脚本'
+    prompt: |
+      项目根: /Users/zdh/Developer/web/nanamicat
+
+      目标:
+      1. 把 public/puzzle-data-ja.json 从 100 题扩到 ≥ 500 题
+         (按 scripts/regenerate-manifest.mjs 同样思路)
+      2. 新建 scripts/regenerate-manifest-ja.mjs 跑日语版专属生成
+         (或扩现有 regenerate-manifest.mjs 接受 --locale 参数)
+      3. 新建 scripts/audit-ja.mjs 检查日语习惯, 必须全部 PASS:
+         - 动词变形合理 (五段 / 上一段 / 下一段 / カ变 / サ变)
+         - 不混用简体敬体, 同一 group 内统一体裁
+         - 外来语用片假名, 不与汉字混用错误
+         - 文化贴合日本 (寿司/拉面/樱花/俳句/和菓子... 而非泛亚洲)
+         - 词长: 不出现 > 12 字符片假名串 (影响 UI)
+         - 一组内 4 词必须是同一范畴
+         - 跨组无重复词
+         - 100 题内难度分布合理
+      4. 写日语组库: 至少 150 组, 涵盖:
+         - 食物 (和食/洋食/中華/スイーツ/ラーメン/寿司)
+         - 自然 (季节/动物/植物/天气/地形)
+         - 文化 (伝統芸能/祭り/武道/美術/文学)
+         - 地理 (都道府県/山/川/島)
+         - 语言 (動詞/形容詞/副詞/助詞/オノマトペ)
+         - 抽象 (感情/思考/性格/美德/恶习)
+         - 科技 (スマホ用語/IT略語)
+         - サブカル (アニメ/ゲーム/マンガ用語)
+      5. 100 题内: 5 题窗口撞组率 < 30%
+      6. 跑 node scripts/audit-ja.mjs 必须 0 fail
+      7. 跑 npm run validate:puzzles (已有) 不能 break
+      8. 改 public/puzzle-data-ja.json (允许) — 但不要碰 public/puzzle-data.json (中文那个)
+      9. 不要 push 任何 public/puzzle-data.json (中文, 本地优化版)
+         — 但日语版 puzzle-data-ja.json 可以 push (你刚生成的就是新版本)
+
+      交付:
+      - 生成的 puzzle-data-ja.json 路径 + group 数 + manifest 数
+      - audit-ja.mjs 输出 (必须全 ✅)
+      - 100 题撞组率统计
+      - commit message 草稿
+      - 报告写入 $MAVIS_SCRATCHPAD/track-c-deliverable.md
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: |
+      独立验证 Track C:
+      1. 跑 node scripts/audit-ja.mjs — 必须 0 fail, 全 ✅
+      2. 跑 node scripts/verify-puzzles.mjs — 不报错
+      3. 用 python 读 public/puzzle-data-ja.json:
+         - textGroupBank 长度 ≥ 150
+         - textPuzzleManifest 长度 ≥ 500
+         - 抽 10 个 group 检查词条文化贴合 (寿司/拉面等日式而非泛亚)
+      4. 检查 5 题窗口撞组率 < 30% (脚本或自己跑)
+      5. 任何 audit 失败 → FAIL
+      6. 给出 PASS/FAIL + 关键数字
+    max_retries: 2
+
+  # ── Final gate: 全栈跨语种真机验证 ────────────────────────────────────
+  - id: final-integration-gate
+    title: 'Final gate: 三语种端到端真实验证'
+    role: verify-as-task
+    prompt: |
+      项目根: /Users/zdh/Developer/web/nanamicat
+
+      终极 E2E 验证 (不是 grader, 是真实测试):
+      1. cd /Users/zdh/Developer/web/nanamicat && npm run build 通过
+      2. 启动 preview server: npx vite preview --port 4173 &
+      3. 用 mavis browser 切到日语 (或 ?locale=ja), 跑以下流程:
+         a) 首页加载 → 截图 → 看 ことばパズル 标题
+         b) 点 topnav 的 "歴史" (Archive) → 截图
+         c) 点第一行历史题 → 玩一题 (选对/错) → 完成页 → 截图
+         d) 切回中文 → 同样走一遍 → 截图
+         e) 切回英文 → 同样 → 截图
+         f) 移动端 (375 宽) 走一遍日语 → 截图
+      4. 用 mavis browser 访问 /today:
+         - 三语分别看 title
+         - JSON-LD 校验
+         - 跳转回 / 时能带上 ?pinnedDate=today 参数
+      5. 检查 ads.txt / robots.txt / sitemap.xml 都没破
+      6. 完整报告写入 $MAVIS_SCRATCHPAD/final-gate-report.md:
+         - 8 张截图引用
+         - 每步 PASS/FAIL
+         - 发现的所有问题列表
+         - 整体 PASS/FAIL
+
+      不要重做代码, 只验证。
+    assigned_to: verifier
+    depends_on: [seo-today-longtail, ja-ui-overflow-sweep, ja-puzzle-bank-expand]
+    max_retries: 1

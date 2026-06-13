@@ -115,7 +115,7 @@ function regionFromRequest(request) {
 
 async function readPuzzleSubmissionRows(env, { limit = 100 } = {}) {
   const result = await env.DB.prepare(`
-    SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+    SELECT id, player_id, nickname, title, groups_json, status, created_at, updated_at
     FROM puzzle_submissions
     ORDER BY created_at DESC
     LIMIT ?
@@ -128,10 +128,8 @@ async function readSubmissions(env) {
     id: row.id,
     nickname: row.nickname,
     title: row.title,
-    contactEmail: row.contact_email,
     groups: parseSubmissionGroups(row.groups_json),
     status: row.status === 'approved' ? 'included' : row.status,
-    thankYouEmail: { status: 'not_requested' },
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
@@ -141,13 +139,12 @@ async function insertSubmission(env, submission) {
   const now = submission.updatedAt || submission.createdAt || new Date().toISOString();
   await env.DB.prepare(`
     INSERT INTO puzzle_submissions (
-      id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      id, player_id, nickname, title, groups_json, status, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     submission.id,
     submission.playerId || null,
     submission.nickname,
-    submission.contactEmail || null,
     submission.title,
     JSON.stringify(submission.groups),
     submission.status === 'approved' ? 'included' : submission.status,
@@ -315,14 +312,6 @@ function newId(prefix) {
   return `${prefix}_${crypto.randomUUID().replaceAll('-', '')}`;
 }
 
-function normalizeEmail(value) {
-  const email = String(value || '').trim().toLowerCase();
-  if (!email) return null;
-  if (email.length > 254) throw new Error('Email must be 254 characters or fewer');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Invalid email format');
-  return email;
-}
-
 function normalizeGroups(groups) {
   if (!Array.isArray(groups) || groups.length === 0) {
     throw new Error('Puzzle submissions must contain at least 1 group');
@@ -400,7 +389,6 @@ function serializeSubmission(row) {
     id: row.id,
     player_id: row.player_id,
     nickname: row.nickname,
-    contact_email: row.contact_email,
     title: row.title,
     groups_json: row.groups_json,
     groups,
@@ -417,8 +405,6 @@ function validateSubmission(body) {
   const nickname = String(body.nickname || '').trim();
   if (!nickname) return 'Please enter a nickname.';
   if (nickname.length > 24) return 'Nickname is too long (max 24 characters).';
-  const contactEmail = String(body.contactEmail || '').trim();
-  if (contactEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) return 'Please enter a valid email address.';
   if (!Array.isArray(body.groups) || body.groups.length < 1 || body.groups.length > 10) return 'Submit between 1 and 10 groups.';
   const groupNames = new Set();
   const allWords = new Set();
@@ -451,10 +437,8 @@ function normalizeSubmission(body) {
     id: crypto.randomUUID(),
     nickname: String(body.nickname).trim(),
     title: String(body.title || groups[0]?.name || 'Untitled submission').trim(),
-    contactEmail: String(body.contactEmail || '').trim(),
     groups,
     status: 'pending',
-    thankYouEmail: { status: 'not_requested' },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -467,87 +451,6 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
-}
-
-function buildThankYouMessage(submission, env) {
-  const from = env.MAIL_FROM || 'noreply@nanamicat.com';
-  const replyTo = env.REPLY_TO || 'support@nanamicat.com';
-  const title = submission.title;
-  const nickname = submission.nickname;
-  const text = [
-    `Hi ${nickname},`,
-    '',
-    `Thank you for leaving the puzzle "${title}" for MeowGrid.`,
-    'Your support helps make the puzzle bank more interesting. I will review the submission before adding it to a future puzzle set.',
-    '',
-    'Have fun playing today.',
-    'MeowGrid',
-  ].join('\n');
-
-  return {
-    from: `MeowGrid <${from}>`,
-    to: [submission.contactEmail],
-    reply_to: replyTo,
-    subject: 'Thank you for submitting a MeowGrid puzzle',
-    text,
-    html: [
-      `<p>Hi ${escapeHtml(nickname)},</p>`,
-      `<p>Thank you for leaving the puzzle "<strong>${escapeHtml(title)}</strong>" for MeowGrid.</p>`,
-      '<p>Your support helps make the puzzle bank more interesting. I will review the submission before adding it to a future puzzle set.</p>',
-      '<p>Have fun playing today.<br />MeowGrid</p>',
-    ].join(''),
-  };
-}
-
-async function sendThankYouEmail(submission, env) {
-  if (!submission.contactEmail) return { status: 'not_requested' };
-
-  const from = env.MAIL_FROM || 'noreply@nanamicat.com';
-  if (!env.RESEND_API_KEY) {
-    return {
-      status: 'not_configured',
-      error: 'RESEND_API_KEY is not configured.',
-      from,
-      provider: 'resend',
-    };
-  }
-
-  try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${env.RESEND_API_KEY}`,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(buildThankYouMessage(submission, env)),
-    });
-
-    const responseText = await response.text();
-    if (!response.ok) {
-      return {
-        status: 'failed',
-        error: responseText || `Resend API returned ${response.status}`,
-        from,
-        provider: 'resend',
-      };
-    }
-
-    const result = responseText ? JSON.parse(responseText) : {};
-    return {
-      status: 'sent',
-      sentAt: new Date().toISOString(),
-      from,
-      provider: 'resend',
-      messageId: result.id,
-    };
-  } catch (error) {
-    return {
-      status: 'failed',
-      error: error.message,
-      from,
-      provider: 'resend',
-    };
-  }
 }
 
 async function handleRequest(request, env) {
@@ -568,7 +471,6 @@ async function handleRequest(request, env) {
     const validationError = validateSubmission(body);
     if (validationError) return json({ error: validationError }, 400);
     const submission = normalizeSubmission(body);
-    submission.thankYouEmail = await sendThankYouEmail(submission, env);
     await insertSubmission(env, submission);
     return json({ submission }, 201);
   }
@@ -718,50 +620,27 @@ async function handleRequest(request, env) {
       const body = await request.json();
       const nickname = cleanNickname(body.nickname || 'Guest');
       const playerId = String(body.playerId || '').trim() || null;
-      const contactEmail = normalizeEmail(body.email);
       const groups = normalizeGroups(body.groups);
       const title = deriveSubmissionTitle({ title: body.title, groups, nickname });
       const now = new Date().toISOString();
       const id = newId('submission');
 
       await env.DB.prepare(`
-        INSERT INTO puzzle_submissions (id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
-      `).bind(id, playerId, nickname, contactEmail, title, JSON.stringify(groups), now, now).run();
-
-      let email = { attempted: false, sent: false };
-      if (contactEmail) {
-        const thankYou = await sendThankYouEmail({
-          id,
-          nickname,
-          title,
-          contactEmail,
-          groups,
-          status: 'pending',
-          thankYouEmail: { status: 'not_requested' },
-          createdAt: now,
-          updatedAt: now,
-        }, env);
-        email = {
-          attempted: thankYou.status !== 'not_requested',
-          sent: thankYou.status === 'sent',
-          reason: thankYou.error,
-        };
-      }
+        INSERT INTO puzzle_submissions (id, player_id, nickname, title, groups_json, status, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, 'pending', ?, ?)
+      `).bind(id, playerId, nickname, title, JSON.stringify(groups), now, now).run();
 
       return json({
         submission: {
           id,
           player_id: playerId,
           nickname,
-          contact_email: contactEmail,
           title,
           groups,
           status: 'pending',
           created_at: now,
           updated_at: now,
         },
-        email,
       }, 201);
     } catch (error) {
       const badRequest = /required|must|needs|characters|invalid|group|submission/i.test(error.message);
@@ -771,7 +650,7 @@ async function handleRequest(request, env) {
 
   if (path === '/api/puzzles' && request.method === 'GET') {
     const result = await env.DB.prepare(`
-      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      SELECT id, player_id, nickname, title, groups_json, status, created_at, updated_at
       FROM puzzle_submissions
       ORDER BY updated_at ASC, created_at ASC
     `).all();
@@ -837,7 +716,7 @@ async function handleRequest(request, env) {
   if (path === '/api/admin/puzzles' && request.method === 'GET') {
     if (!await requireAdmin(request, env)) return json({ error: 'Admin access required.' }, 403);
     const result = await env.DB.prepare(`
-      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      SELECT id, player_id, nickname, title, groups_json, status, created_at, updated_at
       FROM puzzle_submissions
       ORDER BY created_at DESC
       LIMIT 100
@@ -893,7 +772,7 @@ async function handleRequest(request, env) {
         `).bind(status, now, adminPuzzleMatch[1]).run();
     if (!updated.meta?.changes) return json({ error: 'Submission not found' }, 404);
     const row = await env.DB.prepare(`
-      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      SELECT id, player_id, nickname, title, groups_json, status, created_at, updated_at
       FROM puzzle_submissions WHERE id = ?
     `).bind(adminPuzzleMatch[1]).first();
     return json({ submission: serializeSubmission(row) });
@@ -958,7 +837,7 @@ async function handleRequest(request, env) {
         ).bind(status, updatedAt, match[1]).run();
     if (Number(updated.meta?.changes || 0) === 0) return json({ error: '投稿不存在。' }, 404);
     const row = await env.DB.prepare(`
-      SELECT id, player_id, nickname, contact_email, title, groups_json, status, created_at, updated_at
+      SELECT id, player_id, nickname, title, groups_json, status, created_at, updated_at
       FROM puzzle_submissions WHERE id = ?
     `).bind(match[1]).first();
     return json({ submission: serializeSubmission(row) });

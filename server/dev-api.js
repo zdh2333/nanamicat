@@ -15,13 +15,6 @@ function cleanNickname(value) {
   return nickname;
 }
 
-function normalizeEmail(value) {
-  const email = String(value || "").trim().toLowerCase();
-  if (!email) return null;
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("Invalid email format");
-  return email;
-}
-
 function normalizeGroups(groups) {
   if (!Array.isArray(groups) || !groups.length) {
     throw new Error("Puzzle submissions must contain at least 1 group");
@@ -330,7 +323,6 @@ export function mountDevApi(app, dataDir, { adminKey = "", allowOpenAdmin = fals
         id: newId("submission"),
         player_id: String(request.body.playerId || "").trim() || null,
         nickname,
-        contact_email: normalizeEmail(request.body.email),
         title,
         groups,
         groups_json: JSON.stringify(groups),
@@ -343,7 +335,6 @@ export function mountDevApi(app, dataDir, { adminKey = "", allowOpenAdmin = fals
       await writeJson(submissionsFile, submissions);
       response.status(201).json({
         submission: serializeSubmission(submission),
-        email: { attempted: false, sent: false }
       });
     } catch (error) {
       response.status(400).json({ error: error.message });

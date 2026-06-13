@@ -13,7 +13,7 @@
 // logical key for analytics, and look up the real numeric id from a
 // runtime config object (window.NANAMICAT_ADS_CONFIG.slots) before pushing.
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { trackAdSlotView, trackAdEnabledSession } from "./analytics.js";
 
 const DEFAULT_ENABLED = false;
@@ -46,13 +46,31 @@ export default function AdSlot({ slotName, reservedHeight = 120, className = "",
   const adsEnabled = config.enabled && config.clientId;
   // Numeric AdSense unit id. Falls back to undefined → we render placeholder.
   const slotId = config.slots ? config.slots[slotName] : undefined;
+  const insRef = useRef(null);
+  const pushedRef = useRef(false);
 
   useEffect(() => {
     trackAdSlotView({ slotName, pagePath: typeof location !== "undefined" ? location.pathname : "/" });
     trackAdEnabledSession(adsEnabled);
-    // We do not push to adsbygoogle here — that gets enabled explicitly once
-    // the AdSense client ID is real. The empty reservation below keeps CLS at 0.
   }, [slotName, adsEnabled]);
+
+  // Activate the ad. React does NOT execute a <script> rendered in JSX, so the
+  // adsbygoogle.push() MUST happen here in an effect once the <ins> is mounted.
+  // Without this the reserved <ins> is inserted but never filled and stays blank.
+  useEffect(() => {
+    if (!adsEnabled || !slotId) return;
+    if (pushedRef.current) return; // guard against StrictMode double-invoke
+    const el = insRef.current;
+    // Only push for an <ins> that hasn't already been processed by AdSense.
+    if (el && el.getAttribute("data-adsbygoogle-status")) return;
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      pushedRef.current = true;
+    } catch (e) {
+      // A single failed slot must never break the page.
+      if (typeof console !== "undefined") console.warn("adsbygoogle push failed", e);
+    }
+  }, [adsEnabled, slotId]);
 
   if (!adsEnabled || !slotId) {
     // Production-but-ads-off, or dev, or the slot has no real numeric id yet.
@@ -81,18 +99,13 @@ export default function AdSlot({ slotName, reservedHeight = 120, className = "",
       style={{ minHeight: `${height}px` }}
     >
       <ins
+        ref={insRef}
         className="adsbygoogle"
         style={{ display: "block", minHeight: `${height}px`, width: "100%" }}
         data-ad-client={config.clientId}
         data-ad-slot={slotId}
         data-ad-format="auto"
         data-full-width-responsive="true"
-      />
-      <script
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: "(adsbygoogle = window.adsbygoogle || []).push({});"
-        }}
       />
     </div>
   );
