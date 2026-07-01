@@ -1,0 +1,49 @@
+name: Daily Find Cat Scenes
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-find-cat
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate two daily Find the Cat scenes
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_IMAGE_MODEL: ${{ vars.GEMINI_IMAGE_MODEL || 'gemini-3.1-flash-lite-image' }}
+        run: npm run daily:find-cat
+
+      - name: Commit generated scenes
+        run: |
+          if git diff --quiet -- daily/data/find-cat-scenes.json public/find-cat; then
+            echo "No new Find the Cat scenes to commit."
+            exit 0
+          fi
+          git config user.name "nanamicat-bot"
+          git config user.email "bot@nanamicat.com"
+          git add daily/data/find-cat-scenes.json public/find-cat
+          git commit -m "chore(find-cat): add daily scenes"
+          git push

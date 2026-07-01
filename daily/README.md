@@ -7,7 +7,7 @@
 
 ## 1. 一句话任务
 
-`daily/generate.mjs` 可以调用 OpenAI 生成新文字题和真实图片题，自动校验唯一解并写入项目仓库。当前仓库尚未配置 `OPENAI_API_KEY` 或定时工作流，因此它不会自动运行，`daily/data/` 目前也是空题库。
+`daily/generate.mjs` 可以调用 OpenAI 生成新文字题和真实图片题，自动校验唯一解并写入项目仓库。`scripts/generate-find-cat-daily.mjs` 专门生成 Nanami Cat Daily 的“寻找猫咪”每日图片：每天固定 2 张，风格统一，历史 `sceneId` 不重复。
 
 ---
 
@@ -18,6 +18,8 @@
 | **图题元数据** | `daily/data/image-puzzles.json` | JSON，含 4 档难度数组，每档当日新增的题。spec 格式与 `puzzles.js` 一致：`name\|url1,url2,url3,url4` |
 | **文字题元数据** | `daily/data/text-puzzles.json` | JSON，结构同 `main.jsx` 的 `simpleTextPuzzles`（4 维数组，每维 4 项） |
 | **生成的图片** | `public/daily-puzzles/<YYYY-MM-DD>/<difficulty>-<puzzleIndex>/g<groupIndex>-<variant>.jpg` | 每天 1 个子目录，10 道图题 × 16 张 = 160 张/天 |
+| **找猫元数据** | `daily/data/find-cat-scenes.json` | JSON，记录每天 2 张找猫图、目标坐标、提示、风格 ID、生成 prompt |
+| **找猫图片** | `public/find-cat/<YYYY-MM-DD>/scene-1.png` / `scene-2.png` | 每天固定 2 张；只有显式 `--write-mock` 才会写 SVG 占位图 |
 | **构建产物** | `dist/` | 由 Cloudflare Pages 在下次 push 时自动重建（无需本任务触碰） |
 
 ### 路径示例
@@ -57,6 +59,19 @@ node daily/generate.mjs --text=10 --image=10
 
 # 指定要往哪一档难度加图题（默认循环分配）
 node daily/generate.mjs --image-distribution=2,3,3,2  # yellow,green,blue,purple
+
+# 寻找猫咪：每天固定生成两张
+npm run daily:find-cat
+
+# 寻找猫咪干跑：不花 API 额度，只打印计划，不写文件
+npm run daily:find-cat:dry-run
+
+# 需要本地 UI QA 占位图时才写 mock SVG
+node scripts/generate-find-cat-daily.mjs --dry-run --write-mock
+
+# 指定日期或提交上传
+node scripts/generate-find-cat-daily.mjs --date=2026-07-02 --count=2
+DAILY_FIND_CAT_COMMIT=1 npm run daily:find-cat
 ```
 
 工作目录必须是 **项目根** `C:\Users\qwe\Documents\Codex\2026-06-03\build-web-apps-plugin-build-web`（或 git 仓库根），脚本会自己定位 `daily/` 和 `public/daily-puzzles/`。
@@ -80,9 +95,12 @@ Windows Task Scheduler：每天 00:00:00
 | 变量 | 必填 | 说明 |
 |---|---|---|
 | `OPENAI_API_KEY` | ✅ | OpenAI 官方 key，付费账户。`gpt-4o-mini` 调题，`gpt-image-2` 出图 |
+| `GEMINI_API_KEY` | ✅（找猫） | Gemini key，用于 `scripts/generate-find-cat-daily.mjs` 生成每日找猫图片 |
+| `GEMINI_IMAGE_MODEL` | ⭕ | 默认 `gemini-3.1-flash-lite-image` |
 | `GIT_AUTHOR_NAME` | ⭕ | git commit 作者名，默认 `nanamicat-bot` |
 | `GIT_AUTHOR_EMAIL` | ⭕ | git commit 作者邮箱，默认 `bot@nanamicat.com` |
 | `DAILY_IMAGE_DISTRIBUTION` | ⭕ | 例 `2,3,3,2`，不传则循环分配 4 档 |
+| `DAILY_FIND_CAT_COMMIT` | ⭕ | 设为 `1` 时，找猫脚本会 `git add/commit/push`，交给 Cloudflare Pages 自动部署 |
 
 ### 配在哪里
 

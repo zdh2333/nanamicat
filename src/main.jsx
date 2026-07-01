@@ -1,20 +1,26 @@
 import React, { useEffect, useLayoutEffect, useMemo, useState, useRef, lazy, Suspense, Component } from "react";
 import { createRoot } from "react-dom/client";
+import findCatSceneData from "../daily/data/find-cat-scenes.json" with { type: "json" };
 import {
   Check,
+  Cat,
+  Clock3,
   Dices,
+  Download,
   Globe2,
   HelpCircle,
+  Image as ImageIcon,
   Palette,
   PenLine,
   RotateCcw,
+  Search,
   Share2,
   Sparkles,
   Trophy,
+  Upload,
   X
 } from "lucide-react";
 import "./styles.css";
-import StickyAdBar from "./StickyAdBar.jsx";
 import {
   buildTextPuzzles,
   getTodayIndex,
@@ -93,6 +99,42 @@ class ErrorBoundary extends Component {
 }
 
 const DEFAULT_MAX_MISTAKES = 4;
+const FALLBACK_FIND_CAT_TARGET = { x: 76, y: 64 };
+
+function dailyFindCatScenes(date) {
+  const scenes = Array.isArray(findCatSceneData?.scenes)
+    ? findCatSceneData.scenes
+        .filter((scene) => scene?.date === date && scene?.imageUrl)
+        .sort((a, b) => Number(a.slot || 0) - Number(b.slot || 0))
+        .slice(0, 2)
+    : [];
+  if (scenes.length >= 2) return scenes;
+  const fallback = [
+    {
+      id: `${date}-fallback-1`,
+      date,
+      slot: 1,
+      sceneId: "fallback-cozy-room-leafy-right",
+      imageUrl: "/nanami-cat-room.png",
+      target: FALLBACK_FIND_CAT_TARGET,
+      hitRadius: 10,
+      hint: "Nanami loves leafy corners.",
+      title: "Cozy Room"
+    },
+    {
+      id: `${date}-fallback-2`,
+      date,
+      slot: 2,
+      sceneId: "fallback-cozy-room-leafy-right-b",
+      imageUrl: "/nanami-cat-room.png",
+      target: FALLBACK_FIND_CAT_TARGET,
+      hitRadius: 10,
+      hint: "Nanami is still near the quiet leafy corner.",
+      title: "Cozy Room Encore"
+    }
+  ];
+  return [...scenes, ...fallback].slice(0, 2);
+}
 
 const hintEconomy = {
   initialBalance: 3,
@@ -197,6 +239,28 @@ function NanamiCatMascot({ size = "header", showCelebration = false, className =
       loading={size === "celebration" || size === "empty" ? "lazy" : "eager"}
       style={{ display: "block", objectFit: "contain", width: `${dim}px`, height: `${dim}px` }}
     />
+  );
+}
+
+function CatMark({ variant = "peek", coat = "black", size = "md", label = "" }) {
+  return (
+    <span
+      className={`cat-mark cat-mark--${variant} cat-mark--${coat} cat-mark--${size}`}
+      aria-label={label || undefined}
+      aria-hidden={label ? undefined : "true"}
+      role={label ? "img" : undefined}
+    >
+      <span className="cat-mark__tail" />
+      <span className="cat-mark__ear cat-mark__ear--left" />
+      <span className="cat-mark__ear cat-mark__ear--right" />
+      <span className="cat-mark__face">
+        <span className="cat-mark__spot" />
+        <span className="cat-mark__eye cat-mark__eye--left" />
+        <span className="cat-mark__eye cat-mark__eye--right" />
+      </span>
+      <span className="cat-mark__paw cat-mark__paw--left" />
+      <span className="cat-mark__paw cat-mark__paw--right" />
+    </span>
   );
 }
 
@@ -727,6 +791,11 @@ function resolveViewFromPath(pathname) {
   if (pathname.startsWith("/admin") || pathname.startsWith("/control-panel")) {
     return { view: "admin", pinnedDate: null };
   }
+  if (pathname === "/" || pathname === "") return { view: "home", pinnedDate: null };
+  if (pathname.startsWith("/find-cat")) return { view: "find-cat", pinnedDate: null };
+  if (pathname.startsWith("/mood")) return { view: "mood", pinnedDate: null };
+  if (pathname.startsWith("/meme")) return { view: "meme", pinnedDate: null };
+  if (pathname.startsWith("/word-categories") || pathname.startsWith("/game")) return { view: "game", pinnedDate: null };
   if (pathname.startsWith("/leaderboard")) return { view: "leaderboard", pinnedDate: null };
   if (pathname.startsWith("/contribute")) return { view: "contribute", pinnedDate: null };
   if (pathname.startsWith("/archive")) return { view: "archive", pinnedDate: null };
@@ -802,6 +871,7 @@ function App() {
   const [theme, setTheme] = useState(() => getStored("nanamicat.theme", "default"));
   const initialRoute = resolveViewFromPath(location.pathname);
   const [view, setView] = useState(initialRoute.view);
+  const [homePanel, setHomePanel] = useState("daily");
   const [pinnedDate, setPinnedDate] = useState(initialRoute.pinnedDate);
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [boardShuffleSeed, setBoardShuffleSeed] = useState(0);
@@ -831,6 +901,31 @@ function App() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [adminPuzzles, setAdminPuzzles] = useState([]);
   const [adminScores, setAdminScores] = useState([]);
+  const [findCatStarted, setFindCatStarted] = useState(false);
+  const [findCatStartedAt, setFindCatStartedAt] = useState(null);
+  const [findCatElapsedMs, setFindCatElapsedMs] = useState(0);
+  const [findCatFound, setFindCatFound] = useState(false);
+  const [findCatGaveUp, setFindCatGaveUp] = useState(false);
+  const [findCatClicks, setFindCatClicks] = useState(0);
+  const [findCatHint, setFindCatHint] = useState(false);
+  const [findCatClickMarks, setFindCatClickMarks] = useState([]);
+  const [findCatSceneIndex, setFindCatSceneIndex] = useState(0);
+  const [findCatSolvedSceneIds, setFindCatSolvedSceneIds] = useState([]);
+  const [moodChoice, setMoodChoice] = useState("curious");
+  const [moodResult, setMoodResult] = useState(null);
+  const [memeTone, setMemeTone] = useState("office");
+  const [memeCaption, setMemeCaption] = useState("Meeting? I thought you said feeding.");
+  const [memeCaptionList, setMemeCaptionList] = useState([
+    "Meeting? I thought you said feeding.",
+    "I excel in napping and overthinking.",
+    "My desk. My rules. My nap schedule.",
+    "9 to 5? More like nap to snack."
+  ]);
+  const [memeCaptionLoading, setMemeCaptionLoading] = useState(false);
+  const [memeImageUrl, setMemeImageUrl] = useState("");
+  const [memeUploadName, setMemeUploadName] = useState("");
+  const [toolNotice, setToolNotice] = useState("");
+  const [tapBursts, setTapBursts] = useState([]);
   const [form, setForm] = useState(() => ({
     groups: [{ name: "", words: "" }]
   }));
@@ -841,8 +936,14 @@ function App() {
   // — without this, the persist effect can briefly write a blank board
   // before the restore effect gets a chance to read from localStorage.
   const resumeAppliedFor = useRef(null);
+  const lastTapBurstRef = useRef({ at: 0, x: -9999, y: -9999 });
 
   const t = copy[locale];
+  const todayIso = getTodayIsoDate();
+  const findCatScenes = useMemo(() => dailyFindCatScenes(todayIso), [todayIso]);
+  const activeFindCatScene = findCatScenes[Math.min(findCatSceneIndex, findCatScenes.length - 1)] || findCatScenes[0];
+  const activeFindCatTarget = activeFindCatScene?.target || FALLBACK_FIND_CAT_TARGET;
+  const findCatSolvedCount = findCatSolvedSceneIds.filter((id) => findCatScenes.some((scene) => scene.id === id)).length;
   const englishTerms = catalog?.englishPuzzleTerms ?? {};
   const maxMistakes = catalog?.maxMistakes ?? DEFAULT_MAX_MISTAKES;
   const currentIndex = pool.length ? puzzleIndex % pool.length : 0;
@@ -957,9 +1058,23 @@ function App() {
   }, [helpOpen]);
 
   useEffect(() => {
+    if (!findCatStarted || findCatFound || !findCatStartedAt) return undefined;
+    const id = window.setInterval(() => {
+      setFindCatElapsedMs(Date.now() - findCatStartedAt);
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [findCatStarted, findCatFound, findCatStartedAt]);
+
+  useEffect(() => {
+    if (findCatSceneIndex < findCatScenes.length) return;
+    setFindCatSceneIndex(0);
+  }, [findCatSceneIndex, findCatScenes.length]);
+
+  useEffect(() => {
     function onPopState() {
       const next = resolveViewFromPath(location.pathname);
       setView(next.view);
+      setHomePanel("daily");
       setPinnedDate(next.pinnedDate);
     }
     window.addEventListener("popstate", onPopState);
@@ -1128,6 +1243,11 @@ function App() {
     const today = getTodayIsoDate();
 
     const titles = {
+      home: `${baseAppName} Daily - Find Cats, Make Cat Cards, Play Word Categories`,
+      "home-word": `Word Categories - ${baseAppName} Daily`,
+      "find-cat": `Find the Cat - ${baseAppName} Daily`,
+      mood: `Cat Mood Card - ${baseAppName} Daily`,
+      meme: `Cat Meme Maker - ${baseAppName} Daily`,
       game: pinnedDate
         ? `${pinnedDate} · ${baseAppName} - ${locale === "zh" ? "每日文字分类谜题" : (locale === "ja" ? "毎日のことばパズル" : "Daily Word Puzzle")}`
         : seo.home.title,
@@ -1145,6 +1265,11 @@ function App() {
     };
 
     const descriptions = {
+      home: `${baseAppName} Daily is a daily cat fun hub: find the hidden cat, generate a cat mood card, make cat memes, and keep playing the original word categories puzzle.`,
+      "home-word": `${baseAppName} Daily keeps the original word categories puzzle as a home page section: sort 16 words into 4 hidden groups.`,
+      "find-cat": `Play today's hidden cat challenge on ${baseAppName} Daily. Find the cat, beat your time, and share your result.`,
+      mood: `Generate today's cat mood card on ${baseAppName} Daily with a shareable cat personality result.`,
+      meme: `Turn a cat photo into a shareable meme caption on ${baseAppName} Daily.`,
       game: pinnedDate
         ? (locale === "zh"
             ? `${pinnedDate} 的 ${baseAppName} 文字分类谜题:把 16 个词分成 4 组,免费,无需注册。`
@@ -1165,10 +1290,23 @@ function App() {
       admin: "Admin panel"
     };
 
-    const currentView = view;
+    const currentView = view === "home" && homePanel === "word" ? "home-word" : view;
     const nextTitle = titles[currentView] || titles.game;
     const nextDescription = descriptions[currentView] || descriptions.game;
-    const pathForView = currentView === "today" ? "/today" : "/";
+    const viewPaths = {
+      home: "/",
+      "home-word": "/",
+      "find-cat": "/find-cat",
+      mood: "/mood",
+      meme: "/meme",
+      game: pinnedDate ? `/puzzle/${pinnedDate}` : "/word-categories",
+      today: "/today",
+      archive: "/archive",
+      leaderboard: "/leaderboard",
+      contribute: "/contribute",
+      admin: "/control-panel"
+    };
+    const pathForView = viewPaths[currentView] || "/";
     const nextUrl = `${seo.siteUrl}${pathForView}?lang=${locale}`;
 
     if (document.title !== nextTitle) document.title = nextTitle;
@@ -1217,14 +1355,14 @@ function App() {
     // home/game and today views (renderTodayInfoSection). Only emit it
     // where that block is actually on the page so the structured data
     // never lies about the page content.
-    if (currentView === "game" || currentView === "today") {
+    if (currentView === "game" || currentView === "today" || currentView === "home-word") {
       const faqSchema = buildFaqSchema(locale);
       if (faqSchema) injectJsonLd("schema-faq", faqSchema);
       else removeJsonLd("schema-faq");
     } else {
       removeJsonLd("schema-faq");
     }
-  }, [view, pinnedDate, locale]);
+  }, [view, homePanel, pinnedDate, locale]);
 
   useEffect(() => {
     loadLeaderboard({ showError: view === "leaderboard" });
@@ -1565,11 +1703,16 @@ function App() {
 
   function setRoute(nextView, options = {}) {
     setView(nextView);
+    setHomePanel("daily");
     const nextPinned = options.pinnedDate ?? null;
     setPinnedDate(nextPinned);
     setApiNotice("");
     const paths = {
-      game: nextPinned ? `/puzzle/${nextPinned}` : "/",
+      home: "/",
+      "find-cat": "/find-cat",
+      mood: "/mood",
+      meme: "/meme",
+      game: nextPinned ? `/puzzle/${nextPinned}` : "/word-categories",
       today: "/today",
       archive: "/archive",
       leaderboard: "/leaderboard",
@@ -1579,9 +1722,745 @@ function App() {
     history.pushState(null, "", paths[nextView] ?? "/");
   }
 
+  function openHomeWordGame() {
+    setView("home");
+    setHomePanel("word");
+    setPinnedDate(null);
+    setApiNotice("");
+    if (location.pathname !== "/") {
+      history.pushState(null, "", "/");
+    }
+  }
+
+  function navigatePrimary(id) {
+    if (id === "game") {
+      openHomeWordGame();
+      return;
+    }
+    setRoute(id);
+  }
+
+  const dailyCopy = {
+    zh: {
+      today: "今日",
+      homeLead: "每天一个猫猫小挑战，一张今日猫格卡，再加一个可以分享的猫图梗。",
+      todayChallenge: "今日猫猫挑战",
+      challengeLead: "在这间暖黄色小屋里找到 Nanami。用时越短越好。",
+      start: "开始寻找",
+      playWord: "玩原来的词组分类",
+      streak: "连续",
+      avgTime: "昨日平均 18 秒",
+      modules: "今日功能",
+      findCat: "找猫",
+      mood: "猫格卡",
+      meme: "梗图",
+      word: "词组分类",
+      wordDesc: "16 个词，4 个隐藏组",
+      moodTitle: "今日猫格",
+      moodLead: "选一个状态，生成今天适合分享的猫格卡。",
+      memeTitle: "猫图梗图",
+      memeLead: "上传猫图，选择语气，生成短句。",
+      archiveTitle: "每日记录",
+      archiveLead: "历史题、排行榜和原创投稿都保留在原系统里。"
+    },
+    en: {
+      today: "Today",
+      homeLead: "Find one hidden cat, draw a daily mood card, and make one cat meme worth sharing.",
+      todayChallenge: "Today's cat challenge",
+      challengeLead: "Nanami is hiding in a warm little room. Find her fast and keep your streak.",
+      start: "Start challenge",
+      playWord: "Play Word Categories",
+      streak: "Streak",
+      avgTime: "Yesterday avg 18s",
+      modules: "Daily options",
+      findCat: "Find Cat",
+      mood: "Mood Card",
+      meme: "Meme Maker",
+      word: "Word Categories",
+      wordDesc: "16 words, 4 hidden groups",
+      moodTitle: "Today's Cat Mood",
+      moodLead: "Pick a state and generate a square share card.",
+      memeTitle: "Cat Meme Maker",
+      memeLead: "Upload a cat photo, choose a tone, get short captions.",
+      archiveTitle: "Daily record",
+      archiveLead: "Archive, scores, and community submissions stay in the original system."
+    },
+    ja: {
+      today: "今日",
+      homeLead: "隠れた猫を探して、今日の猫カードを作って、猫ミームをシェア。",
+      todayChallenge: "今日の猫チャレンジ",
+      challengeLead: "あたたかい部屋にナナミが隠れています。早く見つけよう。",
+      start: "チャレンジ開始",
+      playWord: "ことばパズルへ",
+      streak: "連続",
+      avgTime: "昨日平均 18秒",
+      modules: "今日のメニュー",
+      findCat: "猫探し",
+      mood: "猫カード",
+      meme: "ミーム",
+      word: "ことば分類",
+      wordDesc: "16語、4つの隠れた組",
+      moodTitle: "今日の猫気分",
+      moodLead: "気分を選んで、シェア用カードを作ります。",
+      memeTitle: "猫ミーム作成",
+      memeLead: "猫写真とトーンを選んで短いキャプションを生成。",
+      archiveTitle: "毎日の記録",
+      archiveLead: "履歴、ランキング、投稿は元のシステムに残っています。"
+    }
+  }[locale] || {};
+
+  const moodCards = {
+    sleepy: { title: "Sleepy Oracle Cat", color: "Lavender dusk", action: "Cancel one unnecessary hurry.", quote: "Move slowly. Notice everything." },
+    curious: { title: "Window Watcher Cat", color: "Honey gold", action: "Follow the small clue first.", quote: "Sit still until the world explains itself." },
+    dramatic: { title: "Tiny Stage Cat", color: "Soft rose", action: "Make one ordinary thing theatrical.", quote: "If it matters, enter with a tail flick." },
+    hungry: { title: "Snack Inspector Cat", color: "Sage green", action: "Check the bowl before the inbox.", quote: "A good plan starts with a small treat." },
+    bossy: { title: "Desk Manager Cat", color: "Sky blue", action: "Move the task into your sunniest spot.", quote: "Approve nothing until it earns a nap." }
+  };
+
+  const memeCaptions = {
+    cute: "Small paws. Big plans.",
+    grumpy: "I heard everything. I approve nothing.",
+    dramatic: "This meeting could have been a nap.",
+    office: "Meeting? I thought you said feeding.",
+    japanese: "今日は、猫が正しい。"
+  };
+
+  const memeCaptionFallbacks = {
+    cute: ["Small paws. Big plans.", "Just a tiny boss with soft beans.", "Certified snack supervisor.", "Purrfectly innocent. Mostly."],
+    grumpy: ["I heard everything. I approve nothing.", "This face says no meetings.", "Touch the bowl, then we talk.", "My patience is currently buffering."],
+    dramatic: ["This meeting could have been a nap.", "Behold, the tragedy of an empty bowl.", "I require applause and tuna.", "A tiny crisis, performed daily."],
+    office: ["Meeting? I thought you said feeding.", "I excel in napping and overthinking.", "My desk. My rules. My nap schedule.", "9 to 5? More like nap to snack."],
+    japanese: ["今日は、猫が正しい。", "会議より、ひなたぼっこ。", "おやつの時間を守りましょう。", "この顔、承認待ちです。"]
+  };
+
+  function renderHubMascotScene(scene = activeFindCatScene) {
+    return (
+      <div className="cat-room" aria-hidden="true">
+        <img className="cat-room__image" src={scene?.imageUrl || "/nanami-cat-room.png"} alt="" decoding="async" />
+      </div>
+    );
+  }
+
+  function renderHome() {
+    const features = [
+      { id: "find-cat", label: "Find the Cat", desc: "Find the hidden cat in a cozy scene. New challenge every day.", cta: "Play Now", cat: "hunter", coat: "black", tone: "green", route: "find-cat" },
+      { id: "mood", label: "Cat Mood Card", desc: "Discover today's cat mood and get a shareable personality card.", cta: "Get My Card", cat: "star", coat: "cow", tone: "pink", route: "mood" },
+      { id: "meme", label: "Cat Meme Maker", desc: "Upload your cat photo and generate purr-fect captions.", cta: "Make a Meme", cat: "camera", coat: "black", tone: "blue", route: "meme" },
+      { id: "word", label: "Word Categories", desc: dailyCopy.wordDesc, cta: "Play Now", cat: "puzzle", coat: "cow", tone: "purple", route: "game" }
+    ];
+    return (
+      <section className="daily-home">
+        <div className="daily-hero-grid">
+          <article className="daily-challenge">
+            <div className="daily-section-label"><span>{dailyCopy.todayChallenge}</span><CatMark variant="star" coat="cow" size="sm" /></div>
+            <div className="daily-challenge__body">
+              <div>
+                <h2>Find the Cat</h2>
+                <p>Two cat scenes are prepared for today. Find Nanami in both.</p>
+                <div className="daily-challenge__perks">
+                  <span><CatMark variant="timer" coat="cow" /> <strong>Estimated Time</strong><small>2-4 minutes</small></span>
+                  <span><CatMark variant="crown" coat="black" /> <strong>Streak Bonus</strong><small>+1 fire</small></span>
+                </div>
+                <div className="daily-action-row">
+                  <button type="button" className="primary daily-primary" onClick={() => setRoute("find-cat")}>
+                    <CatMark variant="hunter" coat="black" /> Start Challenge
+                  </button>
+                </div>
+              </div>
+              {renderHubMascotScene()}
+            </div>
+          </article>
+
+          <aside className="daily-side">
+            <article className="daily-status-card daily-status-card--today">
+              <div className="daily-status-icon"><CatMark variant="calendar" coat="cow" size="lg" /></div>
+              <div>
+              <h2>Today is {todayIso}</h2>
+              <p>Two Find the Cat scenes refresh with the daily set.</p>
+              </div>
+              <NanamiCatMascot size="empty" altText="Nanami Cat" />
+            </article>
+            <article className="daily-status-card">
+              <div className="daily-status-card__head">
+                <h2>My Status</h2>
+                <button type="button" onClick={() => setRoute("leaderboard")}><CatMark variant="peek" coat="cow" size="sm" /> View all</button>
+              </div>
+              <div className="daily-status-stats">
+                <span><CatMark variant="crown" coat="black" size="sm" /><strong>{streak.current || 0}</strong><small>Day Streak</small></span>
+                <span><CatMark variant="hunter" coat="cow" size="sm" /><strong>{recentCompletions.length}</strong><small>Challenges</small></span>
+                <span><CatMark variant="star" coat="black" size="sm" /><strong>0</strong><small>Favorites</small></span>
+              </div>
+            </article>
+            <article className="daily-status-card">
+              <div className="daily-status-card__head">
+                <h2>Recent Achievements</h2>
+                <button type="button" onClick={() => setRoute("archive")}><CatMark variant="sleep" coat="cow" size="sm" /> View all</button>
+              </div>
+              <div className="achievement-row">
+                <NanamiCatMascot size="mini" altText="Nanami Cat" />
+                <div><strong>Curious Explorer</strong><small>Complete 10 Find the Cat challenges</small></div>
+                <CatMark variant="crown" coat="black" size="sm" />
+              </div>
+            </article>
+          </aside>
+        </div>
+
+        <div className="daily-fun-heading">
+          <h2><CatMark variant="home" coat="black" size="lg" /> Daily Cat Fun</h2>
+          <p>Four ways to enjoy your daily dose of cat happiness.</p>
+        </div>
+        <section className="daily-feature-row" aria-label={dailyCopy.modules}>
+          {features.map(({ id, label, desc, cat, coat, tone, route }) => (
+            <button key={id} type="button" className={`daily-feature daily-feature--${tone}`} onClick={() => route === "game" ? openHomeWordGame() : setRoute(route)}>
+              <span className="daily-feature__icon"><CatMark variant={cat} coat={coat} /></span>
+              <span className={`daily-feature__art daily-feature__art--${id}`} aria-hidden="true">
+                {id === "word" ? (
+                  Array.from({ length: 16 }).map((_, index) => <i key={index}>{["PAWS", "FISH", "RUG", "TOY"][index % 4]}</i>)
+                ) : (
+                  <NanamiCatMascot size={id === "find-cat" ? "empty" : "celebration"} altText="" />
+                )}
+              </span>
+              <strong>{label}</strong>
+              <small>{desc}</small>
+              <em>{features.find((item) => item.id === id)?.cta}</em>
+            </button>
+          ))}
+        </section>
+
+        <section className="daily-made-strip">
+          <NanamiCatMascot size="mini" altText="Nanami Cat" />
+          <span>Made with heart for cat lovers, by cat lovers.</span>
+        </section>
+      </section>
+    );
+  }
+
+  function renderHomeWordGame() {
+    return (
+      <section className="home-word-panel" aria-labelledby="home-word-title">
+        <div className="home-word-panel__head">
+          <div className="home-word-panel__title">
+            <CatMark variant="puzzle" coat="cow" size="xl" />
+            <div>
+              <h2 id="home-word-title">{dailyCopy.word}</h2>
+              <p>{dailyCopy.wordDesc}. {locale === "zh" ? "这是原来的词组分类游戏，现在作为主页里的子页面保留。" : (locale === "ja" ? "元のことば分類ゲームを、ホーム内のページとして残しています。" : "The original word categories game now stays inside the home page.")}</p>
+            </div>
+          </div>
+          <button type="button" className="daily-secondary" onClick={() => setHomePanel("daily")}>
+            <CatMark variant="home" coat="black" size="sm" />
+            {locale === "zh" ? "返回主页" : (locale === "ja" ? "ホームへ戻る" : "Back home")}
+          </button>
+        </div>
+
+        <section className="toolbar home-word-toolbar" aria-label="Game settings">
+          <div className="theme-picker">
+            <Palette size={16} />
+            {themes.map((item) => (
+              <button key={item.id} type="button" className={theme === item.id ? "active" : ""} onClick={() => setTheme(item.id)}>
+                {item[locale]}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {apiNotice && <p className="notice" role="status">{apiNotice}</p>}
+        {renderGameBoardInline()}
+        {!pinnedDate && renderTodayInfoSection()}
+      </section>
+    );
+  }
+
+  function renderHomeHeader() {
+    return (
+      <header className="home-header">
+        <div className="home-brand">
+          <NanamiCatMascot size="gameHeader" altText="Nanami Cat Daily" />
+          <h1>Nanami Cat Daily</h1>
+        </div>
+        <nav className="home-nav" aria-label="Primary">
+          {[
+            ["home", "Home", "home", "black"],
+            ["game", "Word Categories", "puzzle", "cow"],
+            ["archive", "Archive", "sleep", "cow"],
+            ["leaderboard", "Leaderboard", "crown", "black"],
+            ["mood", "My Favorites", "star", "cow"]
+          ].map(([id, label, cat, coat]) => (
+            <button
+              key={id}
+              type="button"
+              className={(id === "home" ? view === "home" && homePanel === "daily" : id === "game" ? view === "home" && homePanel === "word" : view === id) ? "active" : ""}
+              onClick={() => navigatePrimary(id)}
+            >
+              <CatMark variant={cat} coat={coat} size="sm" /> {label}
+            </button>
+          ))}
+        </nav>
+        <div className="home-header-tools">
+          <div
+            className="lang-switch"
+            role="group"
+            aria-label={locale === "zh" ? "语言" : locale === "ja" ? "言語" : "Language"}
+          >
+            <Globe2 size={14} className="lang-switch__icon" aria-hidden="true" />
+            <div className="lang-switch__track">
+              <span className="lang-switch__thumb" data-active={locale} aria-hidden="true" />
+              {[
+                { id: "zh", label: "中文" },
+                { id: "en", label: "EN" },
+                { id: "ja", label: "日本語" }
+              ].map((opt) => (
+                <button key={opt.id} type="button" className="lang-switch__btn" onClick={() => setLocale(opt.id)} aria-pressed={locale === opt.id}>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <span className="home-streak">fire {streak.current || 0}<small>day streak</small></span>
+        </div>
+      </header>
+    );
+  }
+
+  function renderToolNav(active) {
+    const items = [
+      ["home", "Today", "home", "black"],
+      ["find-cat", "Find the Cat", "hunter", "black"],
+      ["mood", "Mood Card", "star", "cow"],
+      ["meme", "Meme Maker", "camera", "black"],
+      ["game", "Word Categories", "puzzle", "cow"]
+    ];
+    return (
+      <aside className="daily-tool-nav">
+        {items.map(([id, label, cat, coat]) => (
+          <button key={id} type="button" className={active === id ? "active" : ""} onClick={() => navigatePrimary(id)}>
+            <CatMark variant={cat} coat={coat} size="sm" /> {label}
+          </button>
+        ))}
+      </aside>
+    );
+  }
+
+  function formatToolTime(ms) {
+    const seconds = Math.max(0, Math.floor(ms / 1000));
+    const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
+    const ss = String(seconds % 60).padStart(2, "0");
+    return `${mm}:${ss}`;
+  }
+
+  function startFindCatChallenge() {
+    const now = Date.now();
+    setFindCatStarted(true);
+    setFindCatStartedAt(now);
+    setFindCatElapsedMs(0);
+    setFindCatFound(findCatSolvedSceneIds.includes(activeFindCatScene?.id));
+    setFindCatGaveUp(false);
+    setFindCatClicks(0);
+    setFindCatHint(false);
+    setFindCatClickMarks([]);
+    setToolNotice("");
+  }
+
+  function selectFindCatScene(index) {
+    const nextScene = findCatScenes[index];
+    if (!nextScene) return;
+    setFindCatSceneIndex(index);
+    setFindCatStarted(false);
+    setFindCatStartedAt(null);
+    setFindCatElapsedMs(0);
+    setFindCatFound(findCatSolvedSceneIds.includes(nextScene.id));
+    setFindCatGaveUp(false);
+    setFindCatClicks(0);
+    setFindCatHint(false);
+    setFindCatClickMarks([]);
+    setToolNotice("");
+  }
+
+  function finishFindCat({ gaveUp = false } = {}) {
+    const now = Date.now();
+    const startedAt = findCatStartedAt || now;
+    const elapsed = findCatStarted ? now - startedAt : 0;
+    if (!findCatStarted) {
+      setFindCatStarted(true);
+      setFindCatStartedAt(startedAt);
+    }
+    setFindCatElapsedMs(elapsed);
+    setFindCatFound(true);
+    setFindCatGaveUp(gaveUp);
+    if (!gaveUp && activeFindCatScene?.id) {
+      setFindCatSolvedSceneIds((current) => current.includes(activeFindCatScene.id) ? current : [...current, activeFindCatScene.id]);
+    }
+    setToolNotice(gaveUp ? `Nanami was hiding in scene ${activeFindCatScene?.slot || findCatSceneIndex + 1}.` : `Found scene ${activeFindCatScene?.slot || findCatSceneIndex + 1} in ${formatToolTime(elapsed)}.`);
+  }
+
+  function downloadCanvas(filename, draw) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1080;
+    const ctx = canvas.getContext("2d");
+    draw(ctx, canvas);
+    const link = document.createElement("a");
+    link.download = filename;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }
+
+  function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = String(text).split(/\s+/);
+    let line = "";
+    let cursor = y;
+    for (const word of words) {
+      const test = line ? `${line} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        ctx.fillText(line, x, cursor);
+        line = word;
+        cursor += lineHeight;
+      } else {
+        line = test;
+      }
+    }
+    if (line) ctx.fillText(line, x, cursor);
+  }
+
+  function drawShareCanvasFrame(ctx, canvas, title) {
+    ctx.fillStyle = "#f8f1e4";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "#12345f";
+    ctx.lineWidth = 18;
+    ctx.strokeRect(38, 38, canvas.width - 76, canvas.height - 76);
+    ctx.fillStyle = "#12345f";
+    ctx.font = '700 58px "Nunito Sans", "Noto Sans SC", "Noto Sans JP", sans-serif';
+    ctx.textAlign = "center";
+    ctx.fillText(title, canvas.width / 2, 130);
+  }
+
+  function downloadMoodCard() {
+    const active = moodResult || moodCards[moodChoice];
+    downloadCanvas("nanami-cat-mood-card.png", (ctx, canvas) => {
+      drawShareCanvasFrame(ctx, canvas, "Nanami Cat Daily");
+      ctx.fillStyle = "#fdebf2";
+      ctx.fillRect(110, 180, 860, 740);
+      ctx.strokeStyle = "#12345f";
+      ctx.lineWidth = 8;
+      ctx.strokeRect(110, 180, 860, 740);
+      ctx.fillStyle = "#12345f";
+      ctx.font = '700 72px "Nunito Sans", "Noto Sans SC", "Noto Sans JP", sans-serif';
+      ctx.fillText(active.title, canvas.width / 2, 300);
+      ctx.font = '500 42px "Nunito Sans", "Noto Sans SC", "Noto Sans JP", sans-serif';
+      drawWrappedText(ctx, active.quote, 210, 405, 660, 54);
+      ctx.font = '700 42px "Nunito Sans", "Noto Sans SC", "Noto Sans JP", sans-serif';
+      ctx.fillText(`Lucky color: ${active.color}`, canvas.width / 2, 650);
+      ctx.fillText(`Lucky action: ${active.action}`, canvas.width / 2, 720);
+      ctx.font = '500 34px "Nunito Sans", "Noto Sans SC", "Noto Sans JP", sans-serif';
+      ctx.fillText("nanamicat.com", canvas.width / 2, 860);
+    });
+  }
+
+  function downloadMemeCard() {
+    downloadCanvas("nanami-cat-meme.png", (ctx, canvas) => {
+      drawShareCanvasFrame(ctx, canvas, "Nanami Cat Meme");
+      ctx.fillStyle = "#eee0d1";
+      ctx.fillRect(130, 190, 820, 620);
+      ctx.strokeStyle = "#12345f";
+      ctx.lineWidth = 8;
+      ctx.strokeRect(130, 190, 820, 620);
+      ctx.fillStyle = "#12345f";
+      ctx.font = '700 58px "Nunito Sans", "Noto Sans SC", "Noto Sans JP", sans-serif';
+      drawWrappedText(ctx, memeCaption, 220, 690, 640, 68);
+      ctx.font = '500 34px "Nunito Sans", "Noto Sans SC", "Noto Sans JP", sans-serif';
+      ctx.textAlign = "center";
+      ctx.fillText(memeUploadName || "Cat photo ready", canvas.width / 2, 855);
+      ctx.fillText("nanamicat.com", canvas.width / 2, 910);
+    });
+  }
+
+  async function shareToolText(text) {
+    try {
+      if (navigator.share) {
+        await navigator.share({ text, title: "Nanami Cat Daily" });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        setToolNotice("Share text copied.");
+      }
+    } catch {
+      setToolNotice("Share cancelled.");
+    }
+  }
+
+  async function shareFindCatResult() {
+    const status = findCatGaveUp ? "gave up" : `found Nanami in ${formatToolTime(findCatElapsedMs)}`;
+    await shareToolText(`Nanami Cat Daily ${todayIso} scene ${activeFindCatScene?.slot || findCatSceneIndex + 1}: I ${status} after ${findCatClicks} click(s). https://nanamicat.com/find-cat`);
+  }
+
+  async function shareMemeCard() {
+    await shareToolText(`Nanami Cat Daily meme: ${memeCaption} https://nanamicat.com/meme`);
+  }
+
+  function generateMoodCard() {
+    setMoodResult(moodCards[moodChoice]);
+    setToolNotice(`Generated ${moodCards[moodChoice].title}.`);
+  }
+
+  async function generateMemeCaptions(nextTone = memeTone) {
+    const fallback = memeCaptionFallbacks[nextTone] || memeCaptionFallbacks.office;
+    setMemeCaptionLoading(true);
+    setToolNotice("Generating captions...");
+    try {
+      const payload = await api("/api/meme-captions", {
+        method: "POST",
+        body: JSON.stringify({ tone: nextTone, locale })
+      });
+      const captions = Array.isArray(payload.captions) && payload.captions.length ? payload.captions.slice(0, 4) : fallback;
+      setMemeCaptionList(captions);
+      setMemeCaption(captions[0]);
+      setToolNotice(payload.source === "gemini" ? "Gemini captions generated." : "Captions generated with local fallback.");
+    } catch {
+      setMemeCaptionList(fallback);
+      setMemeCaption(fallback[0]);
+      setToolNotice("Captions generated with local fallback.");
+    } finally {
+      setMemeCaptionLoading(false);
+    }
+  }
+
+  function handleMemeUpload(event) {
+    const file = event.currentTarget.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setMemeImageUrl(String(reader.result || ""));
+      setMemeUploadName(file.name);
+      setToolNotice(`Loaded ${file.name}.`);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleInterfaceTap(event) {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const target = event.target instanceof Element
+      ? event.target.closest("button, .feature-upload, .upload-box, a[href]")
+      : null;
+    if (!target || target.matches(":disabled")) return;
+    const point = event.touches?.[0] || event.changedTouches?.[0] || event;
+    if (!Number.isFinite(point.clientX) || !Number.isFinite(point.clientY)) return;
+    const now = Date.now();
+    const last = lastTapBurstRef.current;
+    if (now - last.at < 80 && Math.abs(point.clientX - last.x) < 3 && Math.abs(point.clientY - last.y) < 3) return;
+    lastTapBurstRef.current = { at: now, x: point.clientX, y: point.clientY };
+    const id = `${Date.now()}-${Math.round(point.clientX)}-${Math.round(point.clientY)}`;
+    setTapBursts((current) => [...current.slice(-7), { id, x: point.clientX, y: point.clientY }]);
+    window.setTimeout(() => {
+      setTapBursts((current) => current.filter((item) => item.id !== id));
+    }, 620);
+  }
+
+  function renderFeatureBoard(activeView = view) {
+    function onFindClick(event) {
+      if (!findCatStarted || findCatFound) return;
+      const rect = event.currentTarget.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      const hit = Math.hypot(x - activeFindCatTarget.x, y - activeFindCatTarget.y) < Number(activeFindCatScene?.hitRadius || 10);
+      const markId = `${Date.now()}-${Math.round(x * 10)}-${Math.round(y * 10)}`;
+      setFindCatClickMarks((current) => [...current.slice(-5), { id: markId, x, y, hit }]);
+      window.setTimeout(() => {
+        setFindCatClickMarks((current) => current.filter((mark) => mark.id !== markId));
+      }, hit ? 1600 : 900);
+      setFindCatClicks((current) => current + 1);
+      if (hit) finishFindCat();
+    }
+    const active = moodResult || moodCards[moodChoice];
+    return (
+      <section className="feature-board">
+        <aside className="feature-sidebar">
+          <div className="feature-sidebar__brand">
+            <NanamiCatMascot size="gameHeader" altText="Nanami Cat Daily" />
+            <h1>Nanami<br />Cat Daily</h1>
+          </div>
+          {[
+            ["home", "Home", "home", "black"],
+            ["find-cat", "Find the Cat", "hunter", "black"],
+            ["mood", "Cat Mood Card", "star", "cow"],
+            ["meme", "Cat Meme Maker", "camera", "black"],
+            ["game", "Word Categories", "puzzle", "cow"],
+            ["archive", "Daily Log", "sleep", "black"],
+            ["leaderboard", "Scores", "crown", "cow"]
+          ].map(([id, label, cat, coat]) => (
+            <button key={id} type="button" className={activeView === id ? "active" : ""} onClick={() => navigatePrimary(id)}>
+              <CatMark variant={cat} coat={coat} size="sm" /> {label}
+            </button>
+          ))}
+          <div className="feature-sidebar__streak">
+            <strong>fire {streak.current || 0} Day Streak</strong>
+            <span>Sun Mon Tue Wed Thu Fri Sat</span>
+          </div>
+        </aside>
+
+        <section className="feature-panel feature-panel--find">
+          <div className="feature-panel__title">
+            <CatMark variant="hunter" coat="black" size="xl" />
+            <div>
+              <h2>Find the Cat</h2>
+              <span className="sketch-underline" />
+            </div>
+            <button type="button" onClick={() => setFindCatHint(true)}><CatMark variant="whisker" coat="cow" size="sm" /> Hint</button>
+          </div>
+          <div className="find-cat-topline feature-metrics">
+            <span><CatMark variant="timer" coat="cow" size="sm" /> Time <strong>{formatToolTime(findCatElapsedMs)}</strong></span>
+            <span><CatMark variant="paw" coat="black" size="sm" /> Clicks <strong>{findCatClicks}</strong></span>
+            <span><CatMark variant="hunter" coat="cow" size="sm" /> Progress <strong>{findCatSolvedCount} / {findCatScenes.length}</strong></span>
+            <span><CatMark variant="crown" coat="black" size="sm" /> Streak <strong>{streak.current || 0}</strong></span>
+          </div>
+          <div className="feature-callout">
+            <span><CatMark variant="peek" coat="cow" size="sm" /> Find Nanami in scene {activeFindCatScene?.slot || findCatSceneIndex + 1} of {findCatScenes.length}.</span>
+            <button type="button" onClick={() => finishFindCat({ gaveUp: true })}><CatMark variant="hide" coat="black" size="sm" /> Give Up</button>
+          </div>
+          <div className="find-cat-scene-switch" role="group" aria-label="Daily Find the Cat scenes">
+            {findCatScenes.map((scene, index) => (
+              <button
+                key={scene.id}
+                type="button"
+                className={index === findCatSceneIndex ? "active" : ""}
+                onClick={() => selectFindCatScene(index)}
+                aria-pressed={index === findCatSceneIndex}
+              >
+                <CatMark variant={index === 0 ? "peek" : "hide"} coat={index === 0 ? "black" : "cow"} size="sm" />
+                Scene {scene.slot || index + 1}
+                {findCatSolvedSceneIds.includes(scene.id) && <CatMark variant="keeper" coat="black" size="sm" />}
+              </button>
+            ))}
+          </div>
+          <button type="button" className={`feature-find-image${findCatFound ? " is-found" : ""}`} onClick={onFindClick}>
+            {renderHubMascotScene(activeFindCatScene)}
+            {findCatClickMarks.map((mark) => (
+              <span
+                key={mark.id}
+                className={`find-cat-click-mark${mark.hit ? " is-hit" : ""}`}
+                style={{ left: `${mark.x}%`, top: `${mark.y}%` }}
+                aria-hidden="true"
+              />
+            ))}
+            {findCatHint && <span className="find-cat-hint">{activeFindCatScene?.hint || "Nanami loves leafy corners."}</span>}
+            {findCatFound && (
+              <span
+                className="find-cat-found"
+                style={{ left: `${activeFindCatTarget.x}%`, top: `${activeFindCatTarget.y}%` }}
+              >
+                Found Nanami
+              </span>
+            )}
+          </button>
+          <div className="feature-panel__actions">
+            <button type="button" className="primary" onClick={startFindCatChallenge}>
+              <CatMark variant="hunter" coat="black" size="sm" /> {findCatStarted ? "Restart Scene" : "Start Scene"}
+            </button>
+            {findCatFound && <button type="button" onClick={shareFindCatResult}><CatMark variant="share" coat="cow" size="sm" /> Share Result</button>}
+            <p>Tip: Nanami loves cozy spots and quiet corners.</p>
+          </div>
+        </section>
+
+        <section className="feature-panel feature-panel--mood">
+          <div className="feature-panel__title">
+            <CatMark variant="star" coat="cow" size="xl" />
+            <div>
+              <h2>Cat Mood Card</h2>
+              <span className="sketch-underline sketch-underline--pink" />
+            </div>
+          </div>
+          <p className="feature-step">1. Choose a mood</p>
+          <div className="feature-mood-row">
+            {Object.keys(moodCards).map((id) => (
+              <button key={id} type="button" className={moodChoice === id ? "active" : ""} onClick={() => setMoodChoice(id)}>
+                <NanamiCatMascot size="mini" altText="" />
+                <span>{id}</span>
+              </button>
+            ))}
+          </div>
+          <p className="feature-step">2. Your Mood Card</p>
+          <div className="feature-mood-card">
+            <h3>{active.title}</h3>
+            <div className="feature-mood-art">
+              <NanamiCatMascot size="celebration" altText="Nanami Cat" />
+            </div>
+            <dl>
+              <div><dt>Lucky Color</dt><dd>{active.color}</dd></div>
+              <div><dt>Lucky Action</dt><dd>{active.action}</dd></div>
+            </dl>
+            <p>{active.quote}</p>
+          </div>
+          <div className="feature-panel__actions feature-panel__actions--split">
+            <button type="button" onClick={generateMoodCard}><CatMark variant="spin" coat="cow" size="sm" /> Shuffle Again</button>
+            <button type="button" className="primary" onClick={downloadMoodCard}><CatMark variant="keeper" coat="black" size="sm" /> Save Card</button>
+          </div>
+        </section>
+
+        <section className={`feature-panel feature-panel--meme${memeCaptionLoading ? " is-loading" : ""}`}>
+          <div className="feature-panel__title">
+            <CatMark variant="camera" coat="black" size="xl" />
+            <div>
+              <h2>Cat Meme Maker</h2>
+              <span className="sketch-underline sketch-underline--purple" />
+            </div>
+          </div>
+          <p className="feature-step">1. Upload your cat photo</p>
+          <div className="feature-upload-row">
+            <label className={`feature-upload${memeImageUrl ? " has-file" : ""}`}>
+              <CatMark variant="upload" coat="cow" size="lg" />
+              <span>{memeUploadName || "Drag & drop or click to upload"}</span>
+              <input type="file" accept="image/*" onChange={handleMemeUpload} />
+            </label>
+            <div className={`feature-photo-thumb${memeImageUrl ? " has-image" : ""}`}>
+              {memeImageUrl ? <img src={memeImageUrl} alt="Uploaded cat preview" /> : <NanamiCatMascot size="celebration" altText="Nanami Cat" />}
+            </div>
+          </div>
+          <p className="feature-step">2. Choose a tone</p>
+          <div className="feature-tone-row">
+            {Object.keys(memeCaptions).map((id) => (
+              <button key={id} type="button" className={memeTone === id ? "active" : ""} disabled={memeCaptionLoading} onClick={() => { setMemeTone(id); generateMemeCaptions(id); }}>
+                <CatMark
+                  variant={{ cute: "peek", grumpy: "boss", dramatic: "star", office: "tie", japanese: "bow" }[id] || "peek"}
+                  coat={id === "grumpy" || id === "office" ? "black" : "cow"}
+                  size="sm"
+                />
+                {id}
+              </button>
+            ))}
+          </div>
+          <p className="feature-step">3. {memeCaptionLoading ? "Generating captions" : "Generated captions"}</p>
+          <div className="feature-caption-list">
+            {memeCaptionList.map((caption) => (
+              <button key={caption} type="button" className={caption === memeCaption ? "active" : ""} onClick={() => setMemeCaption(caption)}>{caption}</button>
+            ))}
+          </div>
+          <p className="feature-step">4. Your meme</p>
+          <div className="feature-meme-card">
+            {memeImageUrl ? <img src={memeImageUrl} alt="Uploaded cat meme preview" /> : <NanamiCatMascot size="celebration" altText="Nanami Cat" />}
+            <strong key={memeCaption}>{memeCaption}</strong>
+          </div>
+          <div className="feature-panel__actions feature-panel__actions--split">
+            <button type="button" onClick={downloadMemeCard}><CatMark variant="keeper" coat="cow" size="sm" /> Download</button>
+            <button type="button" className="primary" onClick={shareMemeCard}><CatMark variant="share" coat="black" size="sm" /> Share</button>
+          </div>
+        </section>
+        {toolNotice && <p className="feature-toast" role="status">{toolNotice}</p>}
+      </section>
+    );
+  }
+
+  function renderFindCat() {
+    return renderFeatureBoard("find-cat");
+  }
+
+  function renderMood() {
+    return renderFeatureBoard("mood");
+  }
+
+  function renderMeme() {
+    return renderFeatureBoard("meme");
+  }
+
   function openArchivePuzzle(date) {
     if (!date) {
-      setRoute("game");
+      openHomeWordGame();
       return;
     }
     setRoute("game", { pinnedDate: date });
@@ -2044,8 +2923,21 @@ function App() {
     );
   }
 
+  const isHomeWordPanel = view === "home" && homePanel === "word";
+
   return (
-    <main className="page">
+    <main
+      className={`page${view === "home" ? " page-home" : ""}${isHomeWordPanel ? " page-home-word" : ""}${["find-cat", "mood", "meme"].includes(view) ? " page-feature-board" : ""}`}
+      onPointerDownCapture={handleInterfaceTap}
+      onMouseDownCapture={handleInterfaceTap}
+      onTouchStartCapture={handleInterfaceTap}
+    >
+      <div className="tap-burst-layer" aria-hidden="true">
+        {tapBursts.map((burst) => (
+          <span key={burst.id} className="tap-burst" style={{ left: `${burst.x}px`, top: `${burst.y}px` }} />
+        ))}
+      </div>
+      {view === "home" ? renderHomeHeader() : (["find-cat", "mood", "meme"].includes(view) ? null : (
       <header className="app-header">
         <section className="hero">
           <div className="brand-lockup">
@@ -2054,13 +2946,17 @@ function App() {
               <p className="kicker">{t.kicker}</p>
               <h1>
                 <span className="title-doodle-wrap">
-                  {t.appName}
+                  Nanami Cat Daily
                   <svg className="title-doodle" viewBox="0 0 80 36" fill="none" aria-hidden="true">
                     <ellipse cx="40" cy="18" rx="37" ry="14.5" stroke="var(--primary)" strokeWidth="2.5" strokeOpacity="0.35" strokeLinecap="round" strokeDasharray="3 2" fill="none" pathLength="100" />
                   </svg>
                 </span>
               </h1>
-              <p className="meta">{puzzleLabel(puzzle, locale)} / {puzzleTheme(puzzle, locale, englishTerms)} / {overallDifficulty.label}: {overallDifficulty.value}</p>
+              <p className="meta">
+                {view === "game" || view === "today"
+                  ? `${puzzleLabel(puzzle, locale)} / ${puzzleTheme(puzzle, locale, englishTerms)} / ${overallDifficulty.label}: ${overallDifficulty.value}`
+                  : dailyCopy.homeLead}
+              </p>
             </div>
           </div>
           <div className="hero-tools">
@@ -2115,12 +3011,16 @@ function App() {
             <HelpCircle size={16} /> {locale === "zh" ? "玩法" : (locale === "ja" ? "遊び方" : "How to play")}
           </button>
           {[
-            ["today", locale === "zh" ? "今日" : (locale === "ja" ? "今日" : "Today"), Sparkles],
+            ["home", dailyCopy.today, Cat],
+            ["find-cat", dailyCopy.findCat, Search],
+            ["mood", dailyCopy.mood, Sparkles],
+            ["meme", dailyCopy.meme, ImageIcon],
+            ["game", dailyCopy.word, Dices],
             ["archive", locale === "zh" ? "历史" : (locale === "ja" ? "履歴" : "Archive"), Sparkles],
             ["leaderboard", t.leaderboard, Trophy],
             ["contribute", t.contribute, PenLine]
           ].map(([id, label, Icon]) => (
-            <button key={id} type="button" className={view === id ? "active" : ""} onClick={() => setRoute(id)}>
+            <button key={id} type="button" className={view === id ? "active" : ""} onClick={() => navigatePrimary(id)}>
               <Icon size={16} /> {label}
             </button>
           ))}
@@ -2131,8 +3031,17 @@ function App() {
           )}
         </nav>
       </header>
+      ))}
 
-      {apiNotice && <p className="notice" role="status">{apiNotice}</p>}
+      {apiNotice && !["home", "find-cat", "mood", "meme"].includes(view) && <p className="notice" role="status">{apiNotice}</p>}
+
+      {view === "home" && (homePanel === "word" ? renderHomeWordGame() : renderHome())}
+
+      {view === "find-cat" && renderFindCat()}
+
+      {view === "mood" && renderMood()}
+
+      {view === "meme" && renderMeme()}
 
       {view === "game" && (
         <>
@@ -2541,6 +3450,5 @@ function App() {
 createRoot(document.getElementById("root")).render(
   <ErrorBoundary>
     <App />
-    <StickyAdBar slotName="page-bottom" reservedHeight={90} />
   </ErrorBoundary>
 );

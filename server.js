@@ -13,9 +13,18 @@ const scoresFile = path.join(dataDir, 'scores.json');
 const port = Number(process.env.PORT || 4173);
 const isProduction = process.env.NODE_ENV === 'production';
 const adminKey = process.env.ADMIN_KEY || '';
+const geminiApiKey = process.env.GEMINI_API_KEY || '';
+const geminiModel = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const groupColors = ['yellow', 'green', 'blue', 'purple'];
 const scoreKeyPattern = /^(text-(built-in-\d+|community-\d+)|image-(yellow|green|blue|purple)-(yellow|green|blue|purple)-\d+)$/;
 const rateLimits = new Map();
+const memeToneFallbacks = {
+  cute: ['Small paws. Big plans.', 'Just a tiny boss with soft beans.', 'Certified snack supervisor.', 'Purrfectly innocent. Mostly.'],
+  grumpy: ['I heard everything. I approve nothing.', 'This face says no meetings.', 'Touch the bowl, then we talk.', 'My patience is currently buffering.'],
+  dramatic: ['This meeting could have been a nap.', 'Behold, the tragedy of an empty bowl.', 'I require applause and tuna.', 'A tiny crisis, performed daily.'],
+  office: ['Meeting? I thought you said feeding.', 'I excel in napping and overthinking.', 'My desk. My rules. My nap schedule.', '9 to 5? More like nap to snack.'],
+  japanese: ['今日は、猫が正しい。', '会議より、ひなたぼっこ。', 'おやつの時間を守りましょう。', 'この顔、承認待ちです。']
+};
 
 async function readSubmissions() {
   try {
@@ -64,6 +73,65 @@ function consumeRateLimit(request, bucket, limit, windowSeconds) {
     }
   }
   return true;
+}
+
+function fallbackMemeCaptions(tone = 'office') {
+  return memeToneFallbacks[tone] || memeToneFallbacks.office;
+}
+
+function sanitizeMemeCaptions(value, tone = 'office') {
+  const raw = Array.isArray(value)
+    ? value
+    : String(value || '')
+      .split(/\n|(?<=\.)\s+/)
+      .map((line) => line.replace(/^[-*\d.\s"']+|["']+$/g, '').trim());
+  const captions = [];
+  for (const item of raw) {
+    const caption = String(item || '').replace(/\s+/g, ' ').trim();
+    if (!caption || caption.length > 90 || captions.includes(caption)) continue;
+    captions.push(caption);
+    if (captions.length >= 4) break;
+  }
+  return captions.length ? captions : fallbackMemeCaptions(tone);
+}
+
+function buildMemePrompt({ tone = 'office', locale = 'en' } = {}) {
+  const language = locale === 'ja' || tone === 'japanese'
+    ? 'Japanese'
+    : locale === 'zh'
+      ? 'Simplified Chinese'
+      : 'English';
+  return [
+    'Generate exactly four short cat meme captions for Nanami Cat Daily.',
+    `Tone: ${tone}. Language: ${language}.`,
+    'Each caption must be under 70 characters, playful, safe for all ages, and easy to put on a share card.',
+    'Return only a JSON array of strings. No markdown.'
+  ].join('\n');
+}
+
+async function generateGeminiMemeCaptions({ tone, locale }) {
+  if (!geminiApiKey) return null;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(geminiModel)}:generateContent?key=${encodeURIComponent(geminiApiKey)}`;
+  const geminiResponse = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: buildMemePrompt({ tone, locale }) }] }],
+      generationConfig: {
+        temperature: 0.9,
+        maxOutputTokens: 220,
+        responseMimeType: 'application/json'
+      }
+    })
+  });
+  if (!geminiResponse.ok) throw new Error('Gemini caption generation failed.');
+  const payload = await geminiResponse.json();
+  const text = payload?.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n') || '';
+  try {
+    return sanitizeMemeCaptions(JSON.parse(text), tone);
+  } catch {
+    return sanitizeMemeCaptions(text, tone);
+  }
 }
 
 function publicScoreboard(scores) {
@@ -183,6 +251,24 @@ app.set('trust proxy', 1);
 app.use(express.json({ limit: '100kb' }));
 mountDevApi(app, dataDir, { adminKey, allowOpenAdmin: !isProduction && !adminKey });
 mountStaticPageRoutes(app, isProduction ? path.join(root, 'dist') : path.join(root, 'public'));
+
+app.post('/api/meme-captions', async (request, response) => {
+  if (!consumeRateLimit(request, 'meme-captions', 60, 3600)) {
+    response.status(429).json({ error: 'Too many caption requests. Please try again later.' });
+    return;
+  }
+  const tone = String(request.body?.tone || 'office').trim().toLowerCase();
+  const locale = String(request.body?.locale || 'en').trim().toLowerCase();
+  try {
+    const captions = await generateGeminiMemeCaptions({ tone, locale });
+    response.json({
+      captions: captions || fallbackMemeCaptions(tone),
+      source: captions ? 'gemini' : 'fallback'
+    });
+  } catch {
+    response.json({ captions: fallbackMemeCaptions(tone), source: 'fallback' });
+  }
+});
 
 app.post('/api/submissions', async (request, response) => {
   if (!consumeRateLimit(request, 'submissions', 20, 86400)) {

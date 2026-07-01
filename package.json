@@ -7,6 +7,8 @@
     "dev": "node --env-file-if-exists=.env server.js",
     "build": "node scripts/generate-sitemap.mjs && vite build",
     "start": "node --env-file-if-exists=.env server.js",
+    "daily:find-cat": "node scripts/generate-find-cat-daily.mjs",
+    "daily:find-cat:dry-run": "node scripts/generate-find-cat-daily.mjs --dry-run",
     "test:puzzles": "node scripts/validate-puzzles.mjs",
     "sync:puzzles": "node scripts/sync-puzzle-data.mjs",
     "validate:puzzles": "node scripts/validate-puzzle-manifest.mjs NanamiCat-iOS/NanamiCat/Resources/puzzle-data.json",

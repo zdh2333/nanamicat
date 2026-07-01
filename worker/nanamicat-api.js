@@ -2,6 +2,13 @@ const STATUSES = new Set(['pending', 'reviewed', 'included', 'rejected', 'approv
 const REVIEW_STATUSES = new Set(['pending', 'reviewed', 'included', 'rejected']);
 const GROUP_COLORS = ['yellow', 'green', 'blue', 'purple'];
 const SCORE_KEY_PATTERN = /^(text-(\d{3}|built-in-\d+|community-\d+)|image-(yellow|green|blue|purple)-(yellow|green|blue|purple)-\d+)$/;
+const MEME_TONE_FALLBACKS = {
+  cute: ['Small paws. Big plans.', 'Just a tiny boss with soft beans.', 'Certified snack supervisor.', 'Purrfectly innocent. Mostly.'],
+  grumpy: ['I heard everything. I approve nothing.', 'This face says no meetings.', 'Touch the bowl, then we talk.', 'My patience is currently buffering.'],
+  dramatic: ['This meeting could have been a nap.', 'Behold, the tragedy of an empty bowl.', 'I require applause and tuna.', 'A tiny crisis, performed daily.'],
+  office: ['Meeting? I thought you said feeding.', 'I excel in napping and overthinking.', 'My desk. My rules. My nap schedule.', '9 to 5? More like nap to snack.'],
+  japanese: ['今日は、猫が正しい。', '会議より、ひなたぼっこ。', 'おやつの時間を守りましょう。', 'この顔、承認待ちです。']
+};
 
 // Admin routes are served via CF Access or x-admin-key; do not advertise x-admin-key in CORS.
 const ALLOWED_ORIGINS = new Set(['https://nanamicat.com', 'https://www.nanamicat.com']);
@@ -23,6 +30,66 @@ function json(data, status = 200, extraHeaders = null) {
     status,
     headers: { 'content-type': 'application/json; charset=utf-8', ...(extraHeaders ?? {}) },
   });
+}
+
+function fallbackMemeCaptions(tone = 'office') {
+  return MEME_TONE_FALLBACKS[tone] || MEME_TONE_FALLBACKS.office;
+}
+
+function sanitizeMemeCaptions(value, tone = 'office') {
+  const raw = Array.isArray(value)
+    ? value
+    : String(value || '')
+      .split(/\n|(?<=\.)\s+/)
+      .map((line) => line.replace(/^[-*\d.\s"']+|["']+$/g, '').trim());
+  const captions = [];
+  for (const item of raw) {
+    const caption = String(item || '').replace(/\s+/g, ' ').trim();
+    if (!caption || caption.length > 90 || captions.includes(caption)) continue;
+    captions.push(caption);
+    if (captions.length >= 4) break;
+  }
+  return captions.length ? captions : fallbackMemeCaptions(tone);
+}
+
+function buildMemePrompt({ tone = 'office', locale = 'en' } = {}) {
+  const language = locale === 'ja' || tone === 'japanese'
+    ? 'Japanese'
+    : locale === 'zh'
+      ? 'Simplified Chinese'
+      : 'English';
+  return [
+    'Generate exactly four short cat meme captions for Nanami Cat Daily.',
+    `Tone: ${tone}. Language: ${language}.`,
+    'Each caption must be under 70 characters, playful, safe for all ages, and easy to put on a share card.',
+    'Return only a JSON array of strings. No markdown.'
+  ].join('\n');
+}
+
+async function generateGeminiMemeCaptions(env, { tone, locale }) {
+  if (!env.GEMINI_API_KEY) return null;
+  const model = env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(env.GEMINI_API_KEY)}`;
+  const geminiResponse = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: buildMemePrompt({ tone, locale }) }] }],
+      generationConfig: {
+        temperature: 0.9,
+        maxOutputTokens: 220,
+        responseMimeType: 'application/json'
+      }
+    })
+  });
+  if (!geminiResponse.ok) throw new Error('Gemini caption generation failed.');
+  const payload = await geminiResponse.json();
+  const text = payload?.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n') || '';
+  try {
+    return sanitizeMemeCaptions(JSON.parse(text), tone);
+  } catch {
+    return sanitizeMemeCaptions(text, tone);
+  }
 }
 
 // Map of major CF-reported English city names (and a few aliases) to
@@ -462,6 +529,24 @@ async function handleRequest(request, env) {
   }
 
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
+
+  if (path === '/api/meme-captions' && request.method === 'POST') {
+    if (!await consumeRateLimit(request, env, 'meme-captions', 60, 3600)) {
+      return json({ error: 'Too many caption requests. Please try again later.' }, 429);
+    }
+    const body = await request.json().catch(() => ({}));
+    const tone = String(body?.tone || 'office').trim().toLowerCase();
+    const locale = String(body?.locale || 'en').trim().toLowerCase();
+    try {
+      const captions = await generateGeminiMemeCaptions(env, { tone, locale });
+      return json({
+        captions: captions || fallbackMemeCaptions(tone),
+        source: captions ? 'gemini' : 'fallback'
+      });
+    } catch {
+      return json({ captions: fallbackMemeCaptions(tone), source: 'fallback' });
+    }
+  }
 
   if (path === '/api/submissions' && request.method === 'POST') {
     if (!await consumeRateLimit(request, env, 'submissions', 20, 86400)) {
